@@ -33,14 +33,14 @@ export default function ArticleDetail() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) return <p>Chargement...</p>;
-  if (error) return <p>Erreur : {error}</p>;
-  if (!article) return <p>Article introuvable</p>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error : {error}</p>;
+  if (!article) return <p>Can't find this article</p>;
 
   async function handleDelete() {
   if (!slug) return;
 
-  const confirmDelete = window.confirm('Tu veux vraiment supprimer cet article ?');
+  const confirmDelete = window.confirm('Do you really want to delete this article ?');
   if (!confirmDelete) return;
 
   try {
@@ -61,15 +61,22 @@ export default function ArticleDetail() {
   return (
     <article>
       <p>
-        <Link to="/">← Retour à la liste</Link>
+        <Link to="/">← Back to the list</Link>
       </p>
 
       <h1>{article.title}</h1>
       <p>{article.content}</p>
-
-      <button type="button" onClick={handleDelete}>
-        Supprimer
-      </button>
+      <p>
+        <Link to="/" className="btn btn-secondary">
+        ← Back to the list
+        </Link>{' '}
+        <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary">
+          Edit
+        </Link>{' '}
+        <button type="button" className="btn btn-danger" onClick={handleDelete}>
+          Delete
+        </button>
+      </p>
     </article>
   );
 }

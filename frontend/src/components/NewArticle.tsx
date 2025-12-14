@@ -28,10 +28,10 @@ export default function NewArticle() {
 
   return (
     <form onSubmit={handleSubmit}>
-      {error && <p>Erreur : {error}</p>}
+      {error && <p>Error : {error}</p>}
 
       <div>
-        <label>Titre</label>
+        <label>Title</label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -39,14 +39,14 @@ export default function NewArticle() {
       </div>
 
       <div>
-        <label>Contenu</label>
+        <label>Content</label>
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
         />
       </div>
 
-      <button type="submit">Créer</button>
+      <button type="submit">Create</button>
     </form>
   );
 }
