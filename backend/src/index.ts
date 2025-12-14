@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import articlesRouter from './routes/articles';
+import { Article } from '../src/models/Article';
 
 dotenv.config(); // charge .env
 
@@ -41,3 +42,18 @@ mongoose
     console.error('MongoDB connection error:', err);
     process.exit(1);
   });
+
+    app.delete('/api/articles/:slug', async (req, res) => {
+      try {
+        const { slug } = req.params;
+        const deleted = await Article.findOneAndDelete({ slug });
+
+        if (!deleted) {
+          return res.status(404).json({ message: 'Article not found' });
+        }
+
+        res.status(204).send(); // pas de contenu
+      } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+      }
+    });
