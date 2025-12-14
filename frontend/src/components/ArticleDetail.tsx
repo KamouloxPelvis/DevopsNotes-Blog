@@ -1,12 +1,14 @@
 // src/components/ArticleDetail.tsx
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { PageLayout } from './PageLayout';
 
 type Article = {
   _id: string;
   title: string;
   content: string;
   slug: string;
+  imageUrl?: string;
 };
 
 type RouteParams = {
@@ -28,8 +30,8 @@ export default function ArticleDetail() {
         if (!res.ok) throw new Error('Erreur HTTP');
         return res.json();
       })
-      .then((data) => setArticle(data))
-      .catch((err) => setError(err.message))
+      .then((data: Article) => setArticle(data))
+      .catch((err: any) => setError(err.message))
       .finally(() => setLoading(false));
   }, [slug]);
 
@@ -38,37 +40,43 @@ export default function ArticleDetail() {
   if (!article) return <p>Can't find this article</p>;
 
   async function handleDelete() {
-  if (!slug) return;
+    if (!slug) return;
 
-  const confirmDelete = window.confirm('Do you really want to delete this article ?');
-  if (!confirmDelete) return;
+    const confirmDelete = window.confirm('Do you really want to delete this article ?');
+    if (!confirmDelete) return;
 
-  try {
-    const res = await fetch(`http://localhost:5000/api/articles/${slug}`, {
-      method: 'DELETE',
-    });
+    try {
+      const res = await fetch(`http://localhost:5000/api/articles/${slug}`, {
+        method: 'DELETE',
+      });
 
-    if (!res.ok && res.status !== 204) {
-      throw new Error('Erreur HTTP');
-    }
+      if (!res.ok && res.status !== 204) {
+        throw new Error('Erreur HTTP');
+      }
 
-      navigate('/'); // retour à la liste
+      navigate('/');
     } catch (err: any) {
       setError(err.message);
     }
   }
 
   return (
-    <article>
-      <p>
-        <Link to="/">← Back to the list</Link>
-      </p>
+    <PageLayout>
+      {article.imageUrl && (
+        <div className="article-detail-image">
+          <img
+            src={`http://localhost:5000${article.imageUrl}`}
+            alt={article.title}
+          />
+        </div>
+      )}
 
       <h1>{article.title}</h1>
       <p>{article.content}</p>
+
       <p>
         <Link to="/" className="btn btn-secondary">
-        ← Back to the list
+          ← Back to the list
         </Link>{' '}
         <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary">
           Edit
@@ -77,6 +85,6 @@ export default function ArticleDetail() {
           Delete
         </button>
       </p>
-    </article>
+    </PageLayout>
   );
 }

@@ -3,7 +3,8 @@ export interface Article {
   title: string;
   slug: string;
   content: string;
-  tags: string[];
+  imageUrl?: string;
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }

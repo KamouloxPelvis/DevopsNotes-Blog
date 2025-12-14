@@ -1,21 +1,154 @@
-.App {
+/* Reset léger & fond global */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #f5f5f5;
+  color: #222;
+}
+
+.global-logo {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+}
+
+.global-logo img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 4px; /* optionnel, si tu veux des coins doux */
+}
+
+/* Container app centré */
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3px 16px 48px;
+}
+
+/* Logo de DevOpsNotes */
+.app-logo-main {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  margin-bottom: 3px;
+}
+
+.layout-with-logo {
+  position: relative;
+}
+
+.app-logo-corner {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  opacity: 0.9;
+}
+
+/* Header */
+.app-header {
   text-align: center;
+  margin-bottom: 32px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.app-header h1 {
+  margin: 0;
+  font-size: 2.2rem;
 }
 
-.App-header {
-  background-color: #ffffff;
-  min-height: 100vh;
+.app-header p {
+  margin: 8px 0 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.articles-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.articles-list-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.articles-list-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: rgb(0, 0, 0);
+  gap: 12px;
+}
+
+.articles-list-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px 14px;
+  background-color: #fafafa;
+  transition: box-shadow 0.15s ease, transform 0.1s ease, background-color 0.15s ease;
+}
+
+.articles-list-item:hover {
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.article-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.article-link h3 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+}
+
+.article-excerpt {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;      /* limite à 3 lignes */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Responsive: bouton plein écran en petit */
+@media (max-width: 600px) {
+  .articles-list-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .articles-list-header .btn {
+    width: 100%;
+  }
+}
+
+/* Zone principale */
+.app-main {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 24px 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  position: relative; /* important pour positionner le logo dedans */
 }
 
 .App-link {
@@ -47,4 +180,168 @@
   background-color: #d32f2f;
   color: #fff;
   border-color: #d32f2f;
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 16px 12px 32px;
+  }
+
+  .app-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .app-main {
+    padding: 16px 14px;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+}
+
+.form-wrapper h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.4rem;
+}
+
+.article-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.form-field input,
+.form-field textarea {
+  font: inherit;
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid #cfcfcf;
+  background-color: #fff;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
+}
+
+.form-field textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Message d’erreur */
+.form-error {
+  margin: 0;
+  padding: 8px 10px;
+  background-color: #ffebee;
+  border: 1px solid #e57373;
+  border-radius: 4px;
+  color: #b71c1c;
+  font-size: 0.9rem;
+}
+
+/* Responsive: boutons full-width sur mobile */
+@media (max-width: 600px) {
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}
+
+.image-preview {
+  margin: 0.75rem auto;
+  max-width: 300px;
+}
+
+.image-preview img {
+  width: 100%;           /* l’image ne dépasse pas 300px */
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+}
+
+.article-detail-image {
+  margin-bottom: 1.75rem;
+  text-align: center;
+}
+
+.article-detail-image img {
+  max-width: 100%;
+  max-height: 380px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+}
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.article-card {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.article-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+}
+
+.article-card-thumb {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.article-card-body {
+  padding: 1.5rem 1.75rem 1.75rem;  /* plus d’air autour du contenu */
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.article-card-body h3 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.article-card-body .btn.btn-primary {
+  align-self: flex-start;
+  padding-inline: 1.2rem;
 }

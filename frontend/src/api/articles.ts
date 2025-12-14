@@ -5,6 +5,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 export interface CreateArticlePayload {
   title: string;
   content: string;
+  imageUrl?: string;
   tags?: string[];
 }
 

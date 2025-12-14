@@ -16,47 +16,6 @@ router.get('/', async (_req, res) => {
   }
 });
 
-// CREATE article
-router.post('/', async (req, res) => {
-  try {
-    const { title, content, tags } = req.body;
-
-    if (!title || !content) {
-      return res.status(400).json({ message: 'Title and content are required' });
-    }
-
-    const slug = generateSlug(title);
-
-    const existing = await Article.findOne({ slug });
-    if (existing) {
-      return res.status(400).json({ message: 'An article with this title already exists' });
-    }
-
-    const article = await Article.create({
-      title,
-      slug,
-      content,
-      tags: tags || []
-    });
-
-    return res.status(201).json(article);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Error creating article' });
-  }
-});
-
-// READ all articles
-router.get('/', async (_req, res) => {
-  try {
-    const articles = await Article.find().sort({ createdAt: -1 });
-    return res.json(articles);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Error fetching articles' });
-  }
-});
-
 // READ one article by slug
 router.get('/:slug', async (req, res) => {
   try {
@@ -71,10 +30,43 @@ router.get('/:slug', async (req, res) => {
   }
 });
 
+// CREATE article
+router.post('/', async (req, res) => {
+  try {
+    const { title, content, imageUrl, tags } = req.body;
+
+    if (!title || !content) {
+      return res.status(400).json({ message: 'Title and content are required' });
+    }
+
+    const slug = generateSlug(title);
+
+    const existing = await Article.findOne({ slug });
+    if (existing) {
+      return res.status(400).json({ message: 'An article with this title already exists' });
+    }
+    
+
+    const article = await Article.create({
+      title,
+      slug,
+      imageUrl,
+      content,
+      tags: tags || []
+    });
+
+    return res.status(201).json(article);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error creating article' });
+  }
+});
+
+
 // UPDATE by slug
 router.put('/:slug', async (req, res) => {
   try {
-    const { title, content, tags } = req.body;
+    const { title, imageUrl, content, tags } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({ message: 'Title and content are required' });
@@ -86,6 +78,7 @@ router.put('/:slug', async (req, res) => {
     }
 
     article.title = title;
+    article.imageUrl = imageUrl || article.imageUrl;
     article.content = content;
     article.tags = tags || article.tags;
 

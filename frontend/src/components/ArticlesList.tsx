@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';          // <-- ajout
+import { Link } from 'react-router-dom';
 import { getArticles } from '../api/articles';
 import { Article } from '../types/articles';
 
@@ -24,20 +24,37 @@ export function ArticlesList() {
   }
 
   return (
-    <div>
-      <p>
-        <Link to="/articles/new">Nouvel article</Link>
-      </p>
+    <div className="articles-list">
+      <div className="articles-list-header">
+        <h2>Articles</h2>
+        <Link to="/articles/new" className="btn btn-primary">
+          New article
+        </Link>
+      </div>
 
-      <ul>
+      <div className="articles-grid">
         {articles.map((article) => (
-          <li key={article._id}>
-            <Link to={`/articles/${article.slug}`}>
-              {article.title}
-            </Link>
-          </li>
+          <div key={article._id} className="article-card">
+            {article.imageUrl && (
+              <img
+                src={`http://localhost:5000${article.imageUrl}`}
+                alt={article.title}
+                className="article-card-thumb"
+              />
+            )}
+
+            <div className="article-card-body">
+              <h3>{article.title}</h3>
+              <p className="article-excerpt">
+                {article.content.slice(0, 120)}…
+              </p>
+              <Link to={`/articles/${article.slug}`} className="btn btn-primary">
+                Read more
+              </Link>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

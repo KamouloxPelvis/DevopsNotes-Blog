@@ -4,7 +4,8 @@ export interface IArticle extends Document {
   title: string;
   slug: string;
   content: string;
-  tags: string[];
+  imageUrl?: string;
+  tags?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,6 +15,7 @@ const ArticleSchema = new Schema<IArticle>(
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     content: { type: String, required: true },
+    imageUrl: { type: String, required: false },
     tags: { type: [String], default: [] }
   },
   { timestamps: true }
