@@ -123,9 +123,12 @@ export function ArticlesList() {
 
             <div className="article-card-body">
               <h3>{article.title}</h3>
+                {article.status === 'draft' && (
+                <span className="badge-draft">Draft</span>
+              )}
               <p className="article-excerpt">
                 {article.content.slice(0, 120)}…
-              </p>
+            </p>
 
               <div className="article-tags">
                 {article.tags?.slice(0, 3).map((tag) => (

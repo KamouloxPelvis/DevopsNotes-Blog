@@ -5,6 +5,7 @@ export interface IArticle extends Document {
   slug: string;
   content: string;
   imageUrl?: string;
+  status: string;
   tags?: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -16,10 +17,14 @@ const ArticleSchema = new Schema<IArticle>(
     slug: { type: String, required: true, unique: true },
     content: { type: String, required: true },
     imageUrl: { type: String, required: false },
+    status: {
+      type: String,
+      enum: ['draft', 'published'],
+      default: 'draft',
+    },
     tags: [{ 
         type: String, 
         lowercase: true, // "docker", "terraform" etc.
-        enum: ['docker', 'terraform', 'azure', 'aws', 'sccm', 'glpi', 'container', 'ci-cd', 'kubernetes', 'monitoring', 'virtualization', 'devops', 'engineers', 'containerization'] 
       }],
     },
   { timestamps: true }

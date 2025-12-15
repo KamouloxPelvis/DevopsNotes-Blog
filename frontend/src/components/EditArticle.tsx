@@ -12,6 +12,7 @@ type Article = {
   title: string;
   content: string;
   tags?: string[];
+  status: 'draft' | 'published';
   imageUrl?: string;
   slug: string;
 };
@@ -31,6 +32,9 @@ export default function EditArticle() {
 
   const [tags, setTags] = useState<string[]>([]);
   const [rawTags, setRawTags] = useState(''); // champ texte brut "docker, containerization"
+
+  const [status, setStatus] = useState<'draft' | 'published'>('draft');
+
   
   const token = getAuthToken();
 
@@ -60,6 +64,7 @@ export default function EditArticle() {
         const existingTags = data.tags || [];
         setTags(existingTags);
         setRawTags(existingTags.join(', '));
+        setStatus((data.status as 'draft' | 'published') || 'draft');
       })
       .catch((err: any) => setError(err.message))
       .finally(() => setLoading(false));
@@ -97,20 +102,28 @@ export default function EditArticle() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!slug) return;
+    console.log('handleSubmit called, status =', status);
 
+    if (!slug) {
+      console.log('No slug, aborting');
+      return;
+    }
     try {
-
+      console.log('No slug, aborting');
       const res = await fetch(`http://localhost:5000/api/articles/${slug}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ title, content, imageUrl, tags }),
+        body: JSON.stringify({ title, content, imageUrl, tags, status }),
       });
+      console.log('Fetch done, status =', res.status);
 
-      if (!res.ok) throw new Error('Erreur HTTP');
+      if (!res.ok) {
+      const errBody = await res.json().catch(() => null);
+      throw new Error(errBody?.message || `HTTP ${res.status}`);
+    }
 
       const updated: Article = await res.json();
       navigate(`/articles/${updated.slug}`);
@@ -153,9 +166,10 @@ export default function EditArticle() {
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Tags (comma-separated)</label>
+        <div className="form-field">
+          <label htmlFor="tags">Tags (comma-separated)</label>
           <input
+            id="tags"
             type="text"
             className="form-control"
             value={rawTags}
@@ -163,6 +177,23 @@ export default function EditArticle() {
             placeholder="docker, kubernetes, ci-cd"
           />
         </div>
+
+        {/* >>> Champ Status commence ici <<< */}
+        <div className="form-field">
+          <label htmlFor="status">Status</label>
+          <select
+            id="status"
+            className="form-control"
+            value={status}
+            onChange={(e) =>
+              setStatus(e.target.value as 'draft' | 'published')
+            }
+          >
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+        </div>
+        {/* <<< fin du bloc Status >>> */}
 
         <div className="form-field">
           <label htmlFor="image">Illustration</label>
@@ -175,7 +206,6 @@ export default function EditArticle() {
               setImageFile(file);
               if (file) {
                 const url = URL.createObjectURL(file);
-                console.log('file picked', file);
                 setImagePreview(url);
               } else {
                 setImagePreview(imageUrl || null);
@@ -185,7 +215,9 @@ export default function EditArticle() {
 
           {imagePreview && (
             <div className="image-preview">
-              <img src={imagePreview} alt="Preview" />
+              <img src={imagePreview} 
+              alt="Preview" 
+              onError={() => setImagePreview(null)} />
             </div>
           )}
 

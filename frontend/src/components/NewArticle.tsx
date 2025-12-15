@@ -14,23 +14,22 @@ export default function NewArticle() {
   const [imageUrl, setImageUrl] = useState<string>(''); // URL renvoyée par /upload
 
   const [tags, setTags] = useState<string[]>([]);
-  const [rawTags, setRawTags] = useState(''); // champ texte brut "docker, containerization"
+  const [rawTags, setRawTags] = useState(''); // "docker, containerization"
 
-  const token = getAuthToken();
-
-
+  const [status, setStatus] = useState<'draft' | 'published'>('draft');
 
 
   const navigate = useNavigate();
+  const token = getAuthToken();
 
   const handleTagsChange = (value: string) => {
     setRawTags(value);
     const normalized = value
       .split(',')
-      .map(t => t.trim().toLowerCase())
-      .filter(t => t.length > 0);
+      .map((t) => t.trim().toLowerCase())
+      .filter((t) => t.length > 0);
     setTags(normalized);
-};
+  };
 
   async function handleUploadImage() {
     if (!imageFile) return;
@@ -42,8 +41,8 @@ export default function NewArticle() {
       const res = await fetch('http://localhost:5000/upload', {
         method: 'POST',
         headers: {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  },
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: formData,
       });
 
@@ -65,17 +64,19 @@ export default function NewArticle() {
     try {
       const res = await fetch('http://localhost:5000/api/articles', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-        ...(token ? { Authorization : `Bearer ${token}` } : {})},
-        body: JSON.stringify({ title, content, imageUrl, tags }),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ title, content, imageUrl, tags, status }),
       });
 
       if (!res.ok) throw new Error('Erreur HTTP');
-        const created = await res.json();
-        navigate(`/articles/${created.slug}`);
+
+      const created = await res.json();
+      navigate(`/articles/${created.slug}`);
     } catch (err: any) {
-        setError(err.message);
+      setError(err.message);
     }
   }
 
@@ -84,7 +85,7 @@ export default function NewArticle() {
       <p>
         <Link to="/" className="btn btn-secondary">
           ← Back to the list
-         </Link>
+        </Link>
       </p>
 
       <h2>New article</h2>
@@ -119,6 +120,17 @@ export default function NewArticle() {
             onChange={(e) => handleTagsChange(e.target.value)}
             placeholder="docker, kubernetes, ci-cd"
           />
+        </div>
+
+        <div className="form-field">
+          <label>Status</label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as 'draft' | 'published')}
+          >
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
         </div>
 
         <div className="form-field">
@@ -164,3 +176,4 @@ export default function NewArticle() {
     </PageLayout>
   );
 }
+

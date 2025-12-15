@@ -7,11 +7,17 @@ import { requireAdmin } from '../middleware/requireAdmin';
 const router = Router();
 
 // GET /api/articles
+// GET /api/articles
 router.get('/', async (_req, res) => {
   try {
-    const articles = await Article.find().sort({ createdAt: -1 });
-    res.json(articles);
-  } catch (err) { 
+    const count = await Article.countDocuments({});
+    console.log('Article.countDocuments =', count);
+
+    const docs = await Article.find({}).limit(5);
+    console.log('Sample docs:', docs);
+
+    res.json(docs);
+  } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error fetching articles' });
   }
@@ -39,7 +45,7 @@ router.get('/:slug', async (req, res) => {
 // CREATE article
 router.post('/', requireAdmin, async (req, res) => {
   try {
-    const { title, content, imageUrl, tags = [] } = req.body;
+    const { title, content, imageUrl, tags = [], status = 'draft' } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({ message: 'Title and content are required' });
@@ -58,7 +64,8 @@ router.post('/', requireAdmin, async (req, res) => {
       slug,
       imageUrl,
       content,
-      tags: tags || []
+      tags: tags || [],
+      status,
     });
 
     return res.status(201).json(article);
@@ -72,34 +79,44 @@ router.post('/', requireAdmin, async (req, res) => {
 // UPDATE by slug
 router.put('/:slug', requireAdmin, async (req, res) => {
   try {
-    const { title, imageUrl, content, tags = [] } = req.body;
+    console.log('--- PUT /api/articles/:slug ---');
+    console.log('params.slug =', req.params.slug);
+    console.log('body =', req.body);
 
-    if (!title || !content) {
-      return res.status(400).json({ message: 'Title and content are required' });
-    }
+    const { title, imageUrl, content, tags = [], status } = req.body;
 
     const article = await Article.findOne({ slug: req.params.slug });
+    console.log('Found article?', !!article);
+
     if (!article) {
       return res.status(404).json({ message: 'Article not found' });
     }
 
-    article.title = title;
-    article.imageUrl = imageUrl || article.imageUrl;
-    article.content = content;
-    
-    if (Array.isArray(tags)) article.tags = tags;
+    article.title = title ?? article.title;
+    if (imageUrl) {
+      article.imageUrl = imageUrl;
+    }
+    article.content = content ?? article.content;
+    if (Array.isArray(tags)) {
+      article.tags = tags;
+    }
 
-    // Si tu veux régénérer le slug quand le titre change :
-    article.slug = generateSlug(title);
+    console.log('Status before =', article.status);
+    if (status === 'draft' || status === 'published') {
+      article.status = status;
+    }
+    console.log('Status after  =', article.status);
 
-    await article.save ();
+    await article.save();
+    console.log('Article saved');
 
     return res.json(article);
   } catch (err) {
-    console.error(err);
+    console.error('Error in PUT /api/articles/:slug', err);
     return res.status(500).json({ message: 'Error updating article' });
   }
 });
+
 
 // DELETE by slug
 router.delete('/:slug', requireAdmin, async (req, res) => {

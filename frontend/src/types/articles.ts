@@ -3,8 +3,9 @@ export interface Article {
   title: string;
   slug: string;
   content: string;
-  imageUrl?: string;
   tags?: string[];
+  status?: 'draft' | 'published';
+  imageUrl?: string;
   createdAt: string;
   updatedAt: string;
 }

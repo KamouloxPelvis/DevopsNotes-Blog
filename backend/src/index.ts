@@ -46,7 +46,8 @@ if (!MONGODB_URI) {
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
-    console.log('MongoDB connected');
+    console.log('MongoDB connected', mongoose.connection.host, 
+      mongoose.connection.name);
 
     // Route de healthcheck
     app.get('/api/health', (_req, res) => {
