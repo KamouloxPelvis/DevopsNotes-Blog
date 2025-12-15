@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'node:path';
 
+import commentRoutes from './routes/comments';
 import articlesRouter from './routes/articles';
 import authRouter from './routes/auth';
 import { upload } from './utils/upload';
@@ -17,7 +18,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Dossier d'upload commun (backend/uploads)
+const uploadDir = path.join(process.cwd(), 'uploads');
+console.log('UPLOAD DIR =', uploadDir);
+
+// Servir les fichiers uploadés
+app.use('/uploads', express.static(uploadDir));
+
 // Routes API et Auth
+app.use('/api', commentRoutes);
 app.use('/api/auth', authRouter);
 app.use('/api/articles', articlesRouter);
 
@@ -31,9 +40,6 @@ app.post('/upload', requireAdmin, upload.single('file'), (req, res) => {
   return res.status(201).json({ imageUrl });
 });
 
-// Servir les fichiers uploadés
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
 // Lecture des variables d'environnement
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI as string;
@@ -46,8 +52,11 @@ if (!MONGODB_URI) {
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
-    console.log('MongoDB connected', mongoose.connection.host, 
-      mongoose.connection.name);
+    console.log(
+      'MongoDB connected',
+      mongoose.connection.host,
+      mongoose.connection.name
+    );
 
     // Route de healthcheck
     app.get('/api/health', (_req, res) => {
@@ -62,5 +71,3 @@ mongoose
     console.error('MongoDB connection error:', err);
     process.exit(1);
   });
-
-

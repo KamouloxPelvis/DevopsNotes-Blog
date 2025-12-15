@@ -5,14 +5,20 @@ import { Article } from '../types/articles';
 import { getAuthToken, logout } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
 
+type CommentCountMap = Record<string, number>;
+
 export function ArticlesList() {
   const [articles, setArticles] = useState<Article[]>([]);
+  const [commentCounts, setCommentCounts] = useState<CommentCountMap>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-
   const isAdmin = !!getAuthToken();
+  
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -21,11 +27,45 @@ export function ArticlesList() {
 }
 
   useEffect(() => {
-    getArticles()
-      .then((data) => setArticles(data))
+    setLoading(true);
+    getArticles(page, 6)
+      .then((data) => {
+        setArticles(data.items);
+        setPages(data.pages);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [page]);
+
+  useEffect(() => {
+  if (articles.length === 0) return;
+
+  async function loadCounts() {
+    const entries = await Promise.all(
+      articles.map(async (a) => {
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/articles/${a.slug}/comments/count`
+          );
+          if (!res.ok) return [a.slug, 0] as const;
+          const data = await res.json();
+          return [a.slug, data.count as number] as const;
+        } catch {
+          return [a.slug, 0] as const;
+        }
+      })
+    );
+
+    const map: CommentCountMap = {};
+    for (const [slug, count] of entries) {
+      map[slug] = count;
+    }
+    setCommentCounts(map);
+  }
+
+  loadCounts();
+}, [articles]);
+
 
   if (loading) return <p>Loading articles...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -144,15 +184,46 @@ export function ArticlesList() {
                 ))}
               </div>
 
-              <Link
-                to={`/articles/${article.slug}`}
-                className="btn btn-primary"
-              >
-                Read more
-              </Link>
+              <div className="article-card-footer">
+                <Link
+                  to={`/articles/${article.slug}`}
+                  className="btn btn-primary"
+                >
+                  Read more
+                </Link>
+                <span className="article-comments-count">
+                  {commentCounts[article.slug] ?? 0} comment
+                  {(commentCounts[article.slug] ?? 0) > 1 ? 's' : ''}
+                </span>
+              </div>
             </div>
           </div>
         ))}
+        {pages > 1 && (
+          <div className="pagination">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              disabled={page === 1}
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            >
+              Previous
+            </button>
+
+            <span className="pagination-info">
+              Page {page} of {pages}
+            </span>
+
+            <button
+              type="button"
+              className="btn btn-secondary"
+              disabled={page === pages}
+              onClick={() => setPage((p) => Math.min(p + 1, pages))}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -15,11 +15,9 @@ function App() {
         <Link to="/" className="global-logo">
           <img src={devopsFav} alt="DevOpsNotes" className="global-logo img" />
         </Link>
-
         <div className="app">
           <header className="app-header">
             <img src={devopsLogo} alt="DevOpsNotes logo" className="app-logo-main" />
-            <h2>My DevOps Mini-blog</h2>
           </header>
 
           <main className="app-main">

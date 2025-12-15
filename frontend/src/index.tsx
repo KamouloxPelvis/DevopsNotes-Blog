@@ -4,20 +4,20 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-const ignoreMessages = [
-  'ResizeObserver loop completed with undelivered notifications.',
-];
-
-const originalError = console.error;
-console.error = (...args) => {
-  if (
-    typeof args[0] === 'string' &&
-    ignoreMessages.some((msg) => args[0].includes(msg))
-  ) {
-    return;
+// Patch pour calmer l'erreur ResizeObserver dans la console de dev
+const resizeObserverErrMsg = 'ResizeObserver loop completed with undelivered notifications.';
+window.addEventListener('error', (e) => {
+  if (e.message === resizeObserverErrMsg) {
+    e.stopImmediatePropagation();
   }
-  originalError(...args);
-};
+});
+
+window.addEventListener('unhandledrejection', (e: PromiseRejectionEvent) => {
+  const message = (e.reason && e.reason.message) || '';
+  if (message === resizeObserverErrMsg) {
+    e.preventDefault();
+  }
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

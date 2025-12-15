@@ -7,34 +7,43 @@ import { requireAdmin } from '../middleware/requireAdmin';
 const router = Router();
 
 // GET /api/articles
-// GET /api/articles
-router.get('/', async (_req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const count = await Article.countDocuments({});
-    console.log('Article.countDocuments =', count);
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit as string) || 6, 1);
+    const skip = (page - 1) * limit;
 
-    const docs = await Article.find({}).limit(5);
-    console.log('Sample docs:', docs);
+    const query = {}; // ou { status: 'published' } si tu veux filtrer
 
-    res.json(docs);
+    const [items, total] = await Promise.all([
+      Article.find(query)
+        .sort({ createdAt: -1 })   // plus récents en premier
+        .skip(skip)
+        .limit(limit),
+      Article.countDocuments(query),
+    ]);
+
+    res.json({
+      items,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error fetching articles' });
   }
 });
 
-router.get('/tags', async (req, res) => {
-  const tags = await Article.distinct('tags');
-  res.json(tags.flat());  // ["docker", "terraform", "sccm"]
-});
-
 // READ one article by slug
 router.get('/:slug', async (req, res) => {
   try {
     const article = await Article.findOne({ slug: req.params.slug });
+
     if (!article) {
       return res.status(404).json({ message: 'Article not found' });
     }
+
     return res.json(article);
   } catch (err) {
     console.error(err);

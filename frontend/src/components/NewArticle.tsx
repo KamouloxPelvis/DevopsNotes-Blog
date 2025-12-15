@@ -58,28 +58,39 @@ export default function NewArticle() {
   }
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
+  e.preventDefault();
+  setError(null);
 
+  try {
+    const res = await fetch('http://localhost:5000/api/articles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ title, content, imageUrl, tags, status }),
+    });
+
+    let data: any = null;
     try {
-      const res = await fetch('http://localhost:5000/api/articles', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ title, content, imageUrl, tags, status }),
-      });
-
-      if (!res.ok) throw new Error('Erreur HTTP');
-
-      const created = await res.json();
-      navigate(`/articles/${created.slug}`);
-    } catch (err: any) {
-      setError(err.message);
+      data = await res.json();
+    } catch {
+      // no JSON body, keep data = null
     }
-  }
 
+    if (!res.ok) {
+      const msg =
+        (data && data.message) ||
+        `Failed to create the article (status ${res.status}).`;
+      throw new Error(msg);
+    }
+
+    const created = data;
+    navigate(`/articles/${created.slug}`);
+  } catch (err: any) {
+    setError(err.message);
+  }
+}
   return (
     <PageLayout>
       <p>
@@ -111,15 +122,17 @@ export default function NewArticle() {
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Tags (comma-separated)</label>
+        <div className="form-field">
+          <label htmlFor="tags">Tags (comma-separated)</label>
           <input
-            type="text"
-            className="form-control"
+            id="tags"
             value={rawTags}
             onChange={(e) => handleTagsChange(e.target.value)}
             placeholder="docker, kubernetes, ci-cd"
           />
+          <p className="form-help">
+            Separate tags with commas. They will be used for filters and related articles.
+          </p>
         </div>
 
         <div className="form-field">

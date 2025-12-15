@@ -7,5 +7,5 @@ DevOpsNotes is a full-stack demo application showcasing modern DevOps practices 
 - **Core Functionality**: CRUD articles with tags and slugs
 - **DevOps Pipeline**: Dockerized, CI/CD-ready
 
-![Logo](devopsnotes-logo.png)
+![Logo](devopsnotes_logo.png)
 >>>>>>> fbdd0cd (Connected to MongoDB, created backend/fronted backbone, implemented API CRUD basics for articles in backend)
