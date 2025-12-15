@@ -30,10 +30,16 @@ router.get('/:slug', async (req, res) => {
   }
 });
 
+router.get('/tags', async (req, res) => {
+  const tags = await Article.distinct('tags');
+  res.json(tags.flat());  // ["docker", "terraform", "sccm"]
+});
+
+
 // CREATE article
 router.post('/', async (req, res) => {
   try {
-    const { title, content, imageUrl, tags } = req.body;
+    const { title, content, imageUrl, tags = [] } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({ message: 'Title and content are required' });
@@ -66,7 +72,7 @@ router.post('/', async (req, res) => {
 // UPDATE by slug
 router.put('/:slug', async (req, res) => {
   try {
-    const { title, imageUrl, content, tags } = req.body;
+    const { title, imageUrl, content, tags = [] } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({ message: 'Title and content are required' });
@@ -85,7 +91,7 @@ router.put('/:slug', async (req, res) => {
     // Si tu veux régénérer le slug quand le titre change :
     article.slug = generateSlug(title);
 
-    await article.save();
+    await article.save  ();
 
     return res.json(article);
   } catch (err) {

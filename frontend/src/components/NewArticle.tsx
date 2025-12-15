@@ -12,7 +12,19 @@ export default function NewArticle() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string>(''); // URL renvoyée par /upload
 
+  const [tags, setTags] = useState<string[]>([]);
+  const [rawTags, setRawTags] = useState(''); // champ texte brut "docker, containerization"
+
   const navigate = useNavigate();
+
+  const handleTagsChange = (value: string) => {
+    setRawTags(value);
+    const normalized = value
+      .split(',')
+      .map(t => t.trim().toLowerCase())
+      .filter(t => t.length > 0);
+    setTags(normalized);
+};
 
   async function handleUploadImage() {
     if (!imageFile) return;
@@ -45,7 +57,7 @@ export default function NewArticle() {
       const res = await fetch('http://localhost:5000/api/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content, imageUrl }),
+        body: JSON.stringify({ title, content, imageUrl, tags }),
       });
 
       if (!res.ok) throw new Error('Erreur HTTP');
@@ -84,6 +96,17 @@ export default function NewArticle() {
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Tags (comma-separated)</label>
+          <input
+            type="text"
+            className="form-control"
+            value={rawTags}
+            onChange={(e) => handleTagsChange(e.target.value)}
+            placeholder="docker, kubernetes, ci-cd"
           />
         </div>
 

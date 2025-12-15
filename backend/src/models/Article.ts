@@ -16,8 +16,12 @@ const ArticleSchema = new Schema<IArticle>(
     slug: { type: String, required: true, unique: true },
     content: { type: String, required: true },
     imageUrl: { type: String, required: false },
-    tags: { type: [String], default: [] }
-  },
+    tags: [{ 
+        type: String, 
+        lowercase: true, // "docker", "terraform" etc.
+        enum: ['docker', 'terraform', 'azure', 'aws', 'sccm', 'glpi', 'container', 'ci-cd', 'kubernetes', 'monitoring', 'virtualization', 'devops', 'engineers', 'containerization'] 
+      }],
+    },
   { timestamps: true }
 );
 

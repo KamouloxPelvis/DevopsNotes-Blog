@@ -10,8 +10,9 @@ type Article = {
   _id: string;
   title: string;
   content: string;
-  slug: string;
+  tags?: string[];
   imageUrl?: string;
+  slug: string;
 };
 
 export default function EditArticle() {
@@ -27,6 +28,19 @@ export default function EditArticle() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [tags, setTags] = useState<string[]>([]);
+  const [rawTags, setRawTags] = useState(''); // champ texte brut "docker, containerization"
+
+  const handleTagsChange = (value: string) => {
+    setRawTags(value);
+    const normalized = value
+      .split(',')
+      .map(t => t.trim().toLowerCase())
+      .filter(t => t.length > 0);
+    setTags(normalized);
+  };
+
+
   useEffect(() => {
     if (!slug) return;
 
@@ -40,6 +54,9 @@ export default function EditArticle() {
         setContent(data.content);
         setImageUrl(data.imageUrl || '');
         setImagePreview(data.imageUrl || null);
+        const existingTags = data.tags || [];
+        setTags(existingTags);
+        setRawTags(existingTags.join(', '));
       })
       .catch((err: any) => setError(err.message))
       .finally(() => setLoading(false));
@@ -80,7 +97,7 @@ export default function EditArticle() {
       const res = await fetch(`http://localhost:5000/api/articles/${slug}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content, imageUrl }),
+        body: JSON.stringify({ title, content, imageUrl, tags }),
       });
 
       if (!res.ok) throw new Error('Erreur HTTP');
@@ -123,6 +140,17 @@ export default function EditArticle() {
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Tags (comma-separated)</label>
+          <input
+            type="text"
+            className="form-control"
+            value={rawTags}
+            onChange={(e) => handleTagsChange(e.target.value)}
+            placeholder="docker, kubernetes, ci-cd"
           />
         </div>
 
