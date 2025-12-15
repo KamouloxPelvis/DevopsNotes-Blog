@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { PageLayout } from './PageLayout';
+import { getAuthToken } from '../api/auth';
 
 type RouteParams = {
   slug: string;
@@ -30,6 +31,8 @@ export default function EditArticle() {
 
   const [tags, setTags] = useState<string[]>([]);
   const [rawTags, setRawTags] = useState(''); // champ texte brut "docker, containerization"
+  
+  const token = getAuthToken();
 
   const handleTagsChange = (value: string) => {
     setRawTags(value);
@@ -72,6 +75,9 @@ export default function EditArticle() {
 
       const res = await fetch('http://localhost:5000/upload', {
         method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: formData,
       });
       
@@ -94,9 +100,13 @@ export default function EditArticle() {
     if (!slug) return;
 
     try {
+
       const res = await fetch(`http://localhost:5000/api/articles/${slug}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ title, content, imageUrl, tags }),
       });
 

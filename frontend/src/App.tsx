@@ -1,5 +1,6 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { LoginPage } from './components/LoginPage';
 import { ArticlesList } from './components/ArticlesList';
 import ArticleDetail from './components/ArticleDetail';
 import EditArticle from './components/EditArticle';
@@ -24,6 +25,7 @@ function App() {
           <main className="app-main">
             <Routes>
               <Route path="/" element={<ArticlesList />} />
+              <Route path="/login" element={<LoginPage />} />
               <Route path="/articles/new" element={<NewArticle />} />
               <Route path="/articles/:slug" element={<ArticleDetail />} />
               <Route path="/articles/:slug/edit" element={<EditArticle />} />

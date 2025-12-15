@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { Article } from '../models/Article';
 import { generateSlug } from '../utils/slug';
+import { requireAdmin } from '../middleware/requireAdmin';
 
 
 const router = Router();
@@ -10,10 +11,15 @@ router.get('/', async (_req, res) => {
   try {
     const articles = await Article.find().sort({ createdAt: -1 });
     res.json(articles);
-  } catch (err) {
+  } catch (err) { 
     console.error(err);
     res.status(500).json({ message: 'Error fetching articles' });
   }
+});
+
+router.get('/tags', async (req, res) => {
+  const tags = await Article.distinct('tags');
+  res.json(tags.flat());  // ["docker", "terraform", "sccm"]
 });
 
 // READ one article by slug
@@ -30,14 +36,8 @@ router.get('/:slug', async (req, res) => {
   }
 });
 
-router.get('/tags', async (req, res) => {
-  const tags = await Article.distinct('tags');
-  res.json(tags.flat());  // ["docker", "terraform", "sccm"]
-});
-
-
 // CREATE article
-router.post('/', async (req, res) => {
+router.post('/', requireAdmin, async (req, res) => {
   try {
     const { title, content, imageUrl, tags = [] } = req.body;
 
@@ -70,7 +70,7 @@ router.post('/', async (req, res) => {
 
 
 // UPDATE by slug
-router.put('/:slug', async (req, res) => {
+router.put('/:slug', requireAdmin, async (req, res) => {
   try {
     const { title, imageUrl, content, tags = [] } = req.body;
 
@@ -86,12 +86,13 @@ router.put('/:slug', async (req, res) => {
     article.title = title;
     article.imageUrl = imageUrl || article.imageUrl;
     article.content = content;
-    article.tags = tags || article.tags;
+    
+    if (Array.isArray(tags)) article.tags = tags;
 
     // Si tu veux régénérer le slug quand le titre change :
     article.slug = generateSlug(title);
 
-    await article.save  ();
+    await article.save ();
 
     return res.json(article);
   } catch (err) {
@@ -101,7 +102,7 @@ router.put('/:slug', async (req, res) => {
 });
 
 // DELETE by slug
-router.delete('/:slug', async (req, res) => {
+router.delete('/:slug', requireAdmin, async (req, res) => {
   try {
     const article = await Article.findOneAndDelete({ slug: req.params.slug });
     if (!article) {

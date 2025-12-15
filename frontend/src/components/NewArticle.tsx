@@ -2,6 +2,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageLayout } from './PageLayout';
+import { getAuthToken } from '../api/auth';
 
 export default function NewArticle() {
   const [title, setTitle] = useState('');
@@ -14,6 +15,11 @@ export default function NewArticle() {
 
   const [tags, setTags] = useState<string[]>([]);
   const [rawTags, setRawTags] = useState(''); // champ texte brut "docker, containerization"
+
+  const token = getAuthToken();
+
+
+
 
   const navigate = useNavigate();
 
@@ -35,6 +41,9 @@ export default function NewArticle() {
 
       const res = await fetch('http://localhost:5000/upload', {
         method: 'POST',
+        headers: {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  },
         body: formData,
       });
 
@@ -56,15 +65,17 @@ export default function NewArticle() {
     try {
       const res = await fetch('http://localhost:5000/api/articles', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+        ...(token ? { Authorization : `Bearer ${token}` } : {})},
         body: JSON.stringify({ title, content, imageUrl, tags }),
       });
 
       if (!res.ok) throw new Error('Erreur HTTP');
-      const created = await res.json();
-      navigate(`/articles/${created.slug}`);
+        const created = await res.json();
+        navigate(`/articles/${created.slug}`);
     } catch (err: any) {
-      setError(err.message);
+        setError(err.message);
     }
   }
 

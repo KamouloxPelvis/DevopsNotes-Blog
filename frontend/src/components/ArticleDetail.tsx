@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { PageLayout } from './PageLayout';
+import { getAuthToken } from '../api/auth';
 
 type Article = {
   _id: string;
@@ -21,6 +22,7 @@ export default function ArticleDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const isAdmin = !!getAuthToken();
 
   useEffect(() => {
     if (!slug) return;
@@ -46,9 +48,14 @@ export default function ArticleDetail() {
     if (!confirmDelete) return;
 
     try {
+      const token = getAuthToken();
+
       const res = await fetch(`http://localhost:5000/api/articles/${slug}`, {
         method: 'DELETE',
-      });
+        headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
 
       if (!res.ok && res.status !== 204) {
         throw new Error('Erreur HTTP');
@@ -70,20 +77,22 @@ export default function ArticleDetail() {
           />
         </div>
       )}
-
       <h1>{article.title}</h1>
       <p>{article.content}</p>
-
       <p>
         <Link to="/" className="btn btn-secondary">
           ← Back to the list
         </Link>{' '}
-        <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary">
-          Edit
-        </Link>{' '}
-        <button type="button" className="btn btn-danger" onClick={handleDelete}>
-          Delete
-        </button>
+          {isAdmin && (
+          <>
+            <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary">
+              Edit
+            </Link>{' '}
+            <button type="button" className="btn btn-danger" onClick={handleDelete}>
+              Delete
+            </button>
+          </>
+        )}
       </p>
     </PageLayout>
   );
