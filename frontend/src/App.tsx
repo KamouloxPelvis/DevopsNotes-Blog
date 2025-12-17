@@ -5,6 +5,9 @@ import { ArticlesList } from './components/ArticlesList';
 import ArticleDetail from './components/ArticleDetail';
 import EditArticle from './components/EditArticle';
 import NewArticle from './components/NewArticle';
+import ForumPage from './components/ForumPage';
+import NewThreadPage from './components/NewThreadPage';
+import ThreadDetailPage from './components/ThreadDetailPage';
 import devopsLogo from './devopsnotes_logo.png';
 import devopsFav from './devopsnotes_ico.jpg';
 
@@ -27,6 +30,9 @@ function App() {
               <Route path="/articles/new" element={<NewArticle />} />
               <Route path="/articles/:slug" element={<ArticleDetail />} />
               <Route path="/articles/:slug/edit" element={<EditArticle />} />
+              <Route path="/forum" element={<ForumPage />} />
+              <Route path="/forum/new" element={<NewThreadPage />} />
+              <Route path="/forum/:id" element={<ThreadDetailPage />} />
             </Routes>
           </main>
         </div>

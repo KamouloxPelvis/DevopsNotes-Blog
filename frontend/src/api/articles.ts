@@ -33,14 +33,14 @@ export async function getArticles(
 
 // Un article par slug
 export async function getArticle(slug: string): Promise<Article> {
-  const res = await fetch(`${API_URL}/articles/${encodeURIComponent(slug)}`);
-  if (!res.ok) {
-    if (res.status === 404) {
-      throw new Error('Article not found');
-    }
-    throw new Error(`Failed to fetch article: ${res.status}`);
+const res = await fetch(`${API_URL}/articles/${encodeURIComponent(slug)}`);
+if (!res.ok) {
+  if (res.status === 404) {
+    throw new Error('Article not found');
   }
-  return res.json();
+  throw new Error(`Failed to fetch article: ${res.status}`);
+}
+return res.json();
 }
 
 // Création d'article

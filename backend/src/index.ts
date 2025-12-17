@@ -6,9 +6,10 @@ import path from 'node:path';
 
 import commentRoutes from './routes/comments';
 import articlesRouter from './routes/articles';
+import forumRouter from './routes/forum'
 import authRouter from './routes/auth';
 import { upload } from './utils/upload';
-import { requireAdmin } from './middleware/requireAdmin';
+import { requireAdmin } from './middleware/auth';
 
 dotenv.config(); // charge .env
 
@@ -30,6 +31,9 @@ app.use('/api', commentRoutes);
 app.use('/api/auth', authRouter);
 app.use('/api/articles', articlesRouter);
 
+// Routes Forum
+app.use('/api/forum', forumRouter);
+
 // Route d'upload d'images (protégée admin)
 app.post('/upload', requireAdmin, upload.single('file'), (req, res) => {
   if (!req.file) {
@@ -39,6 +43,9 @@ app.post('/upload', requireAdmin, upload.single('file'), (req, res) => {
   const imageUrl = `/uploads/${req.file.filename}`;
   return res.status(201).json({ imageUrl });
 });
+
+// Route du forum
+app.use('/api/forum', forumRouter);
 
 // Lecture des variables d'environnement
 const PORT = process.env.PORT || 5000;

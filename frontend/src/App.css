@@ -23,7 +23,7 @@ body {
   width: 32px;
   height: 32px;
   object-fit: contain;
-  border-radius: 4px; /* optionnel, si tu veux des coins doux */
+  border-radius: 4px; 
 }
 
 /* Container app centré */
@@ -601,6 +601,7 @@ body {
   color: #4b5563;
 }
 
+/* Tags */
 .related-tags {
   display: flex;
   flex-wrap: wrap;
@@ -617,6 +618,7 @@ body {
   color: #374151;
 }
 
+/* Articles liés*/
 .related-link {
   margin-top: 0.25rem;
   font-size: 0.9rem;
@@ -629,6 +631,7 @@ body {
   text-decoration: underline;
 }
 
+/* Pagination */
 .pagination {
   margin-top: 1.5rem;
   display: flex;
@@ -641,3 +644,222 @@ body {
   font-size: 0.9rem;
   color: #4b5563;
 }
+
+/* Forum */
+
+.forum-container,
+.page-card {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.forum-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.thread-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.thread-item + .thread-item {
+  border-top: 1px solid #e5e7eb;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.thread-item h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.thread-meta {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.form-vertical label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.form-vertical input[type="text"],
+.form-vertical textarea {
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+.form-vertical button[type="submit"] {
+  margin-top: 1rem;
+}
+
+.forum-container,
+.page-card {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.forum-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.forum-empty {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.thread-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.thread-item + .thread-item {
+  border-top: 1px solid #e5e7eb;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.thread-item h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.thread-meta {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.thread-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.thread-tags .tag-pill {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.75rem;
+}
+
+.form-vertical label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.form-vertical input[type="text"],
+.form-vertical textarea {
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+.form-vertical textarea {
+  resize: vertical;
+}
+
+.error {
+  color: #b91c1c;
+  margin-bottom: 0.75rem;
+}
+
+.thread-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.thread-card {
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.thread-card h2 {
+  font-size: 1.05rem;
+  margin-bottom: 0.25rem;
+}
+
+.forum-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Forum Replies Section */
+
+ .replies-section {
+  margin-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+}
+
+.replies-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reply-card {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: #f9fafb;
+}
+
+.reply-meta {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.reply-form textarea {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+  resize: vertical;
+}
+
+.reply-form button {
+  margin-top: 0.5rem;
+}
+

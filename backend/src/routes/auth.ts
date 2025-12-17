@@ -23,7 +23,7 @@ router.post('/login', (req, res) => {
   const payload: AdminPayload = { role: 'admin', email };
 
   const options: SignOptions = {
-    expiresIn: 24 * 60 * 60, // 86400 secondes avant expiration (soit 24h)
+    expiresIn: jwtExpiresIn as any, // voire dans .env 
   };
 
   const token = jwt.sign(payload, jwtSecret as string, options);

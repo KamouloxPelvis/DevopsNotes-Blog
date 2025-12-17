@@ -103,6 +103,9 @@ export function ArticlesList() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <Link to="/forum" className="btn btn-secondary">
+            Forum
+          </Link>
           {isAdmin ? (
             <>
               <Link to="/articles/new" className="btn btn-primary">

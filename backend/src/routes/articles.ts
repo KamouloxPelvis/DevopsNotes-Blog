@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { Article } from '../models/Article';
 import { generateSlug } from '../utils/slug';
-import { requireAdmin } from '../middleware/requireAdmin';
+import { requireAdmin } from '../middleware/auth';
 
 
 const router = Router();
