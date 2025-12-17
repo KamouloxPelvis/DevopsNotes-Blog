@@ -1,20 +1,27 @@
-version: '3.8'
+version: "3.9"
 
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: devopsnotes-backend
     ports:
       - "5000:5000"
-    env_file:
-      - ./backend/.env
-    depends_on: []
+    environment:
+      MONGODB_URI: "mongodb+srv://kamalguidadou_db_user:CZAYkzUvO5Ab8unP@cluster0.qamm3fp.mongodb.net/devopsnotes"
+      JWT_SECRET: "Les carottes sont cuites"
+      ADMIN_EMAIL: "kamal.guidadou@gmail.com"
+      ADMIN_PASSWORD: "abcdefgh"
+    volumes:
+      - ./backend/uploads:/app/uploads
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: devopsnotes-frontend
     ports:
-      - "3000:3000"
-    environment:
-      REACT_APP_API_URL: "http://backend:5000/api"
-    depends_on:
-      - backend
-
+      - "3000:80"
+    # Pour que le frontend parle au backend via http://localhost:5000
+    # pas besoin de réseau spécial, le mapping de port suffit en local
