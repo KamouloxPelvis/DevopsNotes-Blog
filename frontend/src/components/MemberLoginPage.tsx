@@ -1,13 +1,15 @@
 import { FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { login } from '../api/auth';
+import { useNavigate, Link } from 'react-router-dom';
+import { getAuthToken } from '../api/auth';
 
-export function LoginPage() {
-  const navigate = useNavigate();
+const API_URL = 'http://localhost:5000';
+
+export default function MemberLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -15,8 +17,19 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password); // appelle ton API /api/auth/login existante
-      navigate('/'); // retour à la liste d’articles
+      const res = await fetch(`${API_URL}/api/auth/login-member`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      localStorage.setItem('devopsnotes_token', data.token);
+      navigate('/forum');
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {
@@ -26,12 +39,12 @@ export function LoginPage() {
 
   return (
     <div className="page-card">
-      <h1>Admin login</h1>
+      <h1>Member login</h1>
       <p className="page-subtitle">
-        Sign in as administrator to manage articles and forum content.
+        Sign in to post threads and replies on the DevOps forum.
       </p>
 
-      <form onSubmit={handleSubmit} className="form-vertical">
+      <form className="form-vertical" onSubmit={handleSubmit}>
         {error && <p className="error">{error}</p>}
 
         <label>
@@ -41,7 +54,6 @@ export function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="admin@example.com"
           />
         </label>
 
@@ -52,13 +64,16 @@ export function LoginPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Your admin password"
           />
         </label>
 
         <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading ? 'Signing in...' : 'Sign in'}
         </button>
+
+        <p className="form-footer">
+          No account yet? <Link to="/signup">Signup</Link>
+        </p>
       </form>
     </div>
   );

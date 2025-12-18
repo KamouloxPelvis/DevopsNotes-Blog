@@ -120,9 +120,17 @@ export function ArticlesList() {
               </button>
             </>
           ) : (
-            <Link to="/login" className="btn btn-secondary">
-              Admin Login
+            <>
+            <Link to="/signup" className="btn btn-light">
+              Sign up
             </Link>
+            <Link to="/member-login" className="btn btn-secondary">
+              Sign in
+            </Link>
+            <Link to="/login" className="btn btn-secondary">
+              Admin
+            </Link>
+          </>
           )}
         </div>
       </div>

@@ -2,6 +2,8 @@ import './App.css';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { LoginPage } from './components/LoginPage';
 import { ArticlesList } from './components/ArticlesList';
+import SignupPage from './components/SignUp'
+import MemberLoginPage from './components/MemberLoginPage';
 import ArticleDetail from './components/ArticleDetail';
 import EditArticle from './components/EditArticle';
 import NewArticle from './components/NewArticle';
@@ -27,6 +29,8 @@ function App() {
             <Routes>
               <Route path="/" element={<ArticlesList />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/member-login" element={<MemberLoginPage />} />
               <Route path="/articles/new" element={<NewArticle />} />
               <Route path="/articles/:slug" element={<ArticleDetail />} />
               <Route path="/articles/:slug/edit" element={<EditArticle />} />

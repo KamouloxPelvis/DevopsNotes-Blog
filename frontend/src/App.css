@@ -766,6 +766,12 @@ body {
   font-size: 0.75rem;
 }
 
+.thread-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .form-vertical label {
   display: block;
   margin-bottom: 1rem;

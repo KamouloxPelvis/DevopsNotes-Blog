@@ -1,3 +1,13 @@
+import { jwtDecode } from 'jwt-decode';
+
+/** Décoder le JWT pour récupérer id / role */
+type JwtPayload = {
+  id?: string;
+  role?: string;
+  email?: string;
+  exp?: number;
+};
+
 const API_URL = 'http://localhost:5000';
 
 export async function login(email: string, password: string) {
@@ -24,4 +34,17 @@ export function getAuthToken(): string | null {
 
 export function logout() {
   localStorage.removeItem('devopsnotes_token');
+}
+
+
+export function getCurrentUser(): JwtPayload | null {
+  const token = getAuthToken();
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode<JwtPayload>(token);
+    return decoded;
+  } catch {
+    return null;
+  }
 }

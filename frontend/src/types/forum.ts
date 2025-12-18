@@ -15,4 +15,5 @@ export interface ForumThread {
     role: 'admin' | 'member';
   };
   createdAt: string;
+  editedAt: string;
 }

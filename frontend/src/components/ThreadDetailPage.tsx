@@ -4,7 +4,7 @@ import { getThread } from '../api/forum';
 import { ForumThread } from '../types/forum';
 import { getReplies, createReply } from '../api/forum';
 import { Reply } from '../types/forum';
-import { getAuthToken } from '../api/auth';
+import { getAuthToken, getCurrentUser  } from '../api/auth';
 
 export default function ThreadDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -16,6 +16,15 @@ export default function ThreadDetailPage() {
     const [replyError, setReplyError] = useState<string | null>(null);
     const [replyLoading, setReplyLoading] = useState(false);
     const isAuthenticated = !!getAuthToken();
+    const currentUser = getCurrentUser();
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState('');
+    const canEditOrDelete =
+    !!thread &&
+    !!currentUser &&
+    (currentUser.role === 'admin' ||
+    (thread.author && (thread.author as any).toString?.() === currentUser.id));
+
 
     useEffect(() => {
         if (!id) return;
@@ -23,6 +32,7 @@ export default function ThreadDetailPage() {
         try {
             const data = await getThread(id);
             setThread(data);
+            setEditContent(data.content);
         } catch (err: any) {
             setError(err.message || 'Failed to load thread');
         } finally {
@@ -31,7 +41,7 @@ export default function ThreadDetailPage() {
         })();
     }, [id]);
 
-    // charger les replies
+    // charger les 
     useEffect(() => {
     if (!id) return;
     (async () => {
@@ -44,6 +54,7 @@ export default function ThreadDetailPage() {
     })();
     }, [id]);
 
+    // Réponse au post
     async function handleSubmitReply(e: FormEvent) {
         e.preventDefault();
         if (!id) return;
@@ -60,6 +71,58 @@ export default function ThreadDetailPage() {
         }
     }
 
+    // Edition
+    async function handleSaveEdit(e: FormEvent) {
+      e.preventDefault();
+      if (!id) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/forum/threads/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+          body: JSON.stringify({ content: editContent }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.message || 'Failed to update thread');
+        }
+
+        const updated = await res.json();
+        setThread(updated);
+        setIsEditing(false);
+      } catch (err: any) {
+        setError(err.message || 'Failed to update thread');
+      }
+    }
+
+  // Suppression
+    async function handleDeleteThread() {
+      if (!id) return;
+      if (!window.confirm('Delete this thread?')) return;
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/forum/threads/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.message || 'Failed to delete thread');
+        }
+
+        window.history.back(); // ou navigate('/forum')
+      } catch (err: any) {
+        setError(err.message || 'Failed to delete thread');
+      }
+    }
+
   if (loading) return <div className="page-card">Loading thread...</div>;
   if (error) return <div className="page-card">Error: {error}</div>;
   if (!thread) return <div className="page-card">Thread not found.</div>;
@@ -70,14 +133,58 @@ export default function ThreadDetailPage() {
         ← Back to forum
       </Link>
 
+      {canEditOrDelete && (
+      <div>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => setIsEditing((v) => !v)}
+        >
+          {isEditing ? 'Cancel' : 'Edit'}
+        </button>
+        <button
+          type="button"
+          className="btn btn-danger"
+          style={{ marginLeft: '0.5rem' }}
+          onClick={handleDeleteThread}
+        >
+          Delete
+        </button>
+      </div>
+    )}
+
       <h1 style={{ marginTop: '1rem' }}>{thread.title}</h1>
       <p className="thread-meta">
         {new Date(thread.createdAt).toLocaleString()}
+        {thread.editedAt && (
+          <> • post edited the {new Date(thread.editedAt).toLocaleString()}</>
+        )}
       </p>
 
-      <p style={{ marginTop: '1rem', whiteSpace: 'pre-line' }}>
-        {thread.content}
-      </p>
+      {!isEditing ? (
+        <p style={{ marginTop: '1rem', whiteSpace: 'pre-line' }}>
+          {thread.content}
+        </p>
+      ) : (
+        <form
+          onSubmit={handleSaveEdit}
+          className="reply-form"
+          style={{ marginTop: '1rem' }}
+        >
+          <textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            rows={5}
+          />
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ marginTop: '0.5rem' }}
+          >
+            Save changes
+          </button>
+        </form>
+      )}  
 
       {thread.tags?.length > 0 && (
         <div className="thread-tags" style={{ marginTop: '1rem' }}>
