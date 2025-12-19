@@ -11,7 +11,15 @@ const userSchema = new Schema({
   role: { 
     type: String, 
     enum: ['visitor', 'admin', 'member'], 
-    default: 'member' },  // Nouveau
+    default: 'member' }, 
+  pseudo: {                      
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 30,
+  },
 });
 
 export const User = model('User', userSchema);

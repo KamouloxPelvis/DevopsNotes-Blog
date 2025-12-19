@@ -33,7 +33,8 @@ router.post('/login', (req, res) => {
 
   // --- NOUVELLE ROUTE SIGNUP MEMBER ---
 router.post('/signup', async (req, res) => {
-  const { email, password } = req.body;
+  console.log('HIT /api/auth/signup with body:', req.body);
+  const { email, password, pseudo } = req.body;
   const jwtSecret = process.env.JWT_SECRET;
   const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '1d';
 
@@ -47,12 +48,18 @@ router.post('/signup', async (req, res) => {
       return res.status(409).json({ message: 'Email already in use' });
     }
 
+    const existingPseudo = await User.findOne({ pseudo });
+    if (existingPseudo) {
+      return res.status(409).json({ message: 'Pseudo already in use' });
+    }
+
     const hashed = await bcrypt.hash(password, 10);
 
     const user = new User({
       email,
       password: hashed,
       role: 'member',
+      pseudo,
     });
     await user.save();
 
@@ -60,6 +67,7 @@ router.post('/signup', async (req, res) => {
       id: user._id.toString(),
       role: user.role,
       email: user.email,
+      pseudo: user.pseudo,
     };
 
     const options: SignOptions = {
@@ -80,7 +88,7 @@ router.post('/signup', async (req, res) => {
 router.post('/login-member', async (req, res) => {
   const { email, password } = req.body;
   const jwtSecret = process.env.JWT_SECRET;
-  const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '1d';
+  const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '1h';
 
   if (!jwtSecret) {
     return res.status(500).json({ message: 'Auth not configured' });
@@ -101,6 +109,7 @@ router.post('/login-member', async (req, res) => {
       id: user._id.toString(),
       role: user.role,
       email: user.email,
+      pseudo: user.pseudo
     };
 
     const options: SignOptions = { expiresIn: jwtExpiresIn as any };
@@ -108,9 +117,13 @@ router.post('/login-member', async (req, res) => {
 
     return res.json({
       token,
-      user: { id: user._id, role: user.role, email: user.email },
+      user: { id: user._id, 
+              role: user.role, 
+              email: user.email,
+              pseudo: user.pseudo },
     });
-  } catch {
+  } catch (err) {
+    console.error('Signup error:', err);
     return res.status(500).json({ message: 'Login failed' });
   }
 });

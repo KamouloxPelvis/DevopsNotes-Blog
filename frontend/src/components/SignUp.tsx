@@ -3,7 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
+  const [pseudo, setPseudo] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -11,13 +13,30 @@ export default function SignupPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+
+    // validations AVANT l'appel API
+    if (pseudo.trim().length < 3) {
+      setError('Username must be at least 3 characters long.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+  
     setLoading(true);
 
     try {
       const res = await fetch('http://localhost:5000/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, pseudo }),
       });
 
       if (!res.ok) {
@@ -27,6 +46,7 @@ export default function SignupPage() {
 
       const data = await res.json();
       localStorage.setItem('devopsnotes_token', data.token);
+      alert('Your account has been created successfully. Welcome to DevOpsNotes!');
       navigate('/forum');
     } catch (err: any) {
       setError(err.message || 'Signup failed');
@@ -36,46 +56,77 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="page-card">
+  <div className="page-card auth-page">
+    <div className="auth-card">
       <h1>Create your DevOpsNotes account</h1>
-      <p className="page-subtitle">
+      <p className="auth-subtitle">
         Become a member to create threads and reply on the DevOps forum.
       </p>
 
-      <form className="form-vertical" onSubmit={handleSubmit}>
+      <form className="auth-form" onSubmit={handleSubmit}>
         {error && <p className="error">{error}</p>}
 
-        <label>
-          Email
+<div className="form-group">
+            <label htmlFor="pseudo">Username</label>
+            <input
+              id="pseudo"
+              type="text"
+              autoComplete="nickname"
+              value={pseudo}
+              onChange={(e) => setPseudo(e.target.value)}
+              placeholder="devops_wizard"
+              required
+            />
+          </div>
+
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
           <input
+            id="email"
             type="email"
-            required
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-          />
-        </label>
-
-        <label>
-          Password
-          <input
-            type="password"
             required
-            minLength={6}
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="At least 6 characters"
+            required
           />
-        </label>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="confirmPassword">Confirm password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Re-type your password"
+            required
+          />
+        </div>
 
         <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Creating account...' : 'Signup'}
+          {loading ? 'Creating account...' : 'Sign up'}
         </button>
-
-        <p className="form-footer">
-          Already have an account? <Link to="/login">Admin login</Link>
-        </p>
       </form>
+
+      <p className="auth-footer">
+        Already have an account?{' '}
+        <Link to="/member-login">SignIn</Link>
+      </p>
     </div>
-  );
-}
+  </div>
+)};

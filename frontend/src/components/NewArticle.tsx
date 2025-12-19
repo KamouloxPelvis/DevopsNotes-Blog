@@ -94,7 +94,7 @@ export default function NewArticle() {
   return (
     <PageLayout>
       <p>
-        <Link to="/" className="btn btn-secondary">
+        <Link to="/articles" className="btn btn-secondary">
           ← Back to the list
         </Link>
       </p>

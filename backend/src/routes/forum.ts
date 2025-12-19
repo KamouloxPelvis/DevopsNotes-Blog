@@ -26,27 +26,37 @@ router.get('/threads/:id', async (req, res) => {
 });
 
 
-// POST /api/forum/threads (admin uniquement pour l'instant)
-router.post('/threads', 
+// POST /api/forum/threads
+router.post(
+  '/threads',
   requireAuth,
-  requireRole(['member', 'admin']), 
+  requireRole(['member', 'admin']),
   async (req, res) => {
+
+    console.log('HIT POST /api/forum/threads, user =', (req as any).user);
+    const user = (req as any).user as { id?: string; pseudo?: string };
+    const { title, content, tags } = req.body;
+
     try {
-      const { title, content, tags } = req.body;
-      
+
       const thread = new Thread({
         title,
         content,
         tags,
+        authorId: user.id,
+        authorPseudo: user.pseudo,
         createdAt: new Date(),
       });
-      
+
       await thread.save();
       return res.status(201).json(thread);
     } catch (err) {
+      console.error('Error creating thread', err);
       return res.status(500).json({ message: 'Error creating thread' });
     }
-  });
+  }
+);
+
 
 // GET /api/forum/threads/:id/replies
 router.get('/threads/:id/replies', async (req, res) => {
@@ -67,12 +77,19 @@ router.post('/threads/:id/replies',
     try {
       const { content } = req.body;
       const threadId = req.params.id;
-      const user = (req as any).user as { id?: string };
+      const user = (req as any).user as { id?: string, pseudo?: string };
+
+       if (!content || !content.trim()) {
+        return res
+          .status(400)
+          .json({ message: 'You have to write something in order to reply' });
+      }
 
       const reply = new Reply({
         content,
         thread: threadId,
-        author: user.id,
+        authorId: user.id,
+        authorPseudo: user.pseudo,
         createdAt: new Date(),
       });
 
@@ -84,7 +101,7 @@ router.post('/threads/:id/replies',
 });
 
 // EDIT thread (admin only)
-router.put('/:id', requireAuth, async (req, res) => {
+router.put('/threads/:id', requireAuth, async (req, res) => {
   const { title, content } = req.body;
   const user = (req as any).user as { id?: string; role?: string };
 
@@ -110,7 +127,7 @@ router.put('/:id', requireAuth, async (req, res) => {
 });
 
 // DELETE thread (admin only)
-router.delete('/:id', requireAuth, async (req, res) => {
+router.delete('/threads/:id', requireAuth, async (req, res) => {
   const user = (req as any).user as { id?: string; role?: string };
 
   try {

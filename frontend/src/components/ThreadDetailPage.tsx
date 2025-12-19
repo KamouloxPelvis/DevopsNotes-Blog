@@ -23,7 +23,7 @@ export default function ThreadDetailPage() {
     !!thread &&
     !!currentUser &&
     (currentUser.role === 'admin' ||
-    (thread.author && (thread.author as any).toString?.() === currentUser.id));
+    (thread.authorId && (thread.authorId as any).toString?.() === currentUser.id));
 
 
     useEffect(() => {
@@ -58,6 +58,13 @@ export default function ThreadDetailPage() {
     async function handleSubmitReply(e: FormEvent) {
         e.preventDefault();
         if (!id) return;
+
+        const trimmed = replyContent.trim();
+        if(!trimmed) {
+        setReplyError('You have to type something in order to reply ;)');
+        return;
+        }
+        
         setReplyError(null);
         setReplyLoading(true);
         try {
@@ -129,35 +136,49 @@ export default function ThreadDetailPage() {
 
   return (
     <div className="page-card">
-      <Link to="/forum" className="btn btn-light">
-        ← Back to forum
-      </Link>
+     <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Link to="/forum" className="btn btn-light">
+          ← Back to forum
+        </Link>
 
-      {canEditOrDelete && (
-      <div>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => setIsEditing((v) => !v)}
-        >
-          {isEditing ? 'Cancel' : 'Edit'}
-        </button>
-        <button
-          type="button"
-          className="btn btn-danger"
-          style={{ marginLeft: '0.5rem' }}
-          onClick={handleDeleteThread}
-        >
-          Delete
-        </button>
+        {canEditOrDelete && (
+          <div>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setIsEditing((v) => !v)}
+            >
+              {isEditing ? 'Cancel' : 'Edit'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-danger"
+              style={{ marginLeft: '0.5rem' }}
+              onClick={handleDeleteThread}
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
-    )}
+
 
       <h1 style={{ marginTop: '1rem' }}>{thread.title}</h1>
       <p className="thread-meta">
+        {thread.authorPseudo && (
+          <>
+            Created by <strong>{thread.authorPseudo}</strong> ·{' '}
+          </>
+        )}
         {new Date(thread.createdAt).toLocaleString()}
         {thread.editedAt && (
-          <> • post edited the {new Date(thread.editedAt).toLocaleString()}</>
+          <> • Thread edited at {new Date(thread.editedAt).toLocaleString()}</>
         )}
       </p>
 
@@ -186,32 +207,38 @@ export default function ThreadDetailPage() {
         </form>
       )}  
 
-      {thread.tags?.length > 0 && (
+      {thread.tags?.length ? (
         <div className="thread-tags" style={{ marginTop: '1rem' }}>
-          {thread.tags.map((tag) => (
+          {thread.tags?.map((tag) => (
             <span key={tag} className="tag-pill">
               {tag}
             </span>
           ))}
         </div>
-      )}
+      ) : null}
       <div className="replies-section">
         <h2>Replies</h2>
 
         {replies.length === 0 && <p className="replies-empty">No replies yet.</p>}
 
         {replies.length > 0 && (
-            <ul className="replies-list">
+          <ul className="replies-list">
             {replies.map((r) => (
-                <li key={r._id} className="reply-card">
+              <li key={r._id} className="reply-card">
                 <p>{r.content}</p>
                 <span className="reply-meta">
-                    {new Date(r.createdAt).toLocaleString()}
+                  {r.authorPseudo && (
+                    <>
+                      Author: <strong>{r.authorPseudo}</strong> ·{' '}
+                    </>
+                  )}
+                  {new Date(r.createdAt).toLocaleString()}
                 </span>
-                </li>
+              </li>
             ))}
-            </ul>
+          </ul>
         )}
+
         {isAuthenticated && (
             <form className="reply-form" onSubmit={handleSubmitReply}>
             {replyError && <p className="error">{replyError}</p>}

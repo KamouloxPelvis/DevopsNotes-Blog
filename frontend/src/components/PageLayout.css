@@ -1,0 +1,23 @@
+.top-user-bar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;  /* texte à gauche, bouton à droite */
+}
+
+.top-user-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;                    /* petit espace entre "as" et le pseudo */
+}
+
+.top-user-bar-right {
+  margin-left: 1rem;               /* espace par rapport au texte */
+}
+
+.top-user-bar-right .btn-sm {
+  padding: 0.2rem 0.7rem;
+  font-size: 0.8rem;
+}

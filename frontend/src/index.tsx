@@ -4,20 +4,22 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-// Patch pour calmer l'erreur ResizeObserver dans la console de dev
-const resizeObserverErrMsg = 'ResizeObserver loop completed with undelivered notifications.';
-window.addEventListener('error', (e) => {
-  if (e.message === resizeObserverErrMsg) {
-    e.stopImmediatePropagation();
-  }
-});
+// Calmer l'overlay du runtime error React/webpack qui sert à rien
 
-window.addEventListener('unhandledrejection', (e: PromiseRejectionEvent) => {
-  const message = (e.reason && e.reason.message) || '';
-  if (message === resizeObserverErrMsg) {
-    e.preventDefault();
+const resizeObserverErrMsgs = [
+  'ResizeObserver loop completed with undelivered notifications.',
+  'ResizeObserver loop limit exceeded',
+];
+
+const resizeObserverErrorHandler = (e: ErrorEvent) => {
+  if (!e.message) return;
+  if (resizeObserverErrMsgs.some(msg => e.message.includes(msg))) {
+    e.stopImmediatePropagation();  // empêche React/webpack d’afficher l’overlay
+    e.preventDefault();           // supprime aussi le log « uncaught error »
   }
-});
+};
+
+window.addEventListener('error', resizeObserverErrorHandler);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

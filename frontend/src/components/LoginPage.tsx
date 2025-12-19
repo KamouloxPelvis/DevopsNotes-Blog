@@ -16,7 +16,7 @@ export function LoginPage() {
 
     try {
       await login(email, password); // appelle ton API /api/auth/login existante
-      navigate('/'); // retour à la liste d’articles
+      navigate('/articles'); // retour à la liste d’articles
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {
@@ -25,41 +25,47 @@ export function LoginPage() {
   }
 
   return (
-    <div className="page-card">
-      <h1>Admin login</h1>
-      <p className="page-subtitle">
-        Sign in as administrator to manage articles and forum content.
-      </p>
+    <div className="page-card auth-page">
+      <div className="auth-card">
+        <h1>Welcome Administrator!</h1>
+        <p className="auth-subtitle">
+          Sign in as administrator to manage articles and forum content.
+        </p>
 
-      <form onSubmit={handleSubmit} className="form-vertical">
-        {error && <p className="error">{error}</p>}
+        <form onSubmit={handleSubmit} className="auth-form">
+          {error && <p className="error">{error}</p>}
 
-        <label>
-          Email
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="admin@example.com"
-          />
-        </label>
+          <div className="form-group">
+            <label htmlFor="admin-email">Email</label>
+            <input
+              id="admin-email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@example.com"
+            />
+          </div>
 
-        <label>
-          Password
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Your admin password"
-          />
-        </label>
+          <div className="form-group">
+            <label htmlFor="admin-password">Password</label>
+            <input
+              id="admin-password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Your admin password"
+            />
+          </div>
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Signing in...' : 'Sign in'}
-        </button>
-      </form>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign in'}
+          </button>
+        </form>
+      </div>
     </div>
-  );
-}
+  )};
+

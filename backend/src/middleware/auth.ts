@@ -1,8 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
+type JwtUserPayload = {
+  id?: string;
+  role?: string;
+  email?: string;
+  pseudo?: string;
+};
+
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization; // "Bearer xxx"
+  const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'Missing or invalid Authorization header' });
@@ -16,9 +23,9 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   }
 
   try {
-    const payload = jwt.verify(token, jwtSecret) as { role?: string; email?: string };
-    (req as any).user = payload;           // <<< on pose l'utilisateur
-    next();                                // <<< pas de check de rôle ici
+    const payload = jwt.verify(token, jwtSecret) as JwtUserPayload;
+    (req as any).user = payload;
+    next();
   } catch (err) {
     return res.status(401).json({ message: 'Invalid or expired token' });
   }

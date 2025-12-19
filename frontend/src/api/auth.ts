@@ -5,6 +5,7 @@ type JwtPayload = {
   id?: string;
   role?: string;
   email?: string;
+  pseudo?: string;
   exp?: number;
 };
 

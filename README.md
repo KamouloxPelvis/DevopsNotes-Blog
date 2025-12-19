@@ -32,6 +32,7 @@ Schéma logique :
 ### Backend (API)
 
 - Authentification avec utilisateur administrateur initial (email + mot de passe).
+- Authentification avec utilisateur membre du forum (création / édition / suppression de son fil de discussion, fonctionnalité de réponse aux threads)
 - Gestion des articles de blog :
   - création, modification, suppression (côté admin),
   - listing, filtrage par tag, consultation détaillée.

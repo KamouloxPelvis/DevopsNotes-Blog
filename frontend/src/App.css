@@ -633,10 +633,15 @@ body {
 
 /* Pagination */
 .pagination {
-  margin-top: 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* About tout à droite */
+  width: 100%;
+}
+
+.pagination-left {
+  display: flex;
+  align-items: center;
   gap: 0.75rem;
 }
 
@@ -779,6 +784,15 @@ body {
   font-weight: 500;
 }
 
+.comment-actions-row {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+
 .form-vertical input[type="text"],
 .form-vertical textarea {
   width: 100%;
@@ -867,5 +881,67 @@ body {
 
 .reply-form button {
   margin-top: 0.5rem;
+}
+
+/*Page d'inscription membre */
+.auth-page {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-card {
+  max-width: 480px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+.auth-card h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  margin-bottom: 1.5rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.auth-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.auth-form label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15);
+}
+
+.auth-footer {
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.auth-footer a {
+  color: #2563eb;
+  font-weight: 500;
 }
 

@@ -3,6 +3,9 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'node:path';
+import http from 'http';
+import { Server } from 'socket.io';
+import { Jwt } from 'jsonwebtoken';
 
 import commentRoutes from './routes/comments';
 import articlesRouter from './routes/articles';
@@ -70,8 +73,66 @@ mongoose
       res.json({ status: 'ok' });
     });
 
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    // --- HTTP server + Socket.IO ---
+    const server = http.createServer(app);
+
+    const io = new Server(server, {
+      cors: {
+        origin: 'http://localhost:3000',
+        methods: ['GET', 'POST'],
+      },
+    });
+
+    type JwtPayload = {
+      id?: string;
+      role?: string;
+      email?: string;
+      pseudo?: string;
+    };
+
+    io.use((socket, next) => {
+      const token = socket.handshake.auth?.token as string | undefined;
+      const jwtSecret = process.env.JWT_SECRET;
+
+      if (!token || !jwtSecret) {
+        return next(new Error('Unauthorized'));
+      }
+
+      try {
+        const payload = jwt.verify(token, jwtSecret) as JwtPayload;
+        (socket as any).user = payload;
+        next();
+      } catch {
+        next(new Error('Unauthorized'));
+      }
+    });
+
+    io.on('connection', (socket) => {
+      const user = (socket as any).user as JwtPayload;
+      console.log('Socket connected:', user.pseudo, user.id);
+
+      socket.join('general');
+
+      socket.on('chat:join', (room: string) => {
+        socket.join(room);
+        socket.emit('chat:joined', { room });
+      });
+
+      socket.on('chat:message', ({ room, text }) => {
+        if (!text || typeof text !== 'string') return;
+        const msg = {
+          room: room || 'general',
+          text,
+          fromId: user.id,
+          fromPseudo: user.pseudo,
+          at: new Date().toISOString(),
+        };
+        io.to(msg.room).emit('chat:message', msg);
+      });
+    });
+
+    server.listen(PORT, () => {
+      console.log(`Server + socket.IO² running on port ${PORT}`);
     });
   })
   .catch((err) => {

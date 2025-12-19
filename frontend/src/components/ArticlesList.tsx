@@ -23,7 +23,7 @@ export function ArticlesList() {
 
   function handleLogout() {
   logout();              // supprime le token du localStorage
-  navigate('/');    // ou navigate('/') si tu préfères revenir à la liste
+  navigate('/articles');    // ou navigate('/') si tu préfères revenir à la liste
 }
 
   useEffect(() => {
@@ -92,35 +92,35 @@ export function ArticlesList() {
   });
 
   return (
-    <div className="articles-list">
-      <div className="articles-list-header">
-        <h2>Articles</h2>
-        <div className="articles-header-right">
-          <input
-            type="text"
-            className="articles-search-input"
-            placeholder="Search articles..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <Link to="/forum" className="btn btn-secondary">
-            Forum
-          </Link>
-          {isAdmin ? (
-            <>
-              <Link to="/articles/new" className="btn btn-primary">
-                New article
-              </Link>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
+  <div className="articles-list">
+    <div className="articles-list-header">
+      <h2>Articles</h2>
+      <div className="articles-header-right">
+        <input
+          type="text"
+          className="articles-search-input"
+          placeholder="Search articles..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Link to="/forum" className="btn btn-secondary">
+          Forum
+        </Link>
+        {isAdmin ? (
+          <>
+            <Link to="/articles/new" className="btn btn-primary">
+              New article
+            </Link>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
             <Link to="/signup" className="btn btn-light">
               Sign up
             </Link>
@@ -131,87 +131,89 @@ export function ArticlesList() {
               Admin
             </Link>
           </>
-          )}
+        )}
+      </div>
+    </div>
+
+    {allTags.length > 0 && (
+      <div className="articles-filters">
+        <span className="articles-filters-label">Filter by tag</span>
+
+        <div className="tags-filter">
+          <button
+            type="button"
+            className={activeTag === null ? 'tag-pill active' : 'tag-pill'}
+            onClick={() => setActiveTag(null)}
+          >
+            All
+          </button>
+          {allTags.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              className={activeTag === tag ? 'tag-pill active' : 'tag-pill'}
+              onClick={() => setActiveTag(tag)}
+            >
+              {tag}
+            </button>
+          ))}
         </div>
       </div>
+    )}
 
-      {allTags.length > 0 && (
-        <div className="articles-filters">
-          <span className="articles-filters-label">Filter by tag</span>
+    <div className="articles-grid">
+      {filteredArticles.map((article) => (
+        <div key={article._id} className="article-card">
+          {article.imageUrl && (
+            <img
+              src={`http://localhost:5000${article.imageUrl}`}
+              alt={article.title}
+              className="article-card-thumb"
+            />
+          )}
 
-          <div className="tags-filter">
-            <button
-              type="button"
-              className={activeTag === null ? 'tag-pill active' : 'tag-pill'}
-              onClick={() => setActiveTag(null)}
-            >
-              All
-            </button>
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                className={activeTag === tag ? 'tag-pill active' : 'tag-pill'}
-                onClick={() => setActiveTag(tag)}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="articles-grid">
-        {filteredArticles.map((article) => (
-          <div key={article._id} className="article-card">
-            {article.imageUrl && (
-              <img
-                src={`http://localhost:5000${article.imageUrl}`}
-                alt={article.title}
-                className="article-card-thumb"
-              />
+          <div className="article-card-body">
+            <h3>{article.title}</h3>
+            {article.status === 'draft' && (
+              <span className="badge-draft">Draft</span>
             )}
-
-            <div className="article-card-body">
-              <h3>{article.title}</h3>
-                {article.status === 'draft' && (
-                <span className="badge-draft">Draft</span>
-              )}
-              <p className="article-excerpt">
-                {article.content.slice(0, 120)}…
+            <p className="article-excerpt">
+              {article.content.slice(0, 120)}…
             </p>
 
-              <div className="article-tags">
-                {article.tags?.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    className={activeTag === tag ? 'tag tag-active' : 'tag'}
-                    onClick={() =>
-                      setActiveTag((prev) => (prev === tag ? null : tag))
-                    }
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              <div className="article-card-footer">
-                <Link
-                  to={`/articles/${article.slug}`}
-                  className="btn btn-primary"
+            <div className="article-tags">
+              {article.tags?.slice(0, 3).map((tag) => (
+                <span
+                  key={tag}
+                  className={activeTag === tag ? 'tag tag-active' : 'tag'}
+                  onClick={() =>
+                    setActiveTag((prev) => (prev === tag ? null : tag))
+                  }
                 >
-                  Read more
-                </Link>
-                <span className="article-comments-count">
-                  {commentCounts[article.slug] ?? 0} comment
-                  {(commentCounts[article.slug] ?? 0) > 1 ? 's' : ''}
+                  {tag}
                 </span>
-              </div>
+              ))}
+            </div>
+
+            <div className="article-card-footer">
+              <Link
+                to={`/articles/${article.slug}`}
+                className="btn btn-primary"
+              >
+                Read more
+              </Link>
+              <span className="article-comments-count">
+                {commentCounts[article.slug] ?? 0} comment
+                {(commentCounts[article.slug] ?? 0) > 1 ? 's' : ''}
+              </span>
             </div>
           </div>
-        ))}
-        {pages > 1 && (
-          <div className="pagination">
+        </div>
+      ))}
+
+      {pages > 1 && (
+        <div className="pagination">
+          <div className="pagination-left">
             <button
               type="button"
               className="btn btn-secondary"
@@ -234,8 +236,16 @@ export function ArticlesList() {
               Next
             </button>
           </div>
-        )}
-      </div>
+
+          <button
+            type="button"
+            className="btn btn-light"
+            onClick={() => navigate('/homepage')}
+          >
+            About
+          </button>
+        </div>
+      )}
     </div>
-  );
-}
+  </div>
+)};

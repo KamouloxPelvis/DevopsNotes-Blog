@@ -165,13 +165,19 @@ function handleReplyTo(author: string) {
               required
             />
           </div>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={submitting}
-          >
-            {submitting ? 'Sending…' : 'Post comment'}
-          </button>
+          <div className="comment-actions-row">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={submitting}
+            >
+              {submitting ? 'Sending…' : 'Post comment'}
+            </button>
+
+            <Link to="/articles" className="btn btn-secondary">
+              ← Back to the list
+            </Link>
+          </div>
         </form>
         <ul className="comment-list">
           {comments.map((c) => (
