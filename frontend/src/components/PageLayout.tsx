@@ -1,15 +1,15 @@
 // PageLayout.tsx
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { getCurrentUser } from '../api/auth';
-import '../components/PageLayout.css'
+import { useAuth } from '../context/AuthContext';
+import '../components/PageLayout.css';
 
 type Props = {
   children: ReactNode;
 };
 
 export function PageLayout({ children }: Props) {
-  const user = getCurrentUser();
+  const { user, logout } = useAuth();  // <-- récupère user + logout depuis le contexte
 
   return (
     <div className="page-layout">
@@ -25,13 +25,26 @@ export function PageLayout({ children }: Props) {
             )}
           </div>
 
-          {user && (
-            <div className="top-user-bar-right">
-              <Link to="/profile" className="btn btn-secondary btn-sm">
-                Profile
+          <div className="top-user-bar-right">
+            {user ? (
+              <>
+                <Link to="/profile" className="btn btn-secondary btn-sm">
+                  Profile
+                </Link>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={logout}
+                  style={{ marginLeft: '0.5rem' }}
+                >
+                  Log Out
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className="btn btn-secondary btn-sm">
+                Sign In
               </Link>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </header>
 

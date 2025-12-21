@@ -1,11 +1,11 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { RequireAuthRoute } from './components/RequireAuthRoute';
 import { PageLayout } from './components/PageLayout';
 import { LoginPage } from './components/LoginPage';
 import { ArticlesList } from './components/ArticlesList';
 import SignupPage from './components/SignUp'
 import HomePage from './components/HomePage';
-import MemberLoginPage from './components/MemberLoginPage';
 import ArticleDetail from './components/ArticleDetail';
 import EditArticle from './components/EditArticle';
 import NewArticle from './components/NewArticle';
@@ -37,14 +37,33 @@ function App() {
                 <Route path="/articles" element={<ArticlesList />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
-                <Route path="/member-login" element={<MemberLoginPage />} />
-                <Route path="/articles/new" element={<NewArticle />} />
+                <Route 
+                  path="/articles/new" 
+                  element={
+                    <RequireAuthRoute>
+                      <NewArticle />
+                    </RequireAuthRoute> } />
                 <Route path="/articles/:slug" element={<ArticleDetail />} />
-                <Route path="/articles/:slug/edit" element={<EditArticle />} />
+                <Route 
+                  path="/articles/:slug/edit" 
+                  element={
+                    <RequireAuthRoute> 
+                      <EditArticle /> 
+                    </RequireAuthRoute> } />
                 <Route path="/forum" element={<ForumPage />} />
-                <Route path="/forum/new" element={<NewThreadPage />} />
+                <Route 
+                  path="/forum/new" 
+                  element={ 
+                    <RequireAuthRoute>
+                      <NewThreadPage />
+                    </RequireAuthRoute> } />
                 <Route path="/forum/:id" element={<ThreadDetailPage />} />
-                <Route path="/chat" element={<ChatPage />} />
+                <Route 
+                  path="/chat" 
+                  element={
+                    <RequireAuthRoute>
+                      <ChatPage />
+                    </RequireAuthRoute>} />
               </Routes>
             </main>
           </div>

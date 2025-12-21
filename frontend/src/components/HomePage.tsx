@@ -23,21 +23,14 @@ export default function HomePage() {
             className="btn btn-light landing-btn"
             onClick={() => navigate('/articles')}
           >
-            Visitor
+            Enter 
           </button>
 
           <button
             className="btn btn-primary landing-btn"
-            onClick={() => navigate('/member-login')}
-          >
-            Member
-          </button>
-
-          <button
-            className="btn btn-outline landing-btn"
             onClick={() => navigate('/login')}
           >
-            Administrator
+            Member ? Sign In
           </button>
         </div>
       </div>

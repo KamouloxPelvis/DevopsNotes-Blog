@@ -9,6 +9,8 @@ export default function ForumPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState('');
+
   useEffect(() => {
     (async () => {
       try {
@@ -21,6 +23,17 @@ export default function ForumPage() {
       }
     })();
   }, []);
+
+  const term = searchTerm.toLowerCase();
+
+  const filteredThreads = threads.filter((t) => {
+    if (!term) return true;
+    return (
+      t.title.toLowerCase().includes(term) ||
+      t.content.toLowerCase().includes(term) ||
+      (t.authorPseudo ?? '').toLowerCase().includes(term)
+    );
+  });
 
   return (
   <div className="page-card">
@@ -41,6 +54,13 @@ export default function ForumPage() {
           gap: '0.5rem',
         }}
       >
+        <input
+            type="text"
+            className="forum-search-input"
+            placeholder="Search threads..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         <Link to="/articles" className="btn btn-light">
           ← Back to articles
         </Link>
@@ -62,7 +82,7 @@ export default function ForumPage() {
 
     {!loading && !error && threads.length > 0 && (
       <ul className="thread-card-list">
-        {threads.map((thread) => (
+        {filteredThreads.map((thread) => (
           <li key={thread._id} className="thread-card">
             <Link to={`/forum/${thread._id}`}>
               <h2>{thread.title}</h2>

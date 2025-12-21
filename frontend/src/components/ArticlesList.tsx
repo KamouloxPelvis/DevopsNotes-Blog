@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getArticles } from '../api/articles';
 import { Article } from '../types/articles';
-import { getAuthToken, logout } from '../api/auth';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 type CommentCountMap = Record<string, number>;
 
@@ -14,16 +13,17 @@ export function ArticlesList() {
   const [error, setError] = useState<string | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const isAdmin = !!getAuthToken();
-  
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
 
   const navigate = useNavigate();
 
-  function handleLogout() {
-  logout();              // supprime le token du localStorage
-  navigate('/articles');    // ou navigate('/') si tu préfères revenir à la liste
+  const { user, logout } = useAuth();          // <-- contexte
+  const isAdmin = user?.role === 'admin';  
+
+  async function handleLogout() {
+    logout();              // supprime le token du localStorage
+    navigate('/articles');    
 }
 
   useEffect(() => {
@@ -106,11 +106,16 @@ export function ArticlesList() {
         <Link to="/forum" className="btn btn-secondary">
           Forum
         </Link>
-        {isAdmin ? (
+        {user ? (                                  // <-- connecté = n'importe quel rôle
           <>
-            <Link to="/articles/new" className="btn btn-primary">
-              New article
-            </Link>
+          <Link to="/chat" className="btn btn-secondary">
+            Chat
+          </Link>
+            {isAdmin && (                           // <-- admin uniquement
+              <Link to="/articles/new" className="btn btn-primary">
+                New article
+              </Link>
+            )}
             <button
               type="button"
               className="btn btn-secondary"
@@ -124,11 +129,8 @@ export function ArticlesList() {
             <Link to="/signup" className="btn btn-light">
               Sign up
             </Link>
-            <Link to="/member-login" className="btn btn-secondary">
-              Sign in
-            </Link>
             <Link to="/login" className="btn btn-secondary">
-              Admin
+              Sign in
             </Link>
           </>
         )}

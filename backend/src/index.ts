@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import path from 'node:path';
 import http from 'http';
 import { Server } from 'socket.io';
-import { Jwt } from 'jsonwebtoken';
+import jwt  from 'jsonwebtoken';
 
 import commentRoutes from './routes/comments';
 import articlesRouter from './routes/articles';
