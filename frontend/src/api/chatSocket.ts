@@ -17,3 +17,10 @@ export function getChatSocket(): Socket {
   }
   return socket;
 }
+
+export function disconnectChatSocket() {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+}

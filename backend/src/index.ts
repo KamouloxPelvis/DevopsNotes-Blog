@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'node:path';
 import http from 'http';
-import { Server } from 'socket.io';
+import { requireAdmin } from './middleware/auth';
 import jwt  from 'jsonwebtoken';
 
 import commentRoutes from './routes/comments';
@@ -12,7 +12,9 @@ import articlesRouter from './routes/articles';
 import forumRouter from './routes/forum'
 import authRouter from './routes/auth';
 import { upload } from './utils/upload';
-import { requireAdmin } from './middleware/auth';
+import { Server } from 'socket.io';
+import chatRouter from './routes/chat';
+import { Message } from './models/Message';
 
 dotenv.config(); // charge .env
 
@@ -47,8 +49,8 @@ app.post('/upload', requireAdmin, upload.single('file'), (req, res) => {
   return res.status(201).json({ imageUrl });
 });
 
-// Route du forum
-app.use('/api/forum', forumRouter);
+// Routes Chat
+app.use('/api/chat', chatRouter);
 
 // Lecture des variables d'environnement
 const PORT = process.env.PORT || 5000;
@@ -107,29 +109,45 @@ mongoose
       }
     });
 
+    // Connexion serveur du chat socket.io
+
     io.on('connection', (socket) => {
       const user = (socket as any).user as JwtPayload;
       console.log('Socket connected:', user.pseudo, user.id);
 
-      socket.join('general');
+      socket.join('General');
 
       socket.on('chat:join', (room: string) => {
         socket.join(room);
         socket.emit('chat:joined', { room });
       });
 
-      socket.on('chat:message', ({ room, text }) => {
+      socket.on('chat:message', async ({ room, text }) => {
         if (!text || typeof text !== 'string') return;
+
         const msg = {
-          room: room || 'general',
+          room: room || 'General',
           text,
           fromId: user.id,
           fromPseudo: user.pseudo,
-          at: new Date().toISOString(),
+          at: new Date(),
         };
-        io.to(msg.room).emit('chat:message', msg);
-      });
+
+        try { 
+        const saved = await Message.create(msg);
+        // on renvoie le document sauvegardé (avec _id, Date réelle, etc.)
+        io.to(saved.room).emit('chat:message', {
+          room: saved.room,
+          text: saved.text,
+          fromId: saved.fromId,
+          fromPseudo: saved.fromPseudo,
+          at: saved.at.toISOString(),
+        });
+      } catch (err) {
+        console.error('Error saving chat messages', err);
+      }
     });
+  });
 
     server.listen(PORT, () => {
       console.log(`Server + socket.IO² running on port ${PORT}`);

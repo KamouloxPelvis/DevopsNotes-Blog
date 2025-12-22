@@ -1,5 +1,6 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { getChatSocket } from '../api/chatSocket';
+import './ChatPage.css';
 
 type ChatMessage = {
   room: string;
@@ -12,10 +13,34 @@ type ChatMessage = {
 export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
-  const [room, setRoom] = useState('general');
+  const [room, setRoom] = useState('General');
 
   useEffect(() => {
     const socket = getChatSocket();
+    setMessages([]);
+
+    const controller = new AbortController();
+
+    async function loadHistory() {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/chat/messages?room=${room}`,
+          { signal: controller.signal }
+        );
+        if (!res.ok) {
+          console.error('Error loading history:', res.status);
+          return;
+        }
+        const data: ChatMessage[] = await res.json();
+        setMessages(data);
+      } catch (e: any) {
+        if (e.name !== 'AbortError') {
+          console.error('Error loading history', e);
+        }
+      }
+    }
+
+    loadHistory();
 
     socket.emit('chat:join', room);
 
@@ -28,6 +53,7 @@ export default function ChatPage() {
     socket.on('chat:message', handler);
 
     return () => {
+      controller.abort();
       socket.off('chat:message', handler);
     };
   }, [room]);
@@ -42,53 +68,96 @@ export default function ChatPage() {
     setText('');
   }
 
-  return (
-    <div className="page-card">
-      <h1>Chat rooms</h1>
+  // TODO: récupère le pseudo courant dans ton auth context si tu veux un isMe fiable
+  const currentPseudo = 'Administrator';
 
-      <div style={{ marginBottom: '1rem' }}>
-        <label>
-          Room:
-          <select value={room} onChange={(e) => setRoom(e.target.value)}>
-            <option value="general">general</option>
-            <option value="devops">devops</option>
-            <option value="random">random</option>
+  return (
+    <div className="page-card chat-container">
+      <h1 className="page-title">Chat rooms</h1>
+
+      <div className="chat-header">
+        <div>
+          <label htmlFor="room-select" className="chat-header-label">
+            Room:
+          </label>
+          <select
+            id="room-select"
+            value={room}
+            onChange={(e) => setRoom(e.target.value)}
+            className="chat-room-select"
+          >
+            <option value="General">General</option>
+            <option value="DevOps Room">DevOps Room</option>
+            <option value="Relax">Relax room</option>
           </select>
-        </label>
+        </div>
+
+        <span className="chat-header-hint">
+          Messages are public in the selected room
+        </span>
       </div>
 
-      <div
-        style={{
-          border: '1px solid #e5e7eb',
-          borderRadius: 8,
-          padding: '0.75rem',
-          marginBottom: '0.75rem',
-          maxHeight: 300,
-          overflowY: 'auto',
-        }}
-      >
-        {messages.map((m, idx) => (
-          <div key={idx} style={{ marginBottom: '0.35rem', fontSize: '0.9rem' }}>
-            <strong>{m.fromPseudo ?? 'anonymous'}</strong>{' '}
-            <span style={{ color: '#6b7280' }}>
-              [{new Date(m.at).toLocaleTimeString()}]
-            </span>{' '}
-            : {m.text}
+      <div className="chat-messages">
+        {messages.length === 0 && (
+          <div className="chat-empty">
+            No messages yet in #{room}. Start the conversation!
           </div>
-        ))}
+        )}
+
+        {messages.map((m, idx) => {
+          const isMe = m.fromPseudo === currentPseudo;
+          return (
+            <div
+              key={idx}
+              className={
+                'chat-message-row ' + (isMe ? 'me' : 'other')
+              }
+            >
+              <div
+                className={
+                  'chat-bubble ' + (isMe ? 'me' : 'other')
+                }
+              >
+                <div className="chat-bubble-header">
+                  <span
+                    className={
+                      'chat-bubble-author ' + (isMe ? 'me' : 'other')
+                    }
+                  >
+                    {m.fromPseudo ?? 'anonymous'}
+                  </span>
+                  <span
+                    className={
+                      'chat-bubble-time ' + (isMe ? 'me' : 'other')
+                    }
+                  >
+                    {new Date(m.at).toLocaleTimeString()}
+                  </span>
+                </div>
+                <div>{m.text}</div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={`Message #${room}`}
-          style={{ width: '100%', marginBottom: '0.5rem' }}
-        />
-        <button type="submit" className="btn btn-primary">
-          Send
-        </button>
+        <div className="chat-input-row">
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={`Message #${room}`}
+            className="chat-input"
+          />
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ paddingInline: '1rem' }}
+          >
+            Send
+          </button>
+        </div>
       </form>
     </div>
   );

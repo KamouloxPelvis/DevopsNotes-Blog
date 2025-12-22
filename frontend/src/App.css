@@ -127,6 +127,7 @@ body {
   display: -webkit-box;
   -webkit-line-clamp: 3;      /* limite à 3 lignes (voir compatibilité)*/
   -webkit-box-orient: vertical;
+  line-clamp: 3;
   overflow: hidden;
 }
 

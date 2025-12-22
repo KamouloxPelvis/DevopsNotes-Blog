@@ -11,6 +11,8 @@ import {
   getCurrentUser,
 } from '../api/auth';
 
+import { disconnectChatSocket } from '../api/chatSocket';
+
 type JwtPayload = {
   id?: string;
   role?: string;
@@ -44,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Logout centralisé
   const logout = () => {
     apiLogout();       // supprime devopsnotes_token
+    disconnectChatSocket(); // ferme le socket qui utilisait l'ancien token
     setUser(null);     // met à jour immédiatement l’UI
   };
 

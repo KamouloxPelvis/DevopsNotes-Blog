@@ -1,0 +1,55 @@
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 2.5rem; /* espace pour l’icône */
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.6rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+/* Icône oeil fermée / ouverte en pur CSS (tu peux remplacer par une lib d’icônes) */
+.icon-eye-closed,
+.icon-eye-open {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid #0f766e;
+  position: relative;
+}
+
+.icon-eye-closed::before {
+  content: '';
+  position: absolute;
+  width: 130%;
+  height: 2px;
+  background: #0f766e;
+  transform: rotate(40deg);
+  top: 50%;
+  left: -15%;
+}
+
+.icon-eye-open::before {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #0f766e;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
