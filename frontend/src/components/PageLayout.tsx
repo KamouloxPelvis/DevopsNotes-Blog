@@ -2,7 +2,8 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../components/PageLayout.css';
+import '../styles/PageLayout.css';
+import '../styles/Toast.css'
 
 type Props = {
   children: ReactNode;

@@ -1,26 +1,23 @@
 // src/components/NewArticle.tsx
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { PageLayout } from './PageLayout';
 import { getAuthToken } from '../api/auth';
+import { useToast } from '../context/ToastContext';
 
 export default function NewArticle() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [error, setError] = useState<string | null>(null);
-
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string>(''); // URL renvoyée par /upload
-
+  const [imageUrl, setImageUrl] = useState<string>('');
   const [tags, setTags] = useState<string[]>([]);
-  const [rawTags, setRawTags] = useState(''); // "docker, containerization"
-
+  const [rawTags, setRawTags] = useState('');
   const [status, setStatus] = useState<'draft' | 'published'>('draft');
-
-
-  const navigate = useNavigate();
+  const [uploading, setUploading] = useState(false);
+  const { showToast } = useToast();
   const token = getAuthToken();
+  const navigate = useNavigate();
 
   const handleTagsChange = (value: string) => {
     setRawTags(value);
@@ -32,9 +29,10 @@ export default function NewArticle() {
   };
 
   async function handleUploadImage() {
-    if (!imageFile) return;
+    if (!imageFile || uploading) return;
 
     try {
+      setUploading(true);
       const formData = new FormData();
       formData.append('file', imageFile);
 
@@ -51,48 +49,75 @@ export default function NewArticle() {
       }
 
       const data = await res.json();
-      setImageUrl(data.imageUrl); // ex: "/uploads/xxx.jpg"
+      setImageUrl(data.imageUrl);
+
+      showToast({
+        type: 'success',
+        message: 'Image uploaded successfully.',
+      });
     } catch (err: any) {
-      setError(err.message);
+      const msg = err.message || 'Image upload failed.';
+      setError(msg);
+      showToast({
+        type: 'error',
+        message: msg,
+      });
+    } finally {
+      setUploading(false);
     }
   }
 
   async function handleSubmit(e: FormEvent) {
-  e.preventDefault();
-  setError(null);
+    e.preventDefault();
+    setError(null);
 
-  try {
-    const res = await fetch('http://localhost:5000/api/articles', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ title, content, imageUrl, tags, status }),
-    });
-
-    let data: any = null;
     try {
-      data = await res.json();
-    } catch {
-      // no JSON body, keep data = null
-    }
+      const res = await fetch('http://localhost:5000/api/articles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ title, content, imageUrl, tags, status }),
+      });
 
-    if (!res.ok) {
-      const msg =
-        (data && data.message) ||
-        `Failed to create the article (status ${res.status}).`;
-      throw new Error(msg);
-    }
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        // no JSON body
+      }
 
-    const created = data;
-    navigate(`/articles/${created.slug}`);
-  } catch (err: any) {
-    setError(err.message);
+      if (!res.ok) {
+        const msg =
+          (data && data.message) ||
+          `Failed to create the article (status ${res.status}).`;
+        throw new Error(msg);
+      }
+
+      const created = data;
+
+      showToast({
+        type: 'success',
+        message:
+          status === 'published'
+            ? 'Article published successfully.'
+            : 'Draft saved successfully.',
+      });
+
+      navigate(`/articles/${created.slug}`);
+    } catch (err: any) {
+      const msg = err.message || 'Failed to create the article.';
+      setError(msg);
+      showToast({
+        type: 'error',
+        message: msg,
+      });
+    }
   }
-}
+
   return (
-    <PageLayout>
+    <div>
       <p>
         <Link to="/articles" className="btn btn-secondary">
           ← Back to the list
@@ -139,7 +164,9 @@ export default function NewArticle() {
           <label>Status</label>
           <select
             value={status}
-            onChange={(e) => setStatus(e.target.value as 'draft' | 'published')}
+            onChange={(e) =>
+              setStatus(e.target.value as 'draft' | 'published')
+            }
           >
             <option value="draft">Draft</option>
             <option value="published">Published</option>
@@ -154,7 +181,6 @@ export default function NewArticle() {
             accept="image/*"
             onChange={(e) => {
               const file = e.target.files?.[0] || null;
-              console.log('file picked', file);
               setImageFile(file);
               if (file) {
                 const url = URL.createObjectURL(file);
@@ -173,10 +199,13 @@ export default function NewArticle() {
 
           <button
             type="button"
-            className="btn btn-secondary"
+            className={`btn btn-secondary upload-btn ${
+              uploading ? 'is-loading' : ''
+            }`}
             onClick={handleUploadImage}
+            disabled={uploading || !imageFile}
           >
-            Upload an image
+            {uploading ? 'Uploading...' : 'Upload an image'}
           </button>
         </div>
 
@@ -186,7 +215,6 @@ export default function NewArticle() {
           </button>
         </div>
       </form>
-    </PageLayout>
+    </div>
   );
 }
-

@@ -1,7 +1,8 @@
+// src/components/EditArticle.tsx
 import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { PageLayout } from './PageLayout';
 import { getAuthToken } from '../api/auth';
+import { useToast } from '../context/ToastContext';
 
 type RouteParams = {
   slug: string;
@@ -20,6 +21,7 @@ type Article = {
 export default function EditArticle() {
   const { slug } = useParams<RouteParams>();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -31,22 +33,20 @@ export default function EditArticle() {
   const [error, setError] = useState<string | null>(null);
 
   const [tags, setTags] = useState<string[]>([]);
-  const [rawTags, setRawTags] = useState(''); // champ texte brut "docker, containerization"
-
+  const [rawTags, setRawTags] = useState('');
   const [status, setStatus] = useState<'draft' | 'published'>('draft');
+  const [uploading, setUploading] = useState(false);
 
-  
   const token = getAuthToken();
 
   const handleTagsChange = (value: string) => {
     setRawTags(value);
     const normalized = value
       .split(',')
-      .map(t => t.trim().toLowerCase())
-      .filter(t => t.length > 0);
+      .map((t) => t.trim().toLowerCase())
+      .filter((t) => t.length > 0);
     setTags(normalized);
   };
-
 
   useEffect(() => {
     if (!slug) return;
@@ -71,10 +71,10 @@ export default function EditArticle() {
   }, [slug]);
 
   async function handleUploadImage() {
-    console.log('handleUploadImage called, imageFile =', imageFile);
-    if (!imageFile) return;
+    if (!imageFile || uploading) return;
 
     try {
+      setUploading(true);
       const formData = new FormData();
       formData.append('file', imageFile);
 
@@ -85,31 +85,39 @@ export default function EditArticle() {
         },
         body: formData,
       });
-      
+
       if (!res.ok) {
         throw new Error('Erreur lors de l’upload de l’image');
       }
 
-      console.log('upload status', res.status);
       const data = await res.json();
-      console.log('upload response', data);
-      setImageUrl(data.imageUrl);          // ex: "/uploads/xxx.jpg"
+      setImageUrl(data.imageUrl);
+
+      showToast({
+        type: 'success',
+        message: 'Image uploaded successfully.',
+      });
     } catch (err: any) {
+      const msg = err.message || 'Image upload failed.';
       console.error('upload error', err);
-      setError(err.message);
+      setError(msg);
+      showToast({
+        type: 'error',
+        message: msg,
+      });
+    } finally {
+      setUploading(false);
     }
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    console.log('handleSubmit called, status =', status);
 
     if (!slug) {
-      console.log('No slug, aborting');
       return;
     }
+
     try {
-      console.log('No slug, aborting');
       const res = await fetch(`http://localhost:5000/api/articles/${slug}`, {
         method: 'PUT',
         headers: {
@@ -118,25 +126,38 @@ export default function EditArticle() {
         },
         body: JSON.stringify({ title, content, imageUrl, tags, status }),
       });
-      console.log('Fetch done, status =', res.status);
 
       if (!res.ok) {
-      const errBody = await res.json().catch(() => null);
-      throw new Error(errBody?.message || `HTTP ${res.status}`);
-    }
+        const errBody = await res.json().catch(() => null);
+        throw new Error(errBody?.message || `HTTP ${res.status}`);
+      }
 
       const updated: Article = await res.json();
+
+      showToast({
+        type: 'success',
+        message:
+          status === 'published'
+            ? 'Article updated and published.'
+            : 'Draft updated successfully.',
+      });
+
       navigate(`/articles/${updated.slug}`);
     } catch (err: any) {
-      setError(err.message);
+      const msg = err.message || 'Failed to update the article.';
+      setError(msg);
+      showToast({
+        type: 'error',
+        message: msg,
+      });
     }
   }
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error : {error}</p>;
+  if (error && !title) return <p>Error : {error}</p>;
 
   return (
-    <PageLayout>
+    <div>
       <p>
         <Link to="/articles" className="btn btn-secondary">
           ← Back to the list
@@ -178,7 +199,6 @@ export default function EditArticle() {
           />
         </div>
 
-        {/* >>> Champ Status commence ici <<< */}
         <div className="form-field">
           <label htmlFor="status">Status</label>
           <select
@@ -193,7 +213,6 @@ export default function EditArticle() {
             <option value="published">Published</option>
           </select>
         </div>
-        {/* <<< fin du bloc Status >>> */}
 
         <div className="form-field">
           <label htmlFor="image">Illustration</label>
@@ -215,18 +234,23 @@ export default function EditArticle() {
 
           {imagePreview && (
             <div className="image-preview">
-              <img src={imagePreview} 
-              alt="Preview" 
-              onError={() => setImagePreview(null)} />
+              <img
+                src={imagePreview}
+                alt="Preview"
+                onError={() => setImagePreview(null)}
+              />
             </div>
           )}
 
           <button
             type="button"
-            className="btn btn-secondary"
+            className={`btn btn-secondary upload-btn ${
+              uploading ? 'is-loading' : ''
+            }`}
             onClick={handleUploadImage}
+            disabled={uploading || !imageFile}
           >
-            Upload an image
+            {uploading ? 'Uploading...' : 'Upload an image'}
           </button>
         </div>
 
@@ -236,6 +260,6 @@ export default function EditArticle() {
           </button>
         </div>
       </form>
-    </PageLayout>
+    </div>
   );
 }

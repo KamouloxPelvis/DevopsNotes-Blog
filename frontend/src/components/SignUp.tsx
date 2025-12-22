@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './SignUp.css'
+import { useToast } from '../context/ToastContext';
+import '../styles/SignUp.css'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -16,6 +17,8 @@ export default function SignupPage() {
   const PASSWORD_REGEX =
     /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{6,}$/;
 
+  const { showToast } = useToast();
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
@@ -27,9 +30,9 @@ export default function SignupPage() {
     }
 
     if (!PASSWORD_REGEX.test(password)) {
-      setError(
-        'Password must be at least 6 characters with 1 uppercase letter, 1 digit and 1 special character.'
-      );
+      const msg =  'Password must be at least 6 characters with 1 uppercase letter, 1 digit and 1 special character.';
+      setError(msg);
+      showToast({ type: 'error', message: msg });
       return;
     }
 
@@ -54,7 +57,10 @@ export default function SignupPage() {
 
       const data = await res.json();
       localStorage.setItem('devopsnotes_token', data.token);
-      alert('Your account has been created successfully. Welcome to DevOpsNotes!');
+      showToast({
+        type: 'success',
+        message: 'Your account has been created successfully. Welcome to DevOpsNotes!',
+      });
       navigate('/forum');
     } catch (err: any) {
       setError(err.message || 'Signup failed');

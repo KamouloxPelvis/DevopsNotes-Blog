@@ -1,6 +1,7 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { getChatSocket } from '../api/chatSocket';
-import './ChatPage.css';
+import { useToast } from '../context/ToastContext';
+import '../styles/ChatPage.css';
 
 type ChatMessage = {
   room: string;
@@ -14,6 +15,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
   const [room, setRoom] = useState('General');
+  const { showToast } = useToast();
 
   useEffect(() => {
     const socket = getChatSocket();
@@ -29,6 +31,10 @@ export default function ChatPage() {
         );
         if (!res.ok) {
           console.error('Error loading history:', res.status);
+          showToast({
+            type: 'error',
+            message: 'Failed to load chat history.',
+          });
           return;
         }
         const data: ChatMessage[] = await res.json();
@@ -36,6 +42,10 @@ export default function ChatPage() {
       } catch (e: any) {
         if (e.name !== 'AbortError') {
           console.error('Error loading history', e);
+          showToast({
+            type: 'error',
+            message: 'Failed to load chat history.',
+          });
         }
       }
     }
@@ -52,11 +62,22 @@ export default function ChatPage() {
 
     socket.on('chat:message', handler);
 
+        // écouter une erreur socket globale
+    const errorHandler = (err: any) => {
+      console.error('Socket error:', err);
+      showToast({
+        type: 'error',
+        message: 'Chat connection error. Messages may not be delivered.',
+      });
+    };
+    socket.on('connect_error', errorHandler);
+    socket.on('error', errorHandler);
+
     return () => {
       controller.abort();
       socket.off('chat:message', handler);
     };
-  }, [room]);
+  }, [room, showToast]);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -66,6 +87,16 @@ export default function ChatPage() {
     const socket = getChatSocket();
     socket.emit('chat:message', { room, text: trimmed });
     setText('');
+    try {
+      socket.emit('chat:message', { room, text: trimmed });
+      setText('');
+    } catch (err) {
+      console.error('Send message error:', err);
+      showToast({
+        type: 'error',
+        message: 'Failed to send message.',
+      });
+    }
   }
 
   // TODO: récupère le pseudo courant dans ton auth context si tu veux un isMe fiable

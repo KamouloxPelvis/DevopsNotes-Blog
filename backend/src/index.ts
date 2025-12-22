@@ -6,6 +6,7 @@ import path from 'node:path';
 import http from 'http';
 import { requireAdmin } from './middleware/auth';
 import jwt  from 'jsonwebtoken';
+import helmet from 'helmet';
 
 import commentRoutes from './routes/comments';
 import articlesRouter from './routes/articles';
@@ -23,6 +24,12 @@ const app = express();
 // Middlewares généraux
 app.use(cors());
 app.use(express.json());
+app.use(
+  '/api',
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 
 // Dossier d'upload commun (backend/uploads)
 const uploadDir = path.join(process.cwd(), 'uploads');

@@ -1,7 +1,6 @@
 // src/components/ArticleDetail.tsx
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { PageLayout } from './PageLayout';
 import { getAuthToken } from '../api/auth';
 import { RelatedArticles } from './RelatedArticles';
 import { useAllArticles } from '../hooks/useAllArticles';
@@ -129,7 +128,7 @@ function handleReplyTo(author: string) {
   // scroll au formulaire plus tard ?
 } 
   return (
-    <PageLayout>
+    <div>
       {article.imageUrl && (
         <div className="article-detail-image">
           <img
@@ -220,6 +219,6 @@ function handleReplyTo(author: string) {
             allArticles={allArticles} 
           />
         )}
-    </PageLayout>
-  );
-}
+    );
+  </div>
+)};
