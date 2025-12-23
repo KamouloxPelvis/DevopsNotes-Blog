@@ -19,10 +19,17 @@ import { Message } from './models/Message';
 
 dotenv.config(); // charge .env
 
+const FRONTEND_ORIGIN =
+  process.env.FRONTEND_ORIGIN || 'http://localhost:3000';
+
 const app = express();
 
 // Middlewares généraux
-app.use(cors());
+app.use(
+  cors({
+    origin: FRONTEND_ORIGIN,
+    credentials: true,
+  }));
 app.use(express.json());
 app.use(
   '/api',
@@ -87,7 +94,7 @@ mongoose
 
     const io = new Server(server, {
       cors: {
-        origin: 'http://localhost:3000',
+        origin: FRONTEND_ORIGIN,
         methods: ['GET', 'POST'],
       },
     });
