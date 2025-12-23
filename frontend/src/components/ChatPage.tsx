@@ -1,6 +1,7 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { getChatSocket } from '../api/chatSocket';
 import { useToast } from '../context/ToastContext';
+import { useNavigate } from 'react-router-dom';
 import '../styles/ChatPage.css';
 
 type ChatMessage = {
@@ -16,6 +17,7 @@ export default function ChatPage() {
   const [text, setText] = useState('');
   const [room, setRoom] = useState('General');
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const socket = getChatSocket();
@@ -104,8 +106,16 @@ export default function ChatPage() {
 
   return (
     <div className="page-card chat-container">
-      <h1 className="page-title">Chat rooms</h1>
-
+      <div className="chat-title-row">
+        <h1 className="page-title">Chat rooms</h1>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => navigate('/articles')}
+        >
+          ← Back to the articles
+        </button>
+      </div>
       <div className="chat-header">
         <div>
           <label htmlFor="room-select" className="chat-header-label">

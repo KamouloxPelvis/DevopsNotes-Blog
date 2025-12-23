@@ -16,6 +16,13 @@
   margin-right: 8px;
 }
 
+.chat-title-row {
+  display: flex;
+  justify-content: space-between; /* titre à gauche, bouton à droite */
+  align-items: center;            /* aligné verticalement au centre */
+  margin-bottom: 1rem;            /* un peu d'espace sous le header */
+}
+
 .chat-room-select {
   padding: 0.3rem 0.6rem;
   border-radius: 6px;
