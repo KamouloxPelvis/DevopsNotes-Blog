@@ -27,6 +27,8 @@ const FRONTEND_ORIGIN =
 const allowedOrigins = [
   "http://localhost:3000",
   "http://113.30.191.17:3000",
+  "http://devopsnotes.org",
+  "https://devopsnotes.org",
 ];
 
 // Middlewares généraux
