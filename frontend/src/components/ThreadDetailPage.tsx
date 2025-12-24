@@ -25,6 +25,7 @@ export default function ThreadDetailPage() {
     (currentUser.role === 'admin' ||
     (thread.authorId && (thread.authorId as any).toString?.() === currentUser.id));
 
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
     useEffect(() => {
         if (!id) return;
@@ -84,7 +85,7 @@ export default function ThreadDetailPage() {
       if (!id) return;
 
       try {
-        const res = await fetch(`http://localhost:5000/api/forum/threads/${id}`, {
+        const res = await fetch(`${API_URL}/forum/threads/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -112,7 +113,7 @@ export default function ThreadDetailPage() {
       if (!window.confirm('Delete this thread?')) return;
 
       try {
-        const res = await fetch(`http://localhost:5000/api/forum/threads/${id}`, {
+        const res = await fetch(`${API_URL}/forum/threads/${id}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${getAuthToken()}`,

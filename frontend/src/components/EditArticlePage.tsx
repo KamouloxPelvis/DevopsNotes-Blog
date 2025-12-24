@@ -39,6 +39,9 @@ export default function EditArticle() {
 
   const token = getAuthToken();
 
+  const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
+  const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'http://localhost:5000/api';
+
   const handleTagsChange = (value: string) => {
     setRawTags(value);
     const normalized = value
@@ -51,7 +54,7 @@ export default function EditArticle() {
   useEffect(() => {
     if (!slug) return;
 
-    fetch(`http://localhost:5000/api/articles/${slug}`)
+    fetch(`${API_URL}/articles/${slug}`)
       .then(async (res) => {
         if (!res.ok) throw new Error('Erreur HTTP');
         return res.json();
@@ -68,7 +71,7 @@ export default function EditArticle() {
       })
       .catch((err: any) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, API_URL]);
 
   async function handleUploadImage() {
     if (!imageFile || uploading) return;
@@ -78,7 +81,7 @@ export default function EditArticle() {
       const formData = new FormData();
       formData.append('file', imageFile);
 
-      const res = await fetch('http://localhost:5000/upload', {
+      const res = await fetch(`${API_ROOT}/upload`, {
         method: 'POST',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -118,7 +121,7 @@ export default function EditArticle() {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/articles/${slug}`, {
+      const res = await fetch(`${API_URL}/articles/${slug}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

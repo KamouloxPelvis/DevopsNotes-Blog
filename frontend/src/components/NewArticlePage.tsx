@@ -19,6 +19,9 @@ export default function NewArticle() {
   const token = getAuthToken();
   const navigate = useNavigate();
 
+  const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'http://localhost:5000/';
+  const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
+
   const handleTagsChange = (value: string) => {
     setRawTags(value);
     const normalized = value
@@ -36,7 +39,7 @@ export default function NewArticle() {
       const formData = new FormData();
       formData.append('file', imageFile);
 
-      const res = await fetch('http://localhost:5000/upload', {
+      const res = await fetch(`${API_ROOT}/upload`, {
         method: 'POST',
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -72,7 +75,7 @@ export default function NewArticle() {
     setError(null);
 
     try {
-      const res = await fetch('http://localhost:5000/api/articles', {
+      const res = await fetch(`${API_URL}/articles`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -23,5 +23,4 @@ services:
     container_name: devopsnotes-frontend
     ports:
       - "3000:80"
-    # Pour que le frontend parle au backend via http://localhost:5000
-    # pas besoin de réseau spécial, le mapping de port suffit en local
+    # Pour que le frontend parle au backend via process.env.REACT_APP_API_URL ou 'http://localhost:5000/api'

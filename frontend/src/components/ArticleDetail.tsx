@@ -34,11 +34,12 @@ export default function ArticleDetail() {
     loading: loadingAllArticles } = useAllArticles();  
   
   const navigate = useNavigate();
+  const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
 
   useEffect(() => {
     if (!slug) return;
 
-    fetch(`http://localhost:5000/api/articles/${slug}`)
+    fetch(`${API_URL}/articles/${slug}`)
       .then(async (res) => {
         if (!res.ok) throw new Error('Erreur HTTP');
         return res.json();
@@ -47,14 +48,14 @@ export default function ArticleDetail() {
       .catch((err: any) => setError(err.message))
       .finally(() => setLoadingArticle(false));
 
-    fetch(`http://localhost:5000/api/articles/${slug}/comments`)
+    fetch(`${API_URL}/articles/${slug}/comments`)
     .then((res) => {
       if (!res.ok) return [];
       return res.json();
     })
     .then((data: Comment[]) => setComments(data))
     .catch(() => {});
-  }, [slug]);
+  }, [slug, API_URL]);
 
   if (loadingArticle) return <p>Loading...</p>;
   if (error) return <p>Error : {error}</p>;
@@ -69,7 +70,7 @@ export default function ArticleDetail() {
     try {
       const token = getAuthToken();
 
-      const res = await fetch(`http://localhost:5000/api/articles/${slug}`, {
+      const res = await fetch(`${API_URL}/articles/${slug}`, {
         method: 'DELETE',
         headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -95,7 +96,7 @@ export default function ArticleDetail() {
 
   try {
     const res = await fetch(
-      `http://localhost:5000/api/articles/${slug}/comments`,
+      `${API_URL}/articles/${slug}/comments`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -132,7 +133,7 @@ function handleReplyTo(author: string) {
       {article.imageUrl && (
         <div className="article-detail-image">
           <img
-            src={`http://localhost:5000${article.imageUrl}`}
+            src={`${API_URL}${article.imageUrl}`}
             alt={article.title}
           />
         </div>

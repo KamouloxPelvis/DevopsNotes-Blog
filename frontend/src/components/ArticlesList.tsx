@@ -7,6 +7,9 @@ import { useAuth } from '../context/AuthContext';
 type CommentCountMap = Record<string, number>;
 
 export function ArticlesList() {
+
+  const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [commentCounts, setCommentCounts] = useState<CommentCountMap>({});
   const [loading, setLoading] = useState(true);
@@ -15,7 +18,7 @@ export function ArticlesList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
-
+  
   const navigate = useNavigate();
 
   const { user, logout } = useAuth();          // <-- contexte
@@ -45,7 +48,7 @@ export function ArticlesList() {
       articles.map(async (a) => {
         try {
           const res = await fetch(
-            `http://localhost:5000/api/articles/${a.slug}/comments/count`
+            `${API_URL}/articles/${a.slug}/comments/count`
           );
           if (!res.ok) return [a.slug, 0] as const;
           const data = await res.json();
@@ -64,7 +67,7 @@ export function ArticlesList() {
   }
 
   loadCounts();
-}, [articles]);
+}, [API_URL, articles]);
 
 
   if (loading) return <p>Loading articles...</p>;
@@ -168,7 +171,7 @@ export function ArticlesList() {
         <div key={article._id} className="article-card">
           {article.imageUrl && (
             <img
-              src={`http://localhost:5000${article.imageUrl}`}
+              src={`${API_URL}${article.imageUrl}`}
               alt={article.title}
               className="article-card-thumb"
             />

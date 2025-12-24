@@ -19,17 +19,17 @@ import { Message } from './models/Message';
 
 dotenv.config(); // charge .env
 
+const app = express();
+
 const FRONTEND_ORIGIN =
   process.env.FRONTEND_ORIGIN || 'http://localhost:3000';
 
-const app = express();
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://113.30.191.17:3000",
+];
 
 // Middlewares généraux
-app.use(
-  cors({
-    origin: FRONTEND_ORIGIN,
-    credentials: true,
-  }));
 app.use(express.json());
 app.use(
   '/api',
@@ -37,13 +37,32 @@ app.use(
     contentSecurityPolicy: false,
   })
 );
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+});
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // autoriser les outils type Postman (origin null)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 
 // Dossier d'upload commun (backend/uploads)
-const uploadDir = path.join(process.cwd(), 'uploads');
+const uploadDir = path.join(__dirname, '..', 'uploads');
 console.log('UPLOAD DIR =', uploadDir);
 
 // Servir les fichiers uploadés
-app.use('/uploads', express.static(uploadDir));
+app.use('/api/uploads', express.static(uploadDir));
 
 // Routes API et Auth
 app.use('/api', commentRoutes);

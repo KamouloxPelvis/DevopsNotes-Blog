@@ -19,6 +19,8 @@ export default function ChatPage() {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
+
   useEffect(() => {
     const socket = getChatSocket();
     setMessages([]);
@@ -28,7 +30,7 @@ export default function ChatPage() {
     async function loadHistory() {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/chat/messages?room=${room}`,
+          `${API_URL}/chat/messages?room=${room}`,
           { signal: controller.signal }
         );
         if (!res.ok) {
@@ -79,7 +81,7 @@ export default function ChatPage() {
       controller.abort();
       socket.off('chat:message', handler);
     };
-  }, [room, showToast]);
+  }, [room, showToast, API_URL]);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -87,8 +89,6 @@ export default function ChatPage() {
     if (!trimmed) return;
 
     const socket = getChatSocket();
-    socket.emit('chat:message', { room, text: trimmed });
-    setText('');
     try {
       socket.emit('chat:message', { room, text: trimmed });
       setText('');

@@ -2,6 +2,8 @@
 import { Article } from "../types/articles";
 import { Link } from "react-router-dom";
 
+const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
+
 type RelatedArticlesProps = {
   currentArticle: Article;
   allArticles: Article[];
@@ -37,7 +39,7 @@ export function RelatedArticles({
           <article key={article.slug} className="related-card">
             {article.imageUrl && (
               <img
-                src={`http://localhost:5000${article.imageUrl}`}
+                src={`${API_URL}${article.imageUrl}`}
                 alt={article.title}
                 className="related-thumb"
               />
