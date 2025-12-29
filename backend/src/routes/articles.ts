@@ -105,7 +105,11 @@ router.put('/:slug', requireAdmin, async (req, res) => {
     if (imageUrl) {
       article.imageUrl = imageUrl;
     }
+    // Force préservation whitespace si string
     article.content = content ?? article.content;
+    if (typeof content === 'string') {
+      article.content = content.replace(/\r\n|\r|\n/g, '\n');  // normalize line breaks
+    }
     if (Array.isArray(tags)) {
       article.tags = tags;
     }

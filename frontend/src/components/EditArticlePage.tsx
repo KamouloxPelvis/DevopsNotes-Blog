@@ -120,6 +120,15 @@ export default function EditArticle() {
       return;
     }
 
+     const payload = { 
+    title, 
+    content: content.replace(/\n/g, '\\n'),  // escape newlines
+    imageUrl, 
+    tags, 
+    status 
+  };
+
+
     try {
       const res = await fetch(`${API_URL}/articles/${slug}`, {
         method: 'PUT',
@@ -127,7 +136,7 @@ export default function EditArticle() {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ title, content, imageUrl, tags, status }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
