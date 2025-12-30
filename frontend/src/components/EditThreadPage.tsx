@@ -1,46 +1,76 @@
-// frontend/src/pages/NewThreadPage.tsx
-import { FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createThread } from '../api/forum';
+// frontend/src/pages/EditThreadPage.tsx
+import { FormEvent, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { getAuthToken } from '../api/auth';
+import { updateThread, getThread } from '../api/forum';
 import TextToolbar from '../components/TextToolbar';
 import MarkdownPreview from '../components/MarkdownPreview';
 
+type RouteParams = {
+  id: string;
+};
 
-export default function NewThreadPage() {
+export default function EditThreadPage() {
+  const { id } = useParams<RouteParams>();
+  const navigate = useNavigate();
+  const token = getAuthToken();
+
+  // States identiques NewThreadPage + cursor
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
+  // Cursor states
   const [cursorStart, setCursorStart] = useState(0);
   const [cursorEnd, setCursorEnd] = useState(0);
 
+  // Load thread
+  useEffect(() => {
+  if (!id) return;
+  
+  getThread(id)
+    .then((data) => {
+      setTitle(data.title);
+      setContent(data.content);
+      setTags(data.tags?.join(', ') || '');
+    })
+    .catch((err: any) => setError(err.message))
+    .finally(() => setLoading(false));
+}, [id]);
+
+  const handleTagsChange = (value: string) => {
+    setTags(value);
+  };
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    setLoading(true);
+    setUpdating(true);
 
     try {
-      const tagsArray =
-        tags
-          .split(',')
-          .map((t) => t.trim())
-          .filter(Boolean) || [];
-      await createThread({ title, content, tags: tagsArray });
+      const tagsArray = tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+      await updateThread(id!, { title, content, tags: tagsArray }, token || undefined);
       navigate('/forum');
     } catch (err: any) {
-      setError(err.message || 'Failed to create thread');
+      setError(err.message || 'Failed to update thread');
     } finally {
-      setLoading(false);
+      setUpdating(false);
     }
   }
 
+  if (loading) return <div className="page-card">Loading...</div>;
+  if (error) return <div className="page-card"><p className="error">{error}</p></div>;
+
   return (
     <div className="page-card">
-      <h1>New thread</h1>
+      <h1>Edit thread</h1>
       <form className="form-vertical" onSubmit={handleSubmit}>
         {error && <p className="error">{error}</p>}
 
@@ -48,7 +78,6 @@ export default function NewThreadPage() {
           Title
           <input
             type="text"
-            placeholder="Ex: Problèmes de build Docker en CI GitLab"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -58,7 +87,6 @@ export default function NewThreadPage() {
         <label>
           Content
           <textarea
-            placeholder="Décris ton contexte, ta stack (Dockerfile, GitLab CI, runners, etc.)…"
             value={content}
             rows={8}
             onChange={(e) => {
@@ -73,6 +101,8 @@ export default function NewThreadPage() {
             required
           />
         </label>
+
+        {/* Toolbar + Preview */}
         <div style={{ margin: '10px 0' }}>
           <TextToolbar 
             content={content} 
@@ -91,16 +121,19 @@ export default function NewThreadPage() {
           <input
             type="text"
             value={tags}
-            onChange={(e) => setTags(e.target.value)}
+            onChange={(e) => handleTagsChange(e.target.value)}
             placeholder="devops,docker,terraform"
           />
         </label>
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Creating...' : 'Create thread'}
+        <button 
+          type="submit" 
+          className="btn btn-primary" 
+          disabled={updating}
+        >
+          {updating ? 'Updating...' : 'Update thread'}
         </button>
       </form>
     </div>
   );
 }
-

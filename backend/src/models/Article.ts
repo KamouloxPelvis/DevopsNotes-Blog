@@ -7,8 +7,13 @@ export interface IArticle extends Document {
   imageUrl?: string;
   status: string;
   tags?: string[];
+  excerpt?: string;
+  author?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
+  likes: { type: Number, default: 0 },
+  views: { type: Number, default: 0 }
+
 }
 
 const ArticleSchema = new Schema<IArticle>(
@@ -17,6 +22,14 @@ const ArticleSchema = new Schema<IArticle>(
     slug: { type: String, required: true, unique: true },
     content: { type: String, required: true },
     imageUrl: { type: String, required: false },
+    excerpt: { type: String, maxlength: 300 },
+    likes: { type: Number, default: 0 },
+    views: { type: Number, default: 0 },
+
+    author: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User' 
+    }, 
     status: {
       type: String,
       enum: ['draft', 'published'],
@@ -27,7 +40,9 @@ const ArticleSchema = new Schema<IArticle>(
         lowercase: true, // "docker", "terraform" etc.
       }],
     },
-  { timestamps: true }
+  { timestamps: true },     
+
 );
+
 
 export const Article = mongoose.model<IArticle>('Article', ArticleSchema);

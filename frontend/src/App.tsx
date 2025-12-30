@@ -12,6 +12,7 @@ import EditArticle from './components/EditArticlePage';
 import NewArticle from './components/NewArticlePage';
 import ForumPage from './components/ForumPage';
 import NewThreadPage from './components/NewThreadPage';
+import EditThreadPage from './components/EditThreadPage';
 import ThreadDetailPage from './components/ThreadDetailPage';
 import ChatPage from './components/ChatPage';
 import devopsLogo from './devopsnotes_logo.png';
@@ -28,9 +29,9 @@ function App() {
 
           <PageLayout>
             <div className="app">
-              <header className="app-header">
-                <img src={devopsLogo} alt="DevOpsNotes logo" className="app-logo-main" />
-              </header>
+              <header className="app-header logo-header">
+              <img src={devopsLogo} alt="DevOpsNotes logo" className="app-logo-main" />
+            </header>
 
               <main className="app-main">
                 <Routes>
@@ -60,6 +61,12 @@ function App() {
                         <NewThreadPage />
                       </RequireAuthRoute> } />
                   <Route path="/forum/:id" element={<ThreadDetailPage />} />
+                  <Route 
+                    path="/forum/:id/edit" 
+                    element={ 
+                  <RequireAuthRoute>
+                    <EditThreadPage/>
+                  </RequireAuthRoute> } />
                   <Route 
                     path="/chat" 
                     element={

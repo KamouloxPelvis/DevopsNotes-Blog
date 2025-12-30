@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getArticles } from '../api/articles';
 import { Article } from '../types/articles';
 import { useAuth } from '../context/AuthContext';
+import MarkdownPreview from '../components/MarkdownPreview';
 
 type CommentCountMap = Record<string, number>;
 
@@ -20,9 +21,44 @@ export function ArticlesList() {
   const [pages, setPages] = useState(1);
   
   const navigate = useNavigate();
-
+  
   const { user, logout } = useAuth();          // <-- contexte
-  const isAdmin = user?.role === 'admin';  
+  const isAdmin = user?.role === 'admin';
+  const [likedArticles, setLikedArticles] = useState(new Set<string>());
+  
+  const handleLike = async (slug: string) => {
+  if (!user) return;
+  
+  const isLiked = likedArticles.has(slug);
+  
+  try {
+    setArticles(prevArticles =>
+      prevArticles.map(article =>
+        article.slug === slug
+          ? { ...article, likes: Math.max(0, (article.likes || 0) + (isLiked ? -1 : 1)) }
+          : article
+      )
+    );
+    
+    if (isLiked) {
+      setLikedArticles(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(slug);
+        return newSet;
+      });
+    } else {
+      setLikedArticles(prev => new Set(prev).add(slug));
+    }
+    
+    await fetch(`/api/articles/${slug}/like`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+  } catch (error) {
+    console.error('Like échoué:', error);
+  }
+};
+
 
   async function handleLogout() {
     logout();              // supprime le token du localStorage
@@ -182,22 +218,47 @@ export function ArticlesList() {
             {article.status === 'draft' && (
               <span className="badge-draft">Draft</span>
             )}
-            <p className="article-excerpt">
-              {article.content.slice(0, 120)}…
-            </p>
+
+            <div className="article-excerpt text-center max-w-[90%] mx-auto mb-4">
+            <MarkdownPreview 
+              content={(article.excerpt || article.content || '').slice(0, 280) + '...'}
+              className="preview-card-clean"
+            />
+            </div>
 
             <div className="article-tags">
-              {article.tags?.slice(0, 3).map((tag) => (
+              {article.tags?.slice(0, 5).map((tag) => (
                 <span
                   key={tag}
                   className={activeTag === tag ? 'tag tag-active' : 'tag'}
-                  onClick={() =>
-                    setActiveTag((prev) => (prev === tag ? null : tag))
-                  }
+                  onClick={() => setActiveTag((prev) => (prev === tag ? null : tag))}
                 >
                   {tag}
                 </span>
               ))}
+            </div>
+
+            <div className="article-stats mt-3 text-xs text-gray-500 py-2 border-t border-gray-100">
+              <button 
+                className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-red-50 hover:text-red-600 transition-all disabled:opacity-50"
+                onClick={() => handleLike(article.slug)}
+                disabled={!user}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" 
+                    fill={likedArticles.has(article.slug) ? "#ef4444" : "none"} 
+                    stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <span className="font-semibold">{article.likes ?? 0}</span>
+              </button>
+              
+              <div className="flex items-center gap-1.5 p-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-gray-500">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span className="font-semibold">{article.views ?? 0}</span>
+              </div>
             </div>
 
             <div className="article-card-footer">

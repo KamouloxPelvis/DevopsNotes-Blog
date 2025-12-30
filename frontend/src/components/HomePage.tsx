@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import './HomePage.css'; // si tu préfères séparer le CSS
+import './HomePage.css';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -7,30 +7,54 @@ export default function HomePage() {
   return (
     <div className="landing-root">
       <div className="landing-hero">
-        <h1 className="landing-title">DevOpsNotes • Hands‑on DevOps lab</h1>
-
+        
+        <h1 className="landing-title">Technical Portfolio</h1>
+        
         <p className="landing-subtitle">
-          This project is a personal DevOps sandbox: design, build and deploy a full‑stack blog
-          and forum while practicing CI/CD, containers, orchestration and infrastructure as code.
+          Full-Stack Developer | DevOps Engineer | DevSecOps | Systems Administrator
         </p>
-        <p className="landing-subtitle">
-          Use this app to experiment with real‑world workflows: writing technical articles,
-          discussing issues in the forum and validating the full delivery pipeline.
-        </p>
+        
+        <div className="landing-description">
+          <p className="landing-features">
+            <strong>DevOpsNotes</strong> is my comprehensive technical portfolio showcasing 
+            end-to-end software delivery expertise. This project demonstrates my ability to design, 
+            build, deploy, and maintain production-grade full-stack applications using modern 
+            DevOps practices.
+          </p>
+          
+          <p className="landing-features">
+            Built with <strong>React + TypeScript</strong> (frontend), <strong>Node.js + Express</strong> 
+            (backend), and <strong>MongoDB</strong> (database), the app features a complete blog/forum 
+            system with user authentication, rich markdown editor, real-time comments, article CRUD 
+            operations, and tag-based filtering.
+          </p>
+          
+          <p className="landing-features">
+            Deployed using <strong>Docker containers</strong>, <strong>GitLab CI/CD pipelines</strong>, 
+            <strong>Nginx reverse proxy</strong>, and IaC principles. The infrastructure includes 
+            container orchestration readiness and security hardening best practices.
+          </p>
+          
+          <p>
+            🔧 Explore the live application, inspect the clean codebase, contribute through 
+            comments and forum discussions, or fork the project on GitLab. This is production-ready 
+            code demonstrating real-world skills across the full software delivery lifecycle.
+          </p>
+        </div>
 
         <div className="landing-buttons">
           <button
-            className="btn btn-light landing-btn"
+            className="btn btn-primary landing-btn"
             onClick={() => navigate('/articles')}
           >
-            Enter 
+            Explore Portfolio
           </button>
-
+          
           <button
-            className="btn btn-primary landing-btn"
+            className="btn btn-light landing-btn"
             onClick={() => navigate('/login')}
           >
-            Member ? Sign In
+            👤 Sign In
           </button>
         </div>
       </div>
@@ -38,18 +62,13 @@ export default function HomePage() {
       <div className="landing-powered">
         <p className="landing-powered-title">This app is powered by</p>
         <div className="landing-tech-grid">
-          <img src="/logos/gitlab.png" alt="GitLab" />
-          <img src="/logos/vscode.png" alt="Visual Code Studio" />
-          <img src="/logos/typescript.png" alt="TypeScript" />
-          <img src="/logos/mongodb.png" alt="MongoDB" />
-          <img src="/logos/express.png" alt="Express" />
-          <img src="/logos/react.png" alt="React" />
-          <img src="/logos/node.png" alt="Node.js" />
-          <img src="/logos/docker.png" alt="Docker" />
-          <img src="/logos/nginx.png" alt="Nginx" />
-          <img src="/logos/kubernetes.png" alt="Kubernetes" />
-          <img src="/logos/terraform.png" alt="Terraform" />
-
+          <img src="/logos/react.png" alt="React" title="React 18 + TypeScript" />
+          <img src="/logos/node.png" alt="Node.js" title="Node.js 20 + Express" />
+          <img src="/logos/mongodb.png" alt="MongoDB" title="MongoDB + Mongoose" />
+          <img src="/logos/docker.png" alt="Docker" title="Docker Containerization" />
+          <img src="/logos/gitlab.png" alt="GitLab" title="GitLab CI/CD Pipelines" />
+          <img src="/logos/kubernetes.png" alt="Kubernetes" title="K8s Orchestration Ready" />
+          <img src="/logos/terraform.png" alt="Terraform" title="Infrastructure as Code" />
         </div>
       </div>
     </div>

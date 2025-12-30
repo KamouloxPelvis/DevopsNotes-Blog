@@ -5,6 +5,7 @@ import { getAuthToken } from '../api/auth';
 import { RelatedArticles } from './RelatedArticles';
 import { useAllArticles } from '../hooks/useAllArticles';
 import { Article } from '../types/articles';
+import MarkdownPreview from '../components/MarkdownPreview';
 
 type RouteParams = {
   slug: string;
@@ -139,7 +140,7 @@ function handleReplyTo(author: string) {
         </div>
       )}
       <h1>{article.title}</h1>
-      <p>{article.content}</p>
+      <MarkdownPreview content={(article.content || '')} />
       <section className="comments">
         <h3>Comments ({comments.length})</h3>
         <form className="comment-form" onSubmit={handleSubmitComment}>
@@ -220,6 +221,5 @@ function handleReplyTo(author: string) {
             allArticles={allArticles} 
           />
         )}
-    );
   </div>
 )};

@@ -3,6 +3,9 @@ import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuthToken } from '../api/auth';
 import { useToast } from '../context/ToastContext';
+import TextToolbar from './TextToolbar';
+import MarkdownPreview from './MarkdownPreview';
+
 
 export default function NewArticle() {
   const [title, setTitle] = useState('');
@@ -18,6 +21,10 @@ export default function NewArticle() {
   const { showToast } = useToast();
   const token = getAuthToken();
   const navigate = useNavigate();
+
+  const [cursorStart, setCursorStart] = useState(0);
+  const [cursorEnd, setCursorEnd] = useState(0);
+
 
   const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'http://localhost:5000/';
   const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
@@ -145,11 +152,30 @@ export default function NewArticle() {
           <label htmlFor="content">Content</label>
           <textarea
             id="content"
+            name="content"
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            rows={15}
+            onChange={(e) => {
+              setContent(e.target.value);
+              setCursorStart(e.target.selectionStart || 0);
+              setCursorEnd(e.target.selectionEnd || 0);
+            }}
+            onSelect={(e) => {
+              setCursorStart(e.currentTarget.selectionStart || 0);
+              setCursorEnd(e.currentTarget.selectionEnd || 0);
+            }}
           />
         </div>
-
+        <TextToolbar 
+          content={content} 
+          setContent={setContent}
+          cursorStart={cursorStart}
+          cursorEnd={cursorEnd}
+        />
+        <div className="form-field">
+          <label>Preview</label>
+          <MarkdownPreview content={content} />
+        </div>
         <div className="form-field">
           <label htmlFor="tags">Tags (comma-separated)</label>
           <input
@@ -162,7 +188,6 @@ export default function NewArticle() {
             Separate tags with commas. They will be used for filters and related articles.
           </p>
         </div>
-
         <div className="form-field">
           <label>Status</label>
           <select
@@ -221,3 +246,4 @@ export default function NewArticle() {
     </div>
   );
 }
+  

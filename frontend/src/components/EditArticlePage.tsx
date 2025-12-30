@@ -3,6 +3,8 @@ import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { getAuthToken } from '../api/auth';
 import { useToast } from '../context/ToastContext';
+import TextToolbar from '../components/TextToolbar';
+import MarkdownPreview from './MarkdownPreview';
 
 type RouteParams = {
   slug: string;
@@ -37,7 +39,9 @@ export default function EditArticle() {
   const [status, setStatus] = useState<'draft' | 'published'>('draft');
   const [uploading, setUploading] = useState(false);
 
-  const token = getAuthToken();
+  const token = getAuthToken()
+  const [cursorStart, setCursorStart] = useState(0);
+  const [cursorEnd, setCursorEnd] = useState(0);
 
   const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
   const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'http://localhost:5000/api';
@@ -122,7 +126,7 @@ export default function EditArticle() {
 
      const payload = { 
     title, 
-    content: content.replace(/\n/g, '\\n'),  // escape newlines
+    content,
     imageUrl, 
     tags, 
     status 
@@ -191,14 +195,33 @@ export default function EditArticle() {
         </div>
 
         <div className="form-field">
-          <label htmlFor="content">Content</label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
+        <label htmlFor="content">Content</label>
+        <textarea
+          id="content"
+          name="content"
+          value={content}
+          rows={15}
+          onChange={(e) => {
+            setContent(e.target.value);
+            setCursorStart(e.target.selectionStart || 0);
+            setCursorEnd(e.target.selectionEnd || 0);
+          }}
+          onSelect={(e) => {
+            setCursorStart(e.currentTarget.selectionStart || 0);
+            setCursorEnd(e.currentTarget.selectionEnd || 0);
+          }}
           />
+        </div>  
+        <TextToolbar 
+          content={content} 
+          setContent={setContent}
+          cursorStart={cursorStart}
+          cursorEnd={cursorEnd}
+        />
+        <div className="form-field">
+          <label htmlFor='preview'>Preview</label>
+          <MarkdownPreview content={content} />
         </div>
-
         <div className="form-field">
           <label htmlFor="tags">Tags (comma-separated)</label>
           <input

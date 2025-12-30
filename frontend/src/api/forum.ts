@@ -1,8 +1,8 @@
 // frontend/src/api/forum.ts
 import { ForumThread, Reply } from '../types/forum';
-import { getAuthToken } from './auth'; // <-- stockage du token JWT dans localStorage
+import { getAuthToken } from './auth';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api' //
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 async function fetchJSON<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const res = await fetch(input, init);
@@ -40,20 +40,27 @@ export function createThread(payload: {
   });
 }
 
-// Modification du post
-export function updateThread(
-  id: string,
-  payload: { title?: string; content?: string; tags?: string[] }
-): Promise<ForumThread> {
-  const token = getAuthToken();
-  return fetchJSON<ForumThread>(`${API_URL}/forum/threads/${id}`, {
+// ✅ FIX : Modification du post
+export async function updateThread(
+  id: string, 
+  thread: { title: string; content: string; tags: string[] }, 
+  token?: string
+) {
+  const res = await fetch(`${API_URL}/forum/threads/${id}`, {  // ✅ /forum/threads/
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(thread),
   });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || 'Failed to update thread');
+  }
+
+  return res.json();
 }
 
 // Affichage des réponses

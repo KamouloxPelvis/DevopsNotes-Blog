@@ -61,7 +61,6 @@ app.use(
 
 // Dossier d'upload commun (backend/uploads)
 const uploadDir = path.join(__dirname, '..', 'uploads');
-console.log('UPLOAD DIR =', uploadDir);
 
 // Servir les fichiers uploadés
 app.use('/api/uploads', express.static(uploadDir));

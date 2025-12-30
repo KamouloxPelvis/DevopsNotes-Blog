@@ -3,9 +3,12 @@ export interface Article {
   title: string;
   slug: string;
   content: string;
+  excerpt?: string;
   tags?: string[];
   status?: 'draft' | 'published';
   imageUrl?: string;
+  likes?: number;    
+  views?: number;   
   createdAt: string;
   updatedAt: string;
 }
