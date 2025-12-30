@@ -3,18 +3,18 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { RequireAuthRoute } from './components/RequireAuthRoute';
 import { PageLayout } from './components/PageLayout';
 import { ToastProvider } from './context/ToastContext';
-import { LoginPage } from './components/LoginPage';
-import { ArticlesList } from './components/ArticlesList';
-import SignupPage from './components/SignUp'
-import HomePage from './components/HomePage';
-import ArticleDetail from './components/ArticleDetail';
-import EditArticle from './components/EditArticlePage';
-import NewArticle from './components/NewArticlePage';
-import ForumPage from './components/ForumPage';
-import NewThreadPage from './components/NewThreadPage';
-import EditThreadPage from './components/EditThreadPage';
-import ThreadDetailPage from './components/ThreadDetailPage';
-import ChatPage from './components/ChatPage';
+import { LoginPage } from './pages/SigninPage';
+import { ArticlesList } from './pages/articles/ArticlesPage';
+import SignupPage from './pages/SignupPage'
+import HomePage from './pages/HomePage';
+import ArticleDetail from './pages/articles/ArticleDetailPage';
+import EditArticle from './pages/articles/EditArticlePage';
+import NewArticle from './pages/articles/NewArticlePage';
+import ForumPage from './pages/forum/ForumPage';
+import NewThreadPage from './pages/forum/NewThreadPage';
+import EditThreadPage from './pages/forum/EditThreadPage';
+import ThreadDetailPage from './pages/forum/ThreadDetailPage';
+import ChatPage from './pages/ChatPage';
 import devopsLogo from './devopsnotes_logo.png';
 import devopsFav from './devopsnotes_ico.jpg';
 

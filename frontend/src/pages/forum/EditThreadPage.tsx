@@ -1,10 +1,10 @@
 // frontend/src/pages/EditThreadPage.tsx
 import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAuthToken } from '../api/auth';
-import { updateThread, getThread } from '../api/forum';
-import TextToolbar from '../components/TextToolbar';
-import MarkdownPreview from '../components/MarkdownPreview';
+import { getAuthToken } from '../../api/auth';
+import { updateThread, getThread } from '../../api/forum';
+import TextToolbar from '../../components/TextToolbar';
+import MarkdownPreview from '../../components/MarkdownPreview';
 
 type RouteParams = {
   id: string;

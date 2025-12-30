@@ -1,11 +1,13 @@
 // src/components/ArticleDetail.tsx
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getAuthToken } from '../api/auth';
-import { RelatedArticles } from './RelatedArticles';
-import { useAllArticles } from '../hooks/useAllArticles';
-import { Article } from '../types/articles';
-import MarkdownPreview from '../components/MarkdownPreview';
+import { getAuthToken } from '../../api/auth';
+import { RelatedArticles } from '../../components/RelatedArticles';
+import { useAllArticles } from '../../hooks/useAllArticles';
+import { Article } from '../../types/articles';
+import MarkdownPreview from '../../components/MarkdownPreview';
+import '../../styles/ArticleDetailPage.css';
+
 
 type RouteParams = {
   slug: string;
@@ -19,7 +21,6 @@ type Comment = {
 };
 
 export default function ArticleDetail() {
-  
   const { slug } = useParams<RouteParams>();
   const [article, setArticle] = useState<Article | null>(null);
   const [loadingArticle, setLoadingArticle] = useState(true);
@@ -31,8 +32,7 @@ export default function ArticleDetail() {
   const [commentError, setCommentError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   
-  const { articles: allArticles, 
-    loading: loadingAllArticles } = useAllArticles();  
+  const { articles: allArticles = [], loading: loadingAllArticles } = useAllArticles(); // ✅ Fix: fallback []
   
   const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
@@ -50,12 +50,12 @@ export default function ArticleDetail() {
       .finally(() => setLoadingArticle(false));
 
     fetch(`${API_URL}/articles/${slug}/comments`)
-    .then((res) => {
-      if (!res.ok) return [];
-      return res.json();
-    })
-    .then((data: Comment[]) => setComments(data))
-    .catch(() => {});
+      .then((res) => {
+        if (!res.ok) return [];
+        return res.json();
+      })
+      .then((data: Comment[]) => setComments(data))
+      .catch(() => {});
   }, [slug, API_URL]);
 
   if (loadingArticle) return <p>Loading...</p>;
@@ -74,9 +74,9 @@ export default function ArticleDetail() {
       const res = await fetch(`${API_URL}/articles/${slug}`, {
         method: 'DELETE',
         headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
 
       if (!res.ok && res.status !== 204) {
         throw new Error('Erreur HTTP');
@@ -89,46 +89,43 @@ export default function ArticleDetail() {
   }
 
   async function handleSubmitComment(e: React.FormEvent) {
-  e.preventDefault();
-  if (!slug) return;
+    e.preventDefault();
+    if (!slug) return;
 
-  setSubmitting(true);
-  setCommentError(null);
+    setSubmitting(true);
+    setCommentError(null);
 
-  try {
-    const res = await fetch(
-      `${API_URL}/articles/${slug}/comments`,
-      {
+    try {
+      const res = await fetch(`${API_URL}/articles/${slug}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           authorName: commentAuthor,
           content: commentBody,
         }),
-      }
-    );
+      });
 
-    if (!res.ok) throw new Error('Error posting comment');
+      if (!res.ok) throw new Error('Error posting comment');
 
-    const created: Comment = await res.json();
-    setComments((prev) => [created, ...prev]);
-    setCommentAuthor('');
-    setCommentBody('');
-  } catch (err: any) {
-    setCommentError(err.message);
-  } finally {
-    setSubmitting(false);
+      const created: Comment = await res.json();
+      setComments((prev) => [created, ...prev]);
+      setCommentAuthor('');
+      setCommentBody('');
+    } catch (err: any) {
+      setCommentError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   }
-}
 
-function handleReplyTo(author: string) {
-  setCommentBody((prev) =>
-    prev
-      ? `${prev}\n@${author} `
-      : `@${author} `
-  );
-  // scroll au formulaire plus tard ?
-} 
+  function handleReplyTo(author: string) {
+    setCommentBody((prev) =>
+      prev
+        ? `${prev}\n@${author} `
+        : `@${author} `
+    );
+  }
+
   return (
     <div>
       {article.imageUrl && (
@@ -141,6 +138,7 @@ function handleReplyTo(author: string) {
       )}
       <h1>{article.title}</h1>
       <MarkdownPreview content={(article.content || '')} />
+      
       <section className="comments">
         <h3>Comments ({comments.length})</h3>
         <form className="comment-form" onSubmit={handleSubmitComment}>
@@ -174,7 +172,6 @@ function handleReplyTo(author: string) {
             >
               {submitting ? 'Sending…' : 'Post comment'}
             </button>
-
             <Link to="/articles" className="btn btn-secondary">
               ← Back to the list
             </Link>
@@ -200,11 +197,12 @@ function handleReplyTo(author: string) {
           {comments.length === 0 && <p>No comments yet.</p>}
         </ul>
       </section>
+
       <p>
-        <Link to="/" className="btn btn-secondary">
+        <Link to="/articles" className="btn btn-secondary">
           ← Back to the list
         </Link>{' '}
-          {isAdmin && (
+        {isAdmin && (
           <>
             <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary">
               Edit
@@ -215,11 +213,14 @@ function handleReplyTo(author: string) {
           </>
         )}
       </p>
-       {!loadingAllArticles && article && (
-          <RelatedArticles 
-            currentArticle={article} 
-            allArticles={allArticles} 
-          />
-        )}
-  </div>
-)};
+      
+      {/* ✅ Fix: condition renforcée + articles toujours tableau */}
+      {!loadingAllArticles && article && allArticles.length > 0 && (
+        <RelatedArticles 
+          currentArticle={article} 
+          allArticles={allArticles} 
+        />
+      )}
+    </div>
+  );
+}

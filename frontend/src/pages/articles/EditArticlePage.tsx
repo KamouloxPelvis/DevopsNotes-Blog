@@ -1,10 +1,11 @@
 // src/components/EditArticle.tsx
 import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getAuthToken } from '../api/auth';
-import { useToast } from '../context/ToastContext';
-import TextToolbar from '../components/TextToolbar';
-import MarkdownPreview from './MarkdownPreview';
+import { getAuthToken } from '../../api/auth';
+import { useToast } from '../../context/ToastContext';
+import TextToolbar from '../../components/TextToolbar';
+import MarkdownPreview from '../../components/MarkdownPreview';
+import '../../styles/EditArticlePage.css';
 
 type RouteParams = {
   slug: string;
@@ -173,83 +174,102 @@ export default function EditArticle() {
   if (error && !title) return <p>Error : {error}</p>;
 
   return (
-    <div>
-      <p>
-        <Link to="/articles" className="btn btn-secondary">
+  <div className="article-form-page-v2">
+    <div className="article-form-container-v2">
+      <header className="article-form-header-v2">
+        <h2 className="article-form-title-v2">Edit the article</h2>
+        <Link to="/articles" className="btn-v2 btn-secondary-v2">
           ← Back to the list
         </Link>
-      </p>
+      </header>
 
-      <h2>Edit the article</h2>
+      <form onSubmit={handleSubmit} className="article-form-v2">
+        {error && <p className="form-error-v2">Erreur : {error}</p>}
 
-      <form onSubmit={handleSubmit} className="article-form">
-        {error && <p className="form-error">Erreur : {error}</p>}
-
-        <div className="form-field">
+        {/* TITLE */}
+        <div className="form-field-v2">
           <label htmlFor="title">Title</label>
           <input
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            className="form-field-v2__input"
           />
         </div>
 
-        <div className="form-field">
-        <label htmlFor="content">Content</label>
-        <textarea
-          id="content"
-          name="content"
-          value={content}
-          rows={15}
-          onChange={(e) => {
-            setContent(e.target.value);
-            setCursorStart(e.target.selectionStart || 0);
-            setCursorEnd(e.target.selectionEnd || 0);
-          }}
-          onSelect={(e) => {
-            setCursorStart(e.currentTarget.selectionStart || 0);
-            setCursorEnd(e.currentTarget.selectionEnd || 0);
-          }}
+        {/* CONTENT */}
+        <div className="form-field-v2">
+          <label htmlFor="content">Content</label>
+          <textarea
+            id="content"
+            name="content"
+            value={content}
+            rows={15}
+            onChange={(e) => {
+              setContent(e.target.value);
+              setCursorStart(e.target.selectionStart || 0);
+              setCursorEnd(e.target.selectionEnd || 0);
+            }}
+            onSelect={(e) => {
+              setCursorStart(e.currentTarget.selectionStart || 0);
+              setCursorEnd(e.currentTarget.selectionEnd || 0);
+            }}
+            className="form-field-v2__textarea"
           />
-        </div>  
-        <TextToolbar 
-          content={content} 
-          setContent={setContent}
-          cursorStart={cursorStart}
-          cursorEnd={cursorEnd}
-        />
-        <div className="form-field">
-          <label htmlFor='preview'>Preview</label>
-          <MarkdownPreview content={content} />
         </div>
-        <div className="form-field">
+
+        {/* TOOLBAR */}
+        <div className="text-toolbar-v2">
+          <TextToolbar 
+            content={content} 
+            setContent={setContent}
+            cursorStart={cursorStart}
+            cursorEnd={cursorEnd}
+          />
+        </div>
+
+        {/* PREVIEW */}
+        <div className="form-field-v2 preview-field-v2">
+          <label>Preview</label>
+          <div className="preview-markdown-v2">
+            <MarkdownPreview content={content} />
+          </div>
+        </div>
+
+        {/* TAGS */}
+        <div className="form-field-v2 tags-field-v2">
           <label htmlFor="tags">Tags (comma-separated)</label>
           <input
             id="tags"
             type="text"
-            className="form-control"
             value={rawTags}
             onChange={(e) => handleTagsChange(e.target.value)}
             placeholder="docker, kubernetes, ci-cd"
+            className="form-field-v2__input"
           />
+          <p className="form-help-v2">
+            Separate tags with commas. They will be used for filters and related articles.
+          </p>
         </div>
 
-        <div className="form-field">
+        {/* STATUS */}
+        <div className="form-field-v2">
           <label htmlFor="status">Status</label>
           <select
             id="status"
-            className="form-control"
             value={status}
             onChange={(e) =>
               setStatus(e.target.value as 'draft' | 'published')
             }
+            className="form-field-v2__select"
           >
             <option value="draft">Draft</option>
             <option value="published">Published</option>
           </select>
         </div>
 
-        <div className="form-field">
+        {/* IMAGE UPLOAD */}
+        <div className="form-field-v2 image-upload-v2">
           <label htmlFor="image">Illustration</label>
           <input
             id="image"
@@ -265,10 +285,11 @@ export default function EditArticle() {
                 setImagePreview(imageUrl || null);
               }
             }}
+            className="form-field-v2__file"
           />
 
           {imagePreview && (
-            <div className="image-preview">
+            <div className="image-preview-v2">
               <img
                 src={imagePreview}
                 alt="Preview"
@@ -279,9 +300,7 @@ export default function EditArticle() {
 
           <button
             type="button"
-            className={`btn btn-secondary upload-btn ${
-              uploading ? 'is-loading' : ''
-            }`}
+            className={`btn-v2 upload-btn-v2 ${uploading ? 'is-loading-v2' : ''}`}
             onClick={handleUploadImage}
             disabled={uploading || !imageFile}
           >
@@ -289,12 +308,13 @@ export default function EditArticle() {
           </button>
         </div>
 
-        <div className="form-actions">
-          <button type="submit" className="btn btn-primary">
+        {/* ACTIONS */}
+        <div className="form-actions-v2">
+          <button type="submit" className="btn-v2 btn-primary-v2">
             Save changes
           </button>
         </div>
       </form>
     </div>
-  );
-}
+  </div>
+)};

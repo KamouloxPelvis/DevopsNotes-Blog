@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
-import '../styles/SignUp.css'
+import '../styles/Signup.css'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');

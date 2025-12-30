@@ -1,11 +1,11 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getThread } from '../api/forum';
-import { ForumThread } from '../types/forum';
-import { getReplies, createReply } from '../api/forum';
-import { Reply } from '../types/forum';
-import { getAuthToken, getCurrentUser } from '../api/auth';
-import MarkdownPreview from '../components/MarkdownPreview';
+import { getThread } from '../../api/forum';
+import { ForumThread } from '../../types/forum';
+import { getReplies, createReply } from '../../api/forum';
+import { Reply } from '../../types/forum';
+import { getAuthToken, getCurrentUser } from '../../api/auth';
+import MarkdownPreview from '../../components/MarkdownPreview';
 
 export default function ThreadDetailPage() {
   const { id } = useParams<{ id: string }>();

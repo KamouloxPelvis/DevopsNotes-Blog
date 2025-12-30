@@ -1,9 +1,9 @@
 // frontend/src/pages/NewThreadPage.tsx
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createThread } from '../api/forum';
-import TextToolbar from '../components/TextToolbar';
-import MarkdownPreview from '../components/MarkdownPreview';
+import { createThread } from '../../api/forum';
+import TextToolbar from '../../components/TextToolbar';
+import MarkdownPreview from '../../components/MarkdownPreview';
 
 
 export default function NewThreadPage() {
