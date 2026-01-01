@@ -107,7 +107,7 @@ export function ArticlesList() {
 }, [API_URL, articles]);
 
 
-  if (loading) return <p>Loading articles...</p>;
+  if (loading) return <p className='loading'>Loading articles...</p>;
   if (error) return <p>Error: {error}</p>;
 
   const allTags = Array.from(

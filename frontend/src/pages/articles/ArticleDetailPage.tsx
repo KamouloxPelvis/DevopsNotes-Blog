@@ -127,100 +127,133 @@ export default function ArticleDetail() {
   }
 
   return (
-    <div>
-      {article.imageUrl && (
-        <div className="article-detail-image">
-          <img
-            src={`${API_URL}${article.imageUrl}`}
-            alt={article.title}
-          />
-        </div>
-      )}
-      <h1>{article.title}</h1>
-      <MarkdownPreview content={(article.content || '')} />
-      
-      <section className="comments">
-        <h3>Comments ({comments.length})</h3>
-        <form className="comment-form" onSubmit={handleSubmitComment}>
-          {commentError && <p className="form-error">Erreur : {commentError}</p>}
+    <div className="article-detail-page">
+      {/* Bouton retour rapide hors du cadre pour plus de clarté */}
+      <div style={{ maxWidth: '900px', width: '100%', marginBottom: '1rem' }}>
+        <Link to="/articles" className="btn btn-secondary" style={{ border: 'none', background: 'transparent' }}>
+          ← Retour aux articles
+        </Link>
+      </div>
 
-          <div className="form-field">
-            <label htmlFor="comment-name">Name</label>
-            <input
-              id="comment-name"
-              value={commentAuthor}
-              onChange={(e) => setCommentAuthor(e.target.value)}
-              required
+      <div className="article-detail-container">
+        {/* IMAGE DE COUVERTURE : Limitée en hauteur par le CSS */}
+        {article.imageUrl && (
+          <div className="article-detail-image">
+            <img
+              src={`${API_URL}${article.imageUrl}`}
+              alt={article.title}
             />
           </div>
-
-          <div className="form-field">
-            <label htmlFor="comment-body">Comment</label>
-            <textarea
-              id="comment-body"
-              rows={3}
-              value={commentBody}
-              onChange={(e) => setCommentBody(e.target.value)}
-              required
-            />
-          </div>
-          <div className="comment-actions-row">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={submitting}
-            >
-              {submitting ? 'Sending…' : 'Post comment'}
-            </button>
-            <Link to="/articles" className="btn btn-secondary">
-              ← Back to the list
-            </Link>
-          </div>
-        </form>
-        <ul className="comment-list">
-          {comments.map((c) => (
-            <li key={c._id} className="comment-item">
-              <p className="comment-meta">
-                <strong>{c.authorName}</strong>{' '}
-                <span>{new Date(c.createdAt).toLocaleString()}</span>
-              </p>
-              <p>{c.content}</p>
-              <button
-                type="button"
-                className="btn btn-link btn-sm comment-reply-btn"
-                onClick={() => handleReplyTo(c.authorName)}
-              >
-                Reply
-              </button>
-            </li>
-          ))}
-          {comments.length === 0 && <p>No comments yet.</p>}
-        </ul>
-      </section>
-
-      <p>
-        <Link to="/articles" className="btn btn-secondary">
-          ← Back to the list
-        </Link>{' '}
-        {isAdmin && (
-          <>
-            <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary">
-              Edit
-            </Link>{' '}
-            <button type="button" className="btn btn-danger" onClick={handleDelete}>
-              Delete
-            </button>
-          </>
         )}
-      </p>
-      
-      {/* ✅ Fix: condition renforcée + articles toujours tableau */}
-      {!loadingAllArticles && article && allArticles.length > 0 && (
-        <RelatedArticles 
-          currentArticle={article} 
-          allArticles={allArticles} 
-        />
-      )}
+
+        {/* CONTENU : Padding interne pour décoller le texte des bords */}
+        <div className="article-content-wrapper">
+          <h1 className="article-detail-title">{article.title}</h1>
+          
+          <div className="article-body">
+            <MarkdownPreview content={article.content || ''} />
+          </div>
+
+          {/* SECTION COMMENTAIRES */}
+          <section className="comments">
+            <h3>Commentaires ({comments.length})</h3>
+            
+            <form className="comment-form" onSubmit={handleSubmitComment}>
+              {commentError && <p className="form-error">{commentError}</p>}
+              
+              <div className="form-field">
+                <label htmlFor="comment-name">Votre nom</label>
+                <input
+                  id="comment-name"
+                  type="text"
+                  value={commentAuthor}
+                  onChange={(e) => setCommentAuthor(e.target.value)}
+                  placeholder="Ex: John Doe"
+                  required
+                />
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="comment-body">Votre message</label>
+                <textarea
+                  id="comment-body"
+                  rows={4}
+                  value={commentBody}
+                  onChange={(e) => setCommentBody(e.target.value)}
+                  placeholder="Écrivez votre commentaire ici..."
+                  required
+                />
+              </div>
+
+              <div className="comment-actions-row">
+                <button type="submit" className="btn btn-primary" disabled={submitting}>
+                  {submitting ? 'Envoi...' : 'Publier le commentaire'}
+                </button>
+              </div>
+            </form>
+
+            {/* LISTE DES COMMENTAIRES */}
+            <ul className="comment-list" style={{ listStyle: 'none', padding: 0 }}>
+              {comments.map((c) => (
+                <li key={c._id} className="comment-item" style={{ 
+                  padding: '1.5rem', 
+                  background: '#f8fafc', 
+                  borderRadius: '12px', 
+                  marginBottom: '1rem',
+                  border: '1px solid #e2e8f0' 
+                }}>
+                  <div className="comment-meta" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                    <strong style={{ color: '#1e293b' }}>{c.authorName}</strong>
+                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                      {new Date(c.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, color: '#334155', lineHeight: '1.5' }}>{c.content}</p>
+                  <button
+                    type="button"
+                    className="comment-reply-btn"
+                    onClick={() => handleReplyTo(c.authorName)}
+                    style={{ background: 'none', border: 'none', color: '#7aa1e0', cursor: 'pointer', marginTop: '0.5rem', fontWeight: 'bold' }}
+                  >
+                    Répondre
+                  </button>
+                </li>
+              ))}
+              {comments.length === 0 && (
+                <p style={{ textAlign: 'center', color: '#94a3b8', fontStyle: 'italic' }}>
+                  Aucun commentaire pour le moment. Soyez le premier à réagir !
+                </p>
+              )}
+            </ul>
+          </section>
+
+          {/* ARTICLES LIÉS (Composant externe) */}
+          {!loadingAllArticles && article && allArticles.length > 0 && (
+            <div style={{ marginTop: '4rem' }}>
+              <RelatedArticles 
+                currentArticle={article} 
+                allArticles={allArticles} 
+              />
+            </div>
+          )}
+
+          {/* ACTIONS D'ADMINISTRATION */}
+          {isAdmin && (
+            <div className="article-admin-actions">
+              <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary">
+                Modifier l'article
+              </Link>
+              <button 
+                type="button" 
+                className="btn btn-danger" 
+                onClick={handleDelete}
+                style={{ background: '#fee2e2', color: '#ef4444', border: 'none' }}
+              >
+                Supprimer
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
-  );
-}
+  )};

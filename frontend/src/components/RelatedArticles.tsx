@@ -13,6 +13,7 @@ export function RelatedArticles({
   currentArticle,
   allArticles,
 }: RelatedArticlesProps) {
+  // Sécurisation : on s'assure que c'est un tableau
   const currentTags = currentArticle.tags || [];
 
   if (currentTags.length === 0) return null;
@@ -20,7 +21,9 @@ export function RelatedArticles({
   const related = allArticles
     .filter((article) => article.slug !== currentArticle.slug)
     .map((article) => {
-      const commonTags = (article.tags || []).filter((tag) =>
+      // Sécurisation ici aussi lors du calcul de pertinence
+      const articleTags = article.tags || [];
+      const commonTags = articleTags.filter((tag) =>
         currentTags.includes(tag)
       );
       return { ...article, relevance: commonTags.length };
@@ -31,7 +34,7 @@ export function RelatedArticles({
 
   if (related.length === 0) return null;
 
-    return (
+  return (
     <section className="related-articles">
       <h3 className="related-title">Articles liés</h3>
       <div className="related-grid">
@@ -50,11 +53,13 @@ export function RelatedArticles({
                 <Link to={`/articles/${article.slug}`}>{article.title}</Link>
               </h4>
 
+              {/* ✅ CORRECTION ICI : Fallback sur chaîne vide si content est undefined */}
               <p className="related-excerpt">
-                {article.content.slice(0, 100)}…
+                {(article.content || "").slice(0, 100)}…
               </p>
 
               <div className="related-tags">
+                {/* Utilisation de l'optional chaining (?.) pour éviter le crash si tags est null */}
                 {article.tags?.slice(0, 3).map((tag) => (
                   <span key={tag} className="tag-pill">
                     {tag}

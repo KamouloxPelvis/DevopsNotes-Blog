@@ -16,6 +16,13 @@
   border: 1px solid rgba(255,255,255,0.3) !important;
 }
 
+.loading {
+  text-align: center !important;
+  font-size: 1.5rem !important;
+  color: #555 !important;
+  margin-top: 4rem !important;
+}
+
 /* HEADER */
 .articles-header-v2 {
   display: flex !important;

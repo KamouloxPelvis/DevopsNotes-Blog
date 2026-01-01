@@ -1,3 +1,7 @@
+.top-user-bar {
+  margin-top: 32px;
+}
+
 .top-user-bar-inner {
   max-width: 900px;
   margin: 0 auto;
