@@ -6,13 +6,23 @@ export interface IUser extends Document {
   pseudo: string;
   password: string;
   role: string;
+  avatarUrl?: string;
+  isVerified: boolean;
+  verificationToken?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
 }
 
 const UserSchema = new Schema<IUser>({
   email: { type: String, required: true, unique: true },
-  pseudo: { type: String, required: true },
+  pseudo: { type: String, required: true, unique: true }, // unique: true ajouté
   password: { type: String, required: true },
   role: { type: String, default: 'member' },
+  avatarUrl: { type: String },
+  isVerified: { type: Boolean, default: false },
+  verificationToken: { type: String },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
 });
 
 // Hash du mot de passe avant save si modifié

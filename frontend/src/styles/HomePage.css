@@ -92,6 +92,38 @@
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
 }
 
+/* Container des boutons pour bien les aligner */
+.landing-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap; /* Pour le responsive mobile */
+    margin-top: 2rem;
+}
+
+.signup-btn {
+    border: 2px solid #4299e1 !important;
+    color: #4299e1 !important;
+    background: transparent !important;
+    transition: all 0.3s ease;
+}
+
+.signup-btn:hover {
+    background: #4299e1 !important;
+    color: white !important;
+}
+
+.landing-btn {
+    min-width: 160px;
+    padding: 12px 24px;
+    font-weight: 600;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
 @keyframes landing-fade-in {
   from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }

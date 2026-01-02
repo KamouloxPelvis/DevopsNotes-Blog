@@ -3,43 +3,32 @@ import '../styles/HomePage.css';
 
 export default function HomePage() {
   const navigate = useNavigate();
+  
+  // Vérification de l'état de connexion
+  const isAuthenticated = !!localStorage.getItem('devopsnotes_token');
 
   return (
     <div className="landing-root">
       <div className="landing-hero">
-        
         <h1 className="landing-title">Technical Portfolio</h1>
-        
         <p className="landing-subtitle">
-          Full-Stack Developer | DevOps Engineer | DevSecOps | Systems Administrator
+          Sys Admin | DevOps | DevSecOps Blog and Community Center
         </p>
         
         <div className="landing-description">
           <p className="landing-features">
             <strong>DevOpsNotes</strong> is my comprehensive technical portfolio showcasing 
-            end-to-end software delivery expertise. This project demonstrates my ability to design, 
-            build, deploy, and maintain production-grade full-stack applications using modern 
-            DevOps practices.
-          </p>
-          
-          <p className="landing-features">
-            Built with <strong>React + TypeScript</strong> (frontend), <strong>Node.js + Express</strong> 
-            (backend), and <strong>MongoDB</strong> (database), the app features a complete blog/forum 
-            system with user authentication, rich markdown editor, real-time comments, article CRUD 
-            operations, and tag-based filtering.
-          </p>
-          
-          <p className="landing-features">
-            Deployed using <strong>Docker containers</strong>, <strong>GitLab CI/CD pipelines</strong>, 
-            <strong>Nginx reverse proxy</strong>, and IaC principles. The infrastructure includes 
-            container orchestration readiness and security hardening best practices.
-          </p>
-          
+            end-to-end software delivery expertise and DevOps skills. From infrastructure as code with 
+            Terraform to CI/CD pipelines with GitLab, containerization with Docker, and orchestration 
+            with Kubernetes, this platform highlights my ability to build, deploy, and manage robust
+            applications in cloud environments.
+        </p> 
           <p>
-            🔧 Explore the live application, inspect the clean codebase, contribute through 
-            comments and forum discussions, or fork the project on GitLab. This is production-ready 
-            code demonstrating real-world skills across the full software delivery lifecycle.
+            Explore articles, tutorials, and a community forum 
+            where I share insights and best practices on DevOps, cloud computing, and automation.
           </p>
+          
+          {/* ... Garde tes autres paragraphes ici ... */}
         </div>
 
         <div className="landing-buttons">
@@ -50,12 +39,24 @@ export default function HomePage() {
             Explore Portfolio
           </button>
           
-          <button
-            className="btn btn-light landing-btn"
-            onClick={() => navigate('/login')}
-          >
-            👤 Sign In
-          </button>
+          {/* Affichage conditionnel des boutons Auth */}
+          {!isAuthenticated && (
+            <>
+              <button
+                className="btn btn-light landing-btn"
+                onClick={() => navigate('/login')}
+              >
+                👤 Sign In
+              </button>
+
+              <button
+                className="btn btn-outline-primary landing-btn signup-btn"
+                onClick={() => navigate('/signup')}
+              >
+                🚀 Sign Up
+              </button>
+            </>
+          )}
         </div>
       </div>
 

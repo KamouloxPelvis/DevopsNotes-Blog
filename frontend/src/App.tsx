@@ -8,6 +8,9 @@ import { RequireAuthRoute } from './components/RequireAuthRoute';
 import HomePage from './pages/HomePage';
 import Signin  from './pages/SigninPage';
 import Signup from './pages/SignupPage';
+import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import { ArticlesList } from './pages/articles/ArticlesPage';
 import ArticleDetail from './pages/articles/ArticleDetailPage';
 import EditArticle from './pages/articles/EditArticlePage';
@@ -19,7 +22,7 @@ import ThreadDetailPage from './pages/forum/ThreadDetailPage';
 import ChatPage from './pages/ChatPage';
 
 // CSS Global (Variables, Reset, Boutons communs)
-import './App.css'; 
+import './App.css';
 
 function App() {
   return (
@@ -45,6 +48,10 @@ function App() {
             {/* Auth */}
             <Route path="/login" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+
 
             {/* Forum */}
             <Route path="/forum" element={<ForumPage />} />

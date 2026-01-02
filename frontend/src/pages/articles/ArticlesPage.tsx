@@ -146,34 +146,40 @@ export function ArticlesList() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <Link to="/forum" className="btn btn-secondary">
-          Forum
-        </Link>
-        
-        {user ? (
-          <>
-            <Link to="/chat" className="btn btn-secondary">
-              Chat
-            </Link>
-            {isAdmin && (
-              <Link to="/articles/new" className="btn btn-primary">
-                New article
-              </Link>
-            )}
-            <button className="btn btn-secondary" onClick={handleLogout}>
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <Link to="/signup" className="btn btn-light">
-              Sign up
-            </Link>
-            <Link to="/login" className="btn btn-secondary">
-              Sign in
-            </Link>
-          </>
-        )}
+    
+        <div className="articles-actions-v2">
+          <input
+            type="text"
+            className="articles-search"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          
+          <Link to="/forum" className="btn btn-secondary">Forum</Link>
+
+          {user ? (
+            <>
+              <Link to="/chat" className="btn btn-secondary">Chat</Link>
+              
+              {/* Logout placé avant New Article pour qu'il reste groupé avec les actions membres */}
+              <button className="btn btn-secondary" onClick={handleLogout}>
+                Logout
+              </button>
+
+              {isAdmin && (
+                <Link to="/articles/new" className="btn btn-primary">
+                  + New
+                </Link>
+              )}
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="btn btn-secondary">Sign in</Link>
+              <Link to="/signup" className="btn btn-primary">Sign up</Link>
+            </>
+          )}
+        </div>
       </div>
     </div> 
 

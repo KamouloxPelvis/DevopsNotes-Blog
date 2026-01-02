@@ -1,146 +1,144 @@
-// backend/src/routes/auth.ts
 import express from 'express';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { upload } from '../utils/upload';
 import { User } from '../models/User';
+import crypto from 'node:crypto';
+import { sendVerificationEmail, sendResetPasswordEmail } from '../utils/mailer';
 
 const authRouter = express.Router();
 
-// Au moins 6 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial, pas d'espace
-const PASSWORD_REGEX =
-  /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{6,}$/;
+const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{6,}$/;
 
 // ---------- SIGNUP ----------
-authRouter.post('/signup', async (req, res) => {
+authRouter.post('/signup', upload.single('avatar'), async (req, res) => {
   const { email, password, pseudo } = req.body;
-
-  const jwtSecret = process.env.JWT_SECRET;
-  const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '1h';
-
-  if (!jwtSecret) {
-    return res.status(500).json({ message: 'Auth not configured' });
-  }
-
-  // 1) validations basiques
-  if (!email || !password || !pseudo) {
-    return res.status(400).json({ message: 'Missing fields' });
-  }
-
-  if (pseudo.trim().length < 3) {
-    return res.status(400).json({
-      message: 'Username must be at least 3 characters long.',
-    });
-  }
-
-  if (!PASSWORD_REGEX.test(password)) {
-    return res.status(400).json({
-      message:
-        'Password must be at least 6 characters and contain 1 uppercase letter, 1 digit and 1 special character.',
-    });
-  }
-
+  
   try {
-    // 2) Email déjà utilisé ?
-    const existing = await User.findOne({ email });
-    if (existing) {
-      return res.status(400).json({ message: 'Email already in use' });
-    }
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) return res.status(400).json({ message: 'Email déjà utilisé' });
 
-    // 3) Création de l'utilisateur (mot de passe hashé via pre('save'))
+    const existingPseudo = await User.findOne({ pseudo });
+    if (existingPseudo) return res.status(400).json({ message: 'Ce pseudo est déjà pris' });
+
+    // Génération du token de vérification
+    const vToken = crypto.randomBytes(32).toString('hex');
+
     const user = new User({
       email,
       pseudo,
       password,
       role: 'member',
+      avatarUrl: req.file ? `/uploads/${req.file.filename}` : '',
+      isVerified: false, // Important : non vérifié par défaut
+      verificationToken: vToken
     });
 
     await user.save();
 
-    // 4) Générer un token pour connecter automatiquement l'utilisateur
-    const payload = {
-      id: user._id.toString(),
-      role: user.role,
-      email: user.email,
-      pseudo: user.pseudo,
-    };
+    // Envoi du mail de confirmation
+    await sendVerificationEmail(user.email, vToken);
 
-    const options: SignOptions = { expiresIn: jwtExpiresIn as any };
-    const token = jwt.sign(payload, jwtSecret as string, options);
+    // On ne renvoie PAS de token JWT ici, l'utilisateur doit d'abord valider son mail
+    return res.status(201).json({ 
+      message: 'Inscription réussie ! Veuillez vérifier vos emails pour activer votre compte.' 
+    });
 
-    return res.status(201).json({ token, user: payload });
   } catch (err) {
-    console.error('Signup error:', err);
-    return res.status(500).json({ message: 'Signup failed' });
+    console.error(err);
+    return res.status(500).json({ message: 'Erreur lors de l\'inscription' });
+  }
+});
+
+// ---------- VERIFY EMAIL ----------
+authRouter.get('/verify-email', async (req, res) => {
+  const { token } = req.query;
+  try {
+    const user = await User.findOne({ verificationToken: token });
+    if (!user) return res.status(400).json({ message: 'Lien invalide ou expiré.' });
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    return res.json({ message: 'Compte activé ! Vous pouvez maintenant vous connecter.' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Erreur lors de la validation.' });
+  }
+});
+
+// ---------- FORGOT PASSWORD ----------
+authRouter.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = crypto.randomBytes(32).toString('hex');
+      user.resetPasswordToken = token;
+      user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 heure
+      await user.save();
+      await sendResetPasswordEmail(user.email, token);
+    }
+    // Message identique même si l'user n'existe pas (sécurité)
+    res.json({ message: 'Si ce compte existe, un email a été envoyé.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Erreur serveur.' });
+  }
+});
+
+// ---------- RESET PASSWORD ----------
+authRouter.post('/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() }
+    });
+
+    if (!user) return res.status(400).json({ message: 'Token invalide ou expiré.' });
+
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: 'Mot de passe réinitialisé.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Erreur lors du changement.' });
   }
 });
 
 // ---------- LOGIN ----------
 authRouter.post('/login', async (req, res) => {
   const { email, password } = req.body;
-
-  const adminEmail = process.env.ADMIN_EMAIL;
-  const adminPassword = process.env.ADMIN_PASSWORD;
   const jwtSecret = process.env.JWT_SECRET;
   const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '1h';
 
-  if (!jwtSecret) {
-    return res.status(500).json({ message: 'Auth not configured' });
-  }
+  if (!jwtSecret) return res.status(500).json({ message: 'Auth not configured' });
 
   try {
-    // 1) Cas admin .env
-    if (
-      adminEmail &&
-      adminPassword &&
-      email === adminEmail &&
-      password === adminPassword
-    ) {
-      type AdminPayload = {
-        id: string;
-        role: 'admin';
-        email: string;
-        pseudo: string;
-      };
-
-      const payload: AdminPayload = {
-        id: 'admin',
-        role: 'admin',
-        email,
-        pseudo: 'Administrator',
-      };
-      const options: SignOptions = { expiresIn: jwtExpiresIn as any };
-
-      const token = jwt.sign(payload, jwtSecret as string, options);
-      return res.json({ token, user: payload });
-    }
-
-    // 2) Cas member en base
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    if (!user) return res.status(401).json({ message: 'Identifiants invalides' });
+
+    // VÉRIFICATION DU STATUT ISVERIFIED
+    if (!user.isVerified) {
+      return res.status(403).json({ message: 'Veuillez confirmer votre adresse email.' });
     }
 
     const ok = await bcrypt.compare(password, user.password);
-    if (!ok) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
+    if (!ok) return res.status(401).json({ message: 'Identifiants invalides' });
 
     const payload = {
       id: user._id.toString(),
       role: user.role,
       email: user.email,
       pseudo: user.pseudo,
+      avatarUrl: user.avatarUrl
     };
 
-    const options: SignOptions = { expiresIn: jwtExpiresIn as any };
-    const token = jwt.sign(payload, jwtSecret as string, options);
-
-    return res.json({
-      token,
-      user: payload,
-    });
+    const token = jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn as any });
+    return res.json({ token, user: payload });
   } catch (err) {
-    console.error('Login error:', err);
     return res.status(500).json({ message: 'Login failed' });
   }
 });
