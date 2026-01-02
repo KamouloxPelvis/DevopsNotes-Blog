@@ -1,4 +1,4 @@
-import { useCallback, RefObject } from 'react';
+import { useCallback } from 'react';
 
 interface TextToolbarProps {
   content: string;
