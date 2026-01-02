@@ -1,12 +1,26 @@
 import nodemailer from "nodemailer";
 
+// DEBUG TEMPORAIRE
+console.log("--- DEBUG MAILER CONFIG ---");
+console.log("HOST:", process.env.MAIL_HOST);
+console.log("USER:", process.env.MAIL_USER ? "Configuré ✅" : "VIDE ❌");
+console.log("PASS:", process.env.MAIL_PASS ? "Configuré ✅" : "VIDE ❌");
+
 const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST || "smtp.mailtrap.io",
-  port: Number(process.env.MAIL_PORT) || 2525,
+  host: process.env.MAIL_HOST || "sandbox.smtp.mailtrap.io",
+  port: Number(process.env.MAIL_PORT || 2525),
   auth: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
   },
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.log("Erreur de configuration SMTP :", error);
+  } else {
+    console.log("Serveur de mail prêt à envoyer des messages");
+  }
 });
 
 export const sendVerificationEmail = async (email: string, token: string) => {

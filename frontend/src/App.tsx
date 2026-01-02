@@ -23,6 +23,7 @@ import ChatPage from './pages/ChatPage';
 
 // CSS Global (Variables, Reset, Boutons communs)
 import './App.css';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -51,7 +52,10 @@ function App() {
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-
+            <Route 
+              path="/profile" 
+              element={<RequireAuthRoute><ProfilePage /></RequireAuthRoute>} 
+            />
 
             {/* Forum */}
             <Route path="/forum" element={<ForumPage />} />

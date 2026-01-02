@@ -1,23 +1,26 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+import cors from 'cors';
 import express from 'express';
 import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'node:path';
 import http from 'http';
-import { requireAdmin } from './middleware/auth';
 import jwt  from 'jsonwebtoken';
 import helmet from 'helmet';
+
+import authRouter from './routes/auth';
+import { requireAdmin } from './middleware/auth';
 
 import commentRoutes from './routes/comments';
 import articlesRouter from './routes/articles';
 import forumRouter from './routes/forum'
-import authRouter from './routes/auth';
+
 import { upload } from './utils/upload';
 import { Server } from 'socket.io';
-import chatRouter from './routes/chat';
-import { Message } from './models/Message';
 
-dotenv.config(); // charge .env
+import { Message } from './models/Message';
+import chatRouter from './routes/chat';
 
 const app = express();
 
@@ -31,7 +34,8 @@ const allowedOrigins = [
   "https://devopsnotes.org",
 ];
 
-// Middlewares généraux
+
+// Middlewares de Parsing et Sécurité 
 app.use(express.json());
 app.use(
   '/api',

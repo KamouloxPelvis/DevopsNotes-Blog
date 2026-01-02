@@ -67,14 +67,14 @@ export default function ForgotPassword() {
           </form>
         ) : (
           <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-            <Link to="/member-login" className="btn-auth-submit" style={{ display: 'block', textDecoration: 'none' }}>
+            <Link to="/login" className="btn-auth-submit" style={{ display: 'block', textDecoration: 'none' }}>
               Retour à la connexion
             </Link>
           </div>
         )}
 
         <footer className="auth-footer">
-          <Link to="/member-login">Retour à la page de connexion</Link>
+          <Link to="/login">Retour à la page de connexion</Link>
         </footer>
       </div>
     </div>

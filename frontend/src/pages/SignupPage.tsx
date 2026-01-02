@@ -1,33 +1,44 @@
 import { FormEvent, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import '../styles/Signup.css';
 
-// Icônes pour le toggle password
-const EyeIcon = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
-const EyeOffIcon = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>;
+export default function SignupPage() {
 
-export default function Signin() {
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    pseudo: '',
+    email: '',
+    password: ''
+  });
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
     setLoading(true);
+    setMessage(null);
+
+    const data = new FormData();
+    data.append('pseudo', formData.pseudo);
+    data.append('email', formData.email);
+    data.append('password', formData.password);
+    if (avatar) data.append('avatar', avatar);
 
     try {
-      await login(email, password);
-      navigate('/articles');
+      const res = await fetch(`${API_URL}/auth/signup`, {
+        method: 'POST',
+        body: data,
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message);
+
+      setMessage({ type: 'success', text: result.message });
+      // On ne redirige pas tout de suite car l'utilisateur doit voir le message du mail
     } catch (err: any) {
-      // Message spécifique si le compte n'est pas vérifié (venant du backend)
-      setError(err.message || 'Identifiants invalides');
+      setMessage({ type: 'error', text: err.message });
     } finally {
       setLoading(false);
     }
@@ -37,63 +48,69 @@ export default function Signin() {
     <div className="auth-container">
       <div className="auth-card">
         <header className="auth-header">
-          <h1>Bon retour !</h1>
-          <p>Connectez-vous pour gérer vos articles ou participer au forum.</p>
+          <h1>Rejoignez l'aventure</h1>
+          <p>Créez votre profil pour contribuer au portfolio.</p>
         </header>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          {error && <div className="auth-error-banner">⚠️ {error}</div>}
+        {message && (
+          <div className={`auth-error-banner ${message.type === 'success' ? 'success-banner' : ''}`}
+               style={message.type === 'success' ? {backgroundColor: '#f0fff4', color: '#2f855a', borderColor: '#c6f6d5'} : {}}>
+            {message.type === 'success' ? '✅ ' : '⚠️ '} {message.text}
+          </div>
+        )}
 
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="email">Adresse Email</label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="ex: devops@notes.com"
+            <label>Avatar (Optionnel)</label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={(e) => setAvatar(e.target.files ? e.target.files[0] : null)} 
             />
           </div>
 
           <div className="form-group">
-            <div className="label-row">
-              <label htmlFor="password">Mot de passe</label>
-              {/* LIEN MOT DE PASSE OUBLIÉ */}
-              <Link to="/forgot-password" title="Récupérer mon accès" className="forgot-link">
-                Oublié ?
-              </Link>
-            </div>
-            <div className="password-input-wrapper">
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Votre mot de passe secret"
-              />
-              <button
-                type="button"
-                className="toggle-visibility"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
-            </div>
+            <label>Pseudo</label>
+            <input
+              type="text"
+              required
+              value={formData.pseudo}
+              onChange={(e) => setFormData({...formData, pseudo: e.target.value})}
+              placeholder="Votre nom d'utilisateur"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              required
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              placeholder="votre@email.com"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Mot de passe</label>
+            <input
+              type="password"
+              required
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              placeholder="6+ caractères, 1 majuscule..."
+            />
           </div>
 
           <button type="submit" className="btn-auth-submit" disabled={loading}>
-            {loading ? 'Connexion...' : 'Se connecter'}
+            {loading ? 'Création...' : 'S\'inscrire'}
           </button>
         </form>
 
         <footer className="auth-footer">
-          Pas encore de compte ? <Link to="/signup">Créer un compte</Link>
+          Déjà un compte ? <Link to="/login">Se connecter</Link>
         </footer>
       </div>
     </div>
   );
-};
+}

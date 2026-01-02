@@ -36,16 +36,23 @@ authRouter.post('/signup', upload.single('avatar'), async (req, res) => {
 
     await user.save();
 
-    // Envoi du mail de confirmation
-    await sendVerificationEmail(user.email, vToken);
+    // TENTATIVE D'ENVOI DE MAIL (Isolée pour ne pas faire crash la route)
+    try {
+      await sendVerificationEmail(user.email, vToken);
+    } catch (mailErr) {
+      console.error("Erreur SMTP :", mailErr);
+      // On informe l'utilisateur que le compte est créé mais qu'il y a un souci de mail
+      return res.status(201).json({ 
+        message: 'Compte créé, mais nous n\'avons pas pu envoyer l\'email de confirmation. Contactez l\'admin.' 
+      });
+    }
 
-    // On ne renvoie PAS de token JWT ici, l'utilisateur doit d'abord valider son mail
     return res.status(201).json({ 
-      message: 'Inscription réussie ! Veuillez vérifier vos emails pour activer votre compte.' 
+      message: 'Inscription réussie ! Veuillez vérifier vos emails.' 
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("Erreur Inscription :", err);
     return res.status(500).json({ message: 'Erreur lors de l\'inscription' });
   }
 });
@@ -54,8 +61,12 @@ authRouter.post('/signup', upload.single('avatar'), async (req, res) => {
 authRouter.get('/verify-email', async (req, res) => {
   const { token } = req.query;
   try {
-    const user = await User.findOne({ verificationToken: token });
-    if (!user) return res.status(400).json({ message: 'Lien invalide ou expiré.' });
+
+    let user = await User.findOne({ verificationToken: token });
+    if (!user) {
+
+      return res.status(400).json({ message: 'Ce lien a déjà été utilisé ou est invalide.' });
+    }
 
     user.isVerified = true;
     user.verificationToken = undefined;

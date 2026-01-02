@@ -1,9 +1,9 @@
 import { FormEvent, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../styles/Signup.css'; // On réutilise le même fichier de style
+import '../styles/Signup.css';
 
-export default function Signin() {
+export default function SigninPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
   
@@ -19,9 +19,9 @@ export default function Signin() {
 
     try {
       await login(email, password);
-      // Redirection vers le forum ou les articles après connexion
       navigate('/articles');
     } catch (err: any) {
+      // Affiche l'erreur du backend (ex: "Veuillez confirmer votre email")
       setError(err.message || 'Identifiants invalides');
     } finally {
       setLoading(false);
@@ -33,7 +33,7 @@ export default function Signin() {
       <div className="auth-card">
         <header className="auth-header">
           <h1>Bon retour !</h1>
-          <p>Connectez-vous pour gérer vos articles ou participer au forum.</p>
+          <p>Connectez-vous pour participer à la communauté.</p>
         </header>
 
         <form onSubmit={handleSubmit} className="auth-form">
@@ -44,7 +44,6 @@ export default function Signin() {
             <input
               id="email"
               type="email"
-              autoComplete="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -53,15 +52,19 @@ export default function Signin() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Mot de passe</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <label htmlFor="password">Mot de passe</label>
+              <Link to="/forgot-password" style={{ fontSize: '0.8rem', color: '#4299e1' }}>
+                Oublié ?
+              </Link>
+            </div>
             <input
               id="password"
               type="password"
-              autoComplete="current-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Votre mot de passe secret"
+              placeholder="Votre mot de passe"
             />
           </div>
 

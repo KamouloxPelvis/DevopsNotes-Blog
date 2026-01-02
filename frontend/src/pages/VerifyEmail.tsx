@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 export default function VerifyEmail() {
@@ -7,16 +7,22 @@ export default function VerifyEmail() {
   const navigate = useNavigate();
   const token = searchParams.get('token');
 
+  const hasCalled = useRef(false);
+
   useEffect(() => {
-    if (token) {
-      fetch(`${process.env.REACT_APP_API_URL}/auth/verify-email?token=${token}`)
-        .then(res => res.json())
-        .then(data => {
-          setStatus(data.message);
-          setTimeout(() => navigate('/login'), 3000); // Redirection après 3s
-        })
-        .catch(() => setStatus('Erreur lors de la validation.'));
-    }
+    if (!token || hasCalled.current) return;
+
+    hasCalled.current = true; 
+
+    fetch(`${process.env.REACT_APP_API_URL}/auth/verify-email?token=${token}`)
+      .then(res => {
+        return res.json();
+      })
+      .then(data => {
+        setStatus(data.message);
+        setTimeout(() => navigate('/login'), 3000);
+      })
+      .catch(() => setStatus('Erreur lors de la validation.'));
   }, [token, navigate]);
 
   return (

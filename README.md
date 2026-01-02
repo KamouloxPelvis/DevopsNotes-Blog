@@ -158,6 +158,15 @@ docker compose logs frontend
 
 
 ---
+## Commit du 2 janvier :
+
+Sécurité accrue : Le passage à un système avec vérification d'email empêche les bots de polluer ta base de données.
+
+Expérience Utilisateur (UX) : L'ajout des avatars rend le forum et le futur chat beaucoup plus vivants et personnalisés.
+
+Rigueur technique : Le passage complet du module Auth en TypeScript garantit qu'aucune donnée utilisateur manquante ne passera en production.
+
+Interface adaptative : Les boutons de la page d'accueil et de la liste d'articles s'adaptent désormais dynamiquement à l'état de connexion de l'utilisateur.
 
 ## 7. Objectif du projet
 
