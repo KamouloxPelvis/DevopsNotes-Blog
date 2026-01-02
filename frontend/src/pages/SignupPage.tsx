@@ -1,9 +1,13 @@
 import { FormEvent, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
-import '../styles/Signup.css'
+import '../styles/Signup.css';
 
-export default function SignupPage() {
+// Icônes simples en SVG pour éviter les dépendances externes
+const EyeIcon = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+const EyeOffIcon = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>;
+
+export default function Signup() {
   const [email, setEmail] = useState('');
   const [pseudo, setPseudo] = useState('');
   const [password, setPassword] = useState('');
@@ -12,34 +16,29 @@ export default function SignupPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  
   const navigate = useNavigate();
-
+  const { showToast } = useToast();
   const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
 
-  const PASSWORD_REGEX =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{6,}$/;
-
-  const { showToast } = useToast();
+  const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{6,}$/;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
 
-    // validations AVANT l'appel API
     if (pseudo.trim().length < 3) {
-      setError('Username must be at least 3 characters long.');
+      setError('Le pseudo doit faire au moins 3 caractères.');
       return;
     }
 
     if (!PASSWORD_REGEX.test(password)) {
-      const msg =  'Password must be at least 6 characters with 1 uppercase letter, 1 digit and 1 special character.';
-      setError(msg);
-      showToast({ type: 'error', message: msg });
+      setError('Le mot de passe doit contenir au moins 6 caractères, une majuscule, un chiffre et un caractère spécial.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError('Les mots de passe ne correspondent pas.');
       return;
     }
 
@@ -52,45 +51,41 @@ export default function SignupPage() {
         body: JSON.stringify({ email, password, pseudo }),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || 'Signup failed');
-      }
-
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Échec de l\'inscription');
+
       localStorage.setItem('devopsnotes_token', data.token);
       showToast({
         type: 'success',
-        message: 'Your account has been created successfully. Welcome to DevOpsNotes!',
+        message: 'Compte créé avec succès ! Bienvenue parmi nous.',
       });
       navigate('/forum');
     } catch (err: any) {
-      setError(err.message || 'Signup failed');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="page-card auth-page">
+    <div className="auth-container">
       <div className="auth-card">
-        <h1>Create your DevOpsNotes account</h1>
-        <p className="auth-subtitle">
-          Become a member to create threads and reply on the DevOps forum.
-        </p>
+        <header className="auth-header">
+          <h1>Rejoignez DevOpsNotes</h1>
+          <p>Créez un compte pour participer aux discussions.</p>
+        </header>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          {error && <p className="error">{error}</p>}
+          {error && <div className="auth-error-banner">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="pseudo">Username</label>
+            <label htmlFor="pseudo">Nom d'utilisateur</label>
             <input
               id="pseudo"
               type="text"
-              autoComplete="nickname"
               value={pseudo}
               onChange={(e) => setPseudo(e.target.value)}
-              placeholder="devops_wizard"
+              placeholder="ex: k8s_master"
               required
             />
           </div>
@@ -100,78 +95,64 @@ export default function SignupPage() {
             <input
               id="email"
               type="email"
-              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="votre@email.com"
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <div className="password-field">
+            <label htmlFor="password">Mot de passe</label>
+            <div className="password-input-wrapper">
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 6 characters"
+                placeholder="6+ caractères"
                 required
               />
               <button
                 type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="toggle-visibility"
+                onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? (
-                  <span className="icon-eye-open" />
-                ) : (
-                  <span className="icon-eye-closed" />
-                )}
+                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm password</label>
-            <div className="password-field">
+            <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
+            <div className="password-input-wrapper">
               <input
                 id="confirmPassword"
                 type={showConfirm ? 'text' : 'password'}
-                autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Re-type your password"
+                placeholder="Répétez le mot de passe"
                 required
               />
               <button
                 type="button"
-                className="password-toggle"
-                onClick={() => setShowConfirm((v) => !v)}
-                aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                className="toggle-visibility"
+                onClick={() => setShowConfirm(!showConfirm)}
               >
-                {showConfirm ? (
-                  <span className="icon-eye-open" />
-                ) : (
-                  <span className="icon-eye-closed" />
-                )}
+                {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Creating account...' : 'Sign up'}
+          <button type="submit" className="btn-auth-submit" disabled={loading}>
+            {loading ? 'Création...' : 'S\'inscrire'}
           </button>
         </form>
 
-        <p className="auth-footer">
-          Already have an account?{' '}
-          <Link to="/member-login">SignIn</Link>
-        </p>
+        <footer className="auth-footer">
+          Déjà un compte ? <Link to="/member-login">Se connecter</Link>
+        </footer>
       </div>
     </div>
   );
-}
+};

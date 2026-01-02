@@ -1,55 +1,134 @@
-.password-field {
-  position: relative;
-  display: flex;
-  align-items: center;
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 80px);
+    background-color: #f7fafc;
+    padding: 20px;
 }
 
-.password-field input {
-  width: 100%;
-  padding-right: 2.5rem; /* espace pour l’icône */
+.auth-card {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
-.password-toggle {
-  position: absolute;
-  right: 0.6rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
 }
 
-/* Icône oeil fermée / ouverte en pur CSS (tu peux remplacer par une lib d’icônes) */
-.icon-eye-closed,
-.icon-eye-open {
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  border: 2px solid #0f766e;
-  position: relative;
+.auth-header h1 {
+    font-size: 1.75rem;
+    color: #1a202c;
+    margin-bottom: 0.5rem;
 }
 
-.icon-eye-closed::before {
-  content: '';
-  position: absolute;
-  width: 130%;
-  height: 2px;
-  background: #0f766e;
-  transform: rotate(40deg);
-  top: 50%;
-  left: -15%;
+.auth-header p {
+    color: #718096;
+    font-size: 0.95rem;
 }
 
-.icon-eye-open::before {
-  content: '';
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: #0f766e;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.auth-form .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.auth-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: #4a5568;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.auth-form input:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+/* Gestion du champ password avec bouton */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-visibility {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: #a0aec0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.toggle-visibility:hover {
+    color: #4a5568;
+}
+
+.auth-error-banner {
+    background: #fff5f5;
+    color: #c53030;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #feb2b2;
+}
+
+.btn-auth-submit {
+    width: 100%;
+    padding: 0.85rem;
+    background-color: #4299e1;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 1rem;
+}
+
+.btn-auth-submit:hover {
+    background-color: #3182ce;
+}
+
+.btn-auth-submit:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.auth-footer a {
+    color: #4299e1;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
 }

@@ -1,7 +1,8 @@
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent, useRef } from 'react';
 import { getChatSocket } from '../api/chatSocket';
 import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentUser } from '../api/auth'; // On récupère l'utilisateur réel
 import '../styles/ChatPage.css';
 
 type ChatMessage = {
@@ -18,13 +19,25 @@ export default function ChatPage() {
   const [room, setRoom] = useState('General');
   const { showToast } = useToast();
   const navigate = useNavigate();
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const currentUser = getCurrentUser();
+  const currentPseudo = currentUser?.pseudo || 'Anonymous';
 
   const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
+
+  // Fonction pour scroller en bas automatiquement
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     const socket = getChatSocket();
     setMessages([]);
-
     const controller = new AbortController();
 
     async function loadHistory() {
@@ -33,29 +46,17 @@ export default function ChatPage() {
           `${API_URL}/chat/messages?room=${room}`,
           { signal: controller.signal }
         );
-        if (!res.ok) {
-          console.error('Error loading history:', res.status);
-          showToast({
-            type: 'error',
-            message: 'Failed to load chat history.',
-          });
-          return;
-        }
+        if (!res.ok) throw new Error('History failed');
         const data: ChatMessage[] = await res.json();
         setMessages(data);
       } catch (e: any) {
         if (e.name !== 'AbortError') {
-          console.error('Error loading history', e);
-          showToast({
-            type: 'error',
-            message: 'Failed to load chat history.',
-          });
+          showToast({ type: 'error', message: 'Impossible de charger l\'historique.' });
         }
       }
     }
 
     loadHistory();
-
     socket.emit('chat:join', room);
 
     const handler = (msg: ChatMessage) => {
@@ -66,20 +67,10 @@ export default function ChatPage() {
 
     socket.on('chat:message', handler);
 
-        // écouter une erreur socket globale
-    const errorHandler = (err: any) => {
-      console.error('Socket error:', err);
-      showToast({
-        type: 'error',
-        message: 'Chat connection error. Messages may not be delivered.',
-      });
-    };
-    socket.on('connect_error', errorHandler);
-    socket.on('error', errorHandler);
-
     return () => {
       controller.abort();
       socket.off('chat:message', handler);
+      // Optionnel: socket.emit('chat:leave', room) si ton backend le gère
     };
   }, [room, showToast, API_URL]);
 
@@ -89,117 +80,75 @@ export default function ChatPage() {
     if (!trimmed) return;
 
     const socket = getChatSocket();
-    try {
-      socket.emit('chat:message', { room, text: trimmed });
-      setText('');
-    } catch (err) {
-      console.error('Send message error:', err);
-      showToast({
-        type: 'error',
-        message: 'Failed to send message.',
-      });
-    }
+    socket.emit('chat:message', { room, text: trimmed });
+    setText('');
   }
 
-  // TODO: récupère le pseudo courant dans ton auth context si tu veux un isMe fiable
-  const currentPseudo = 'Administrator';
-
   return (
-    <div className="page-card chat-container">
-      <div className="chat-title-row">
-        <h1 className="page-title">Chat rooms</h1>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => navigate('/articles')}
-        >
-          ← Back to the articles
+    <div className="chat-page-wrapper">
+      <div className="chat-sidebar">
+        <button className="back-btn" onClick={() => navigate('/articles')}>
+          ← Retour
         </button>
+        <h3>Salons</h3>
+        <div className="room-list">
+          {['General', 'DevOps Room', 'Relax'].map((r) => (
+            <button 
+              key={r} 
+              className={`room-item ${room === r ? 'active' : ''}`}
+              onClick={() => setRoom(r)}
+            >
+              # {r}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="chat-header">
-        <div>
-          <label htmlFor="room-select" className="chat-header-label">
-            Room:
-          </label>
-          <select
-            id="room-select"
-            value={room}
-            onChange={(e) => setRoom(e.target.value)}
-            className="chat-room-select"
-          >
-            <option value="General">General</option>
-            <option value="DevOps Room">DevOps Room</option>
-            <option value="Relax">Relax room</option>
-          </select>
+
+      <div className="chat-main">
+        <header className="chat-main-header">
+          <h2>#{room}</h2>
+          <span className="user-info">Connecté en tant que <strong>{currentPseudo}</strong></span>
+        </header>
+
+        <div className="chat-messages-container">
+          {messages.length === 0 && (
+            <div className="chat-empty">Aucun message ici. Soyez le premier !</div>
+          )}
+          
+          {messages.map((m, idx) => {
+            const isMe = m.fromPseudo === currentPseudo;
+            return (
+              <div key={idx} className={`message-row ${isMe ? 'is-me' : ''}`}>
+                <div className="message-avatar">
+                  {m.fromPseudo?.charAt(0).toUpperCase() || '?'}
+                </div>
+                <div className="message-content">
+                  <div className="message-info">
+                    <span className="message-author">{m.fromPseudo}</span>
+                    <span className="message-time">
+                      {new Date(m.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <div className="message-text">{m.text}</div>
+                </div>
+              </div>
+            );
+          })}
+          <div ref={messagesEndRef} />
         </div>
 
-        <span className="chat-header-hint">
-          Messages are public in the selected room
-        </span>
-      </div>
-
-      <div className="chat-messages">
-        {messages.length === 0 && (
-          <div className="chat-empty">
-            No messages yet in #{room}. Start the conversation!
-          </div>
-        )}
-
-        {messages.map((m, idx) => {
-          const isMe = m.fromPseudo === currentPseudo;
-          return (
-            <div
-              key={idx}
-              className={
-                'chat-message-row ' + (isMe ? 'me' : 'other')
-              }
-            >
-              <div
-                className={
-                  'chat-bubble ' + (isMe ? 'me' : 'other')
-                }
-              >
-                <div className="chat-bubble-header">
-                  <span
-                    className={
-                      'chat-bubble-author ' + (isMe ? 'me' : 'other')
-                    }
-                  >
-                    {m.fromPseudo ?? 'anonymous'}
-                  </span>
-                  <span
-                    className={
-                      'chat-bubble-time ' + (isMe ? 'me' : 'other')
-                    }
-                  >
-                    {new Date(m.at).toLocaleTimeString()}
-                  </span>
-                </div>
-                <div>{m.text}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <form onSubmit={handleSubmit}>
-        <div className="chat-input-row">
+        <form className="chat-input-area" onSubmit={handleSubmit}>
           <input
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={`Message #${room}`}
-            className="chat-input"
+            placeholder={`Envoyer un message dans #${room}`}
           />
-          <button
-            type="submit"
-            className="btn btn-primary"
-            style={{ paddingInline: '1rem' }}
-          >
-            Send
+          <button type="submit" className="send-btn" disabled={!text.trim()}>
+            Envoyer
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

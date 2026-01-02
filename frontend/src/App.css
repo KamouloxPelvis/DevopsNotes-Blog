@@ -1,177 +1,110 @@
-/* ===== RESET & GLOBAL ===== */
-*,
-*::before,
-*::after { box-sizing: border-box; }
+/* ===== VARIABLES & THEME ===== */
+:root {
+  --primary: #2563eb;       /* Un bleu moderne type "Docker" */
+  --primary-hover: #1d4ed8;
+  --secondary: #64748b;     /* Gris bleuté pour le texte secondaire */
+  --bg-color: #f1f5f9;      /* Gris très clair pour le fond global */
+  --card-bg: #ffffff;
+  --text-main: #0f172a;     /* Noir profond mais pas pur */
+  --text-muted: #64748b;
+  --danger: #ef4444;
+  --success: #10b981;
+  --radius: 8px;
+}
+
+/* ===== RESET & BASE ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: #f5f5f5;
-  color: #222;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Police moderne */
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
 }
 
-
-/* ===== LAYOUT ===== */z
-.app { max-width: 900px; margin: 0 auto; padding: 3px 16px 48px; }
-.app-main {
-  background: #fff;
-  border-radius: 8px;
-  padding: 24px 20px;
-}
-
-/* ===== LOGOS ===== */
-.app-logo-main {
-  display: block !important;           
-  margin: 0 auto !important;           
-  height: clamp(80px, 12vw, 210px);    
-  width: auto !important;
-  max-width: 100% !important;
-  object-fit: contain !important;
-  border-radius: 16px !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15) !important;
-  image-rendering: -webkit-optimize-contrast;
-}s
-
-.global-logo,
-.global-logo img {
-  width: 32px; 
-  height: 32px; 
-  object-fit: contain; 
-  border-radius: 4px;  
-  position: fixed; 
-  left: 32px; 
-  z-index: 1000; 
-}
-
-/* ===== PREVIEW FIX CRITIQUE ===== */
-.article-excerpt {
-  margin: 0 0 0.75rem 0 !important;
-  text-align: center;
-  max-width: 90%;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-.preview-card-clean,
-.preview-card-clean * {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.preview-card-clean > div,
-.preview-card-clean p,
-.preview-card-clean :global(p) {
-  display: -webkit-box !important;
-  -webkit-line-clamp: 3 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
-  font-size: 0.875rem !important;
-  line-height: 1.4 !important;
-  color: #6b7280 !important;
-  text-align: left !important;
-}
-
-/* ===== STATS ALIGN HORIZONTAL ===== */
-.stats-row {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 1.5rem !important;
-  padding: 0.75rem 0 !important;
-}
-
-.stats-row button,
-.stats-row > div {
-  padding: 0.5rem 0.75rem !important;
-  flex-shrink: 0 !important;
-  margin: 0 !important;
-}
-
-/* ===== TAGS ===== */
-.article-tags {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.tag {
-  background: #e5e7eb;
-  color: #374151;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.tag-active { background: #2563eb; color: white; }
-
-/* ===== BUTTONS ===== */
-.btn {
-  display: inline-block;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  cursor: pointer;
+a {
   text-decoration: none;
+  color: inherit;
+}
+
+/* ===== BOUTONS STANDARDS ===== */
+/* Utilisés partout (Header, Articles, Forms) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
   font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  gap: 0.5rem;
 }
 
-.btn-primary { background: #1976d2; color: #fff; border-color: #1976d2; }
-.btn-secondary { background: #f3f3f3; color: #333; }
-.btn-danger { background: #d32f2f; color: #fff; border-color: #d32f2f; }
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 600px) {
-  .app { padding: 16px 12px 32px; }
-  .stats-row { flex-direction: column; gap: 0.75rem; }
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
 }
 
-/* ===== FORMULAIRE & COMMENTS (gardé minimal) ===== */
-.form-field { display: flex; flex-direction: column; gap: 6px; }
-.form-error { 
-  background: #ffebee; 
-  border: 1px solid #e57373; 
-  border-radius: 4px; 
-  color: #b71c1c; 
-  padding: 8px; 
-  margin: 0; 
+.btn-secondary {
+  background-color: white;
+  border-color: #e2e8f0;
+  color: var(--text-main);
+}
+.btn-secondary:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
 }
 
-/* ALIGNEMENT HORIZONTAL LIKE/VIEWS */
-.article-stats {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 1.5rem !important;
+.btn-light {
+  background: transparent;
+  color: var(--primary);
+}
+.btn-light:hover {
+  background: #eff6ff;
 }
 
-.article-stats button,
-.article-stats > div {
-  padding: 0.5rem 0.75rem !important;
-  margin: 0 !important;
-  flex-shrink: 0 !important;
+.btn-danger {
+  background-color: #fee2e2;
+  color: var(--danger);
+  border-color: #fecaca;
+}
+.btn-danger:hover {
+  background-color: #fecaca;
 }
 
-/* FOND UNIFORME #f5f5f5 PARTOUT */
-html, body, #root {
-  background-color: #f5f5f5 !important;
-  min-height: 100vh !important;
+/* ===== FORMULAIRES GENERIQUES ===== */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
 }
 
-/* SUPPRIME TOUS LES FONDS */
-.app-main,
-.PageLayout,
-.landing-hero,
-.landing-root {
-  background: transparent !important;
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* KEEP WHITE CARDS SEULEMENT */
-.article-card,
-.landing-powered {
-  background: #ffffff !important;
+/* ===== TOAST NOTIFICATIONS ===== */
+/* (Si tu as gardé le ToastContext) */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
 }

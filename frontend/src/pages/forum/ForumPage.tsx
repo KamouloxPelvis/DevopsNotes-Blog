@@ -1,14 +1,13 @@
-// frontend/src/pages/ForumPage.tsx
 import { useEffect, useState } from 'react';
 import { ForumThread } from '../../types/forum';
 import { getThreads } from '../../api/forum';
 import { Link } from 'react-router-dom';
+import '../../styles/ForumPage.css';
 
 export default function ForumPage() {
   const [threads, setThreads] = useState<ForumThread[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -24,10 +23,8 @@ export default function ForumPage() {
     })();
   }, []);
 
-  const term = searchTerm.toLowerCase();
-
   const filteredThreads = threads.filter((t) => {
-    if (!term) return true;
+    const term = searchTerm.toLowerCase();
     return (
       t.title.toLowerCase().includes(term) ||
       t.content.toLowerCase().includes(term) ||
@@ -36,77 +33,83 @@ export default function ForumPage() {
   });
 
   return (
-  <div className="page-card">
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1.5rem',
-      }}
-    >
-      <h1>DevOpsNotes<br/>Forum</h1>
+    <div className="forum-container">
+      <header className="forum-header">
+        <div className="header-title">
+          <h1>DevOpsNotes Forum</h1>
+          <p className="subtitle">Discutez infrastructure, automatisation et cloud</p>
+        </div>
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}
-      >
-        <input
-            type="text"
-            className="forum-search-input"
-            placeholder="Search threads..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        <Link to="/articles" className="btn btn-light">
-          ← Back to articles
-        </Link>
+        <div className="header-actions">
+          <div className="search-wrapper">
+            <input
+              type="text"
+              className="forum-search-input"
+              placeholder="Rechercher un sujet..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Link to="/forum/new" className="btn btn-primary">
+            + Nouveau sujet
+          </Link>
+        </div>
+      </header>
 
-        <Link to="/forum/new" className="btn btn-primary">
-          New thread
-        </Link>
+      {loading && <div className="forum-state">Chargement des discussions...</div>}
+      {error && <div className="forum-state error-text">⚠️ {error}</div>}
+
+      {!loading && !error && (
+        <div className="threads-section">
+          <div className="threads-stats">
+            {filteredThreads.length} discussion{filteredThreads.length > 1 ? 's' : ''} trouvée{filteredThreads.length > 1 ? 's' : ''}
+          </div>
+
+          {filteredThreads.length === 0 ? (
+            <div className="forum-empty-state">
+              <p>Aucun résultat pour votre recherche.</p>
+            </div>
+          ) : (
+            <div className="thread-list">
+              {filteredThreads.map((thread) => (
+                <div key={thread._id} className="thread-item">
+                  <div className="thread-main">
+                    <Link to={`/forum/${thread._id}`} className="thread-title-link">
+                      <h2>{thread.title}</h2>
+                    </Link>
+                    <div className="thread-metadata">
+                      <span className="thread-author">Par <strong>{thread.authorPseudo || 'Anonyme'}</strong></span>
+                      <span className="separator">•</span>
+                      <span className="thread-date">
+                        {new Date(thread.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {thread.tags && thread.tags.length > 0 && (
+                      <div className="thread-tags">
+                        {thread.tags.map((tag) => (
+                          <span key={tag} className="tag-pill">{tag}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* On peut imaginer ajouter thread.replyCount plus tard */}
+                  <div className="thread-stats-side">
+                    <div className="stat-box">
+                      <span className="stat-value">{thread.comments?.length || 0}</span>
+                      <span className="stat-label">réponses</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      
+      <div className="forum-footer">
+        <Link to="/articles" className="back-link">← Retour aux articles</Link>
       </div>
     </div>
-
-    {loading && <p>Loading threads...</p>}
-    {error && <p className="error">{error}</p>}
-
-    {!loading && !error && threads.length === 0 && (
-      <p className="forum-empty">
-        No threads yet. Be the first to start a discussion on Docker, CI/CD or Terraform.
-      </p>
-    )}
-
-    {!loading && !error && threads.length > 0 && (
-      <ul className="thread-card-list">
-        {filteredThreads.map((thread) => (
-          <li key={thread._id} className="thread-card">
-            <Link to={`/forum/${thread._id}`}>
-              <h2>{thread.title}</h2>
-            </Link>
-            <p className="thread-meta">
-            {thread.authorPseudo && (
-              <>
-                Created by <strong>{thread.authorPseudo}</strong> ·{' '}
-              </>
-            )}
-            {new Date(thread.createdAt).toLocaleString()}
-          </p>
-            {thread.tags?.length ? (
-              <div className="thread-tags" style={{ marginTop: '1rem' }}>
-                {thread.tags?.map((tag) => (
-                  <span key={tag} className="tag-pill">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-)};
+  );
+}

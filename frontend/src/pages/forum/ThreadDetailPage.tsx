@@ -1,14 +1,14 @@
 import { useEffect, useState, FormEvent } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getThread } from '../../api/forum';
-import { ForumThread } from '../../types/forum';
-import { getReplies, createReply } from '../../api/forum';
-import { Reply } from '../../types/forum';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { getThread, getReplies, createReply } from '../../api/forum';
+import { ForumThread, Reply } from '../../types/forum';
 import { getAuthToken, getCurrentUser } from '../../api/auth';
 import MarkdownPreview from '../../components/MarkdownPreview';
+import '../../styles/ThreadDetailPage.css';
 
 export default function ThreadDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [thread, setThread] = useState<ForumThread | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,42 +26,29 @@ export default function ThreadDetailPage() {
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-  // Load thread
   useEffect(() => {
     if (!id) return;
-    (async () => {
+    const loadData = async () => {
       try {
-        const data = await getThread(id);
-        setThread(data);
+        const [threadData, repliesData] = await Promise.all([
+          getThread(id),
+          getReplies(id)
+        ]);
+        setThread(threadData);
+        setReplies(repliesData);
       } catch (err: any) {
-        setError(err.message || 'Failed to load thread');
+        setError(err.message || 'Failed to load data');
       } finally {
         setLoading(false);
       }
-    })();
+    };
+    loadData();
   }, [id]);
 
-  // Load replies
-  useEffect(() => {
-    if (!id) return;
-    (async () => {
-      try {
-        const data = await getReplies(id);
-        setReplies(data);
-      } catch {
-        // silencieux
-      }
-    })();
-  }, [id]);
-
-  // Submit reply
   async function handleSubmitReply(e: FormEvent) {
     e.preventDefault();
-    if (!id) return;
-
-    const trimmed = replyContent.trim();
-    if (!trimmed) {
-      setReplyError('You have to type something in order to reply ;)');
+    if (!id || !replyContent.trim()) {
+      setReplyError('Vous devez écrire quelque chose pour répondre.');
       return;
     }
 
@@ -72,139 +59,120 @@ export default function ThreadDetailPage() {
       setReplies((prev) => [...prev, newReply]);
       setReplyContent('');
     } catch (err: any) {
-      setReplyError(err.message || 'Failed to post reply');
+      setReplyError(err.message || 'Erreur lors de l\'envoi');
     } finally {
       setReplyLoading(false);
     }
   }
 
-  // Delete thread
   async function handleDeleteThread() {
-    if (!id) return;
-    if (!window.confirm('Delete this thread?')) return;
+    if (!id || !window.confirm('Supprimer définitivement ce sujet ?')) return;
 
     try {
       const res = await fetch(`${API_URL}/forum/threads/${id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
+        headers: { Authorization: `Bearer ${getAuthToken()}` },
       });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || 'Failed to delete thread');
-      }
-
-      window.history.back();
+      if (!res.ok) throw new Error('Erreur lors de la suppression');
+      navigate('/forum');
     } catch (err: any) {
-      setError(err.message || 'Failed to delete thread');
+      setError(err.message);
     }
   }
 
-  if (loading) return <div className="page-card">Loading thread...</div>;
-  if (error) return <div className="page-card">Error: {error}</div>;
-  if (!thread) return <div className="page-card">Thread not found.</div>;
+  if (loading) return <div className="thread-detail-container loading">Chargement de la discussion...</div>;
+  if (error || !thread) return <div className="thread-detail-container error">⚠️ {error || 'Thread introuvable'}</div>;
 
   return (
-    <div className="page-card">
-      {/* Header avec boutons */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <Link to="/forum" className="btn btn-light">
-          ← Back to forum
-        </Link>
-
+    <div className="thread-detail-container">
+      <nav className="thread-nav">
+        <Link to="/forum" className="back-link">← Retour au Forum</Link>
         {canEditOrDelete && (
-          <div>
-            <Link 
-              to={`/forum/${thread._id}/edit`} 
-              className="btn btn-secondary"
-            >
-              Edit
-            </Link>
-            <button
-              type="button"
-              className="btn btn-danger"
-              style={{ marginLeft: '0.5rem' }}
-              onClick={handleDeleteThread}
-            >
-              Delete
-            </button>
+          <div className="admin-actions">
+            <Link to={`/forum/${thread._id}/edit`} className="btn btn-secondary btn-sm">Modifier</Link>
+            <button onClick={handleDeleteThread} className="btn btn-danger btn-sm">Supprimer</button>
           </div>
         )}
-      </div>
+      </nav>
 
-      {/* Titre + meta */}
-      <h1>{thread.title}</h1>
-      <p className="thread-meta">
-        {thread.authorPseudo && (
-          <>Created by <strong>{thread.authorPseudo}</strong> · </>
-        )}
-        {new Date(thread.createdAt).toLocaleString()}
-        {thread.editedAt && (
-          <> • Thread edited at {new Date(thread.editedAt).toLocaleString()}</>
-        )}
-      </p>
+      <article className="main-thread-post">
+        <header className="thread-header">
+          <h1>{thread.title}</h1>
+          <div className="thread-meta">
+            <span className="author-badge">{thread.authorPseudo?.charAt(0).toUpperCase()}</span>
+            <div className="meta-text">
+              <strong>{thread.authorPseudo || 'Anonyme'}</strong>
+              <span>Posté le {new Date(thread.createdAt).toLocaleString()}</span>
+              {thread.editedAt && <span className="edited-tag">(Modifié)</span>}
+            </div>
+          </div>
+        </header>
 
-      {/* Contenu thread - MarkdownPreview */}
-      <div style={{ margin: '1.5rem 0' }}>
-        <MarkdownPreview content={thread.content} />
-      </div>
-
-      {/* Tags */}
-      {thread.tags?.length ? (
-        <div className="thread-tags" style={{ marginBottom: '2rem' }}>
-          {thread.tags.map((tag) => (
-            <span key={tag} className="tag-pill">
-              {tag}
-            </span>
-          ))}
+        <div className="thread-content">
+          <MarkdownPreview content={thread.content} />
         </div>
-      ) : null}
 
-      {/* Replies */}
-      <div className="replies-section">
-        <h2>Replies ({replies.length})</h2>
-
-        {replies.length === 0 && <p className="replies-empty">No replies yet.</p>}
-
-        {replies.length > 0 && (
-          <ul className="replies-list">
-            {replies.map((r) => (
-              <li key={r._id} className="reply-card">
-                <p style={{ whiteSpace: 'pre-line' }}>{r.content}</p>
-                <span className="reply-meta">
-                  {r.authorPseudo && (
-                    <>Author: <strong>{r.authorPseudo}</strong> · </>
-                  )}
-                  {new Date(r.createdAt).toLocaleString()}
-                </span>
-              </li>
-            ))}
-          </ul>
+        {thread.tags && (
+          <div className="thread-tags">
+            {thread.tags.map(tag => <span key={tag} className="tag-pill">{tag}</span>)}
+          </div>
         )}
+      </article>
 
-        {/* Form reply */}
-        {isAuthenticated && (
-          <form className="reply-form" onSubmit={handleSubmitReply}>
-            {replyError && <p className="error">{replyError}</p>}
-            <textarea
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              rows={3}
-              placeholder="Add a reply..."
-            />
-            <button 
-              type="submit" 
-              className="btn btn-primary" 
-              disabled={replyLoading}
-              style={{ marginTop: '0.5rem' }}
-            >
-              {replyLoading ? 'Posting...' : 'Reply'}
-            </button>
-          </form>
+      <section className="replies-section">
+        <div className="replies-header">
+          <h2>Réponses ({replies.length})</h2>
+        </div>
+
+        <div className="replies-list">
+          {replies.length === 0 ? (
+            <p className="no-replies">Soyez le premier à répondre à cette discussion !</p>
+          ) : (
+            replies.map((reply) => (
+              <div key={reply._id} className="reply-item">
+                <div className="reply-sidebar">
+                  <div className="reply-avatar">{reply.authorPseudo?.charAt(0).toUpperCase()}</div>
+                </div>
+                <div className="reply-body">
+                  <div className="reply-meta">
+                    <strong>{reply.authorPseudo}</strong>
+                    <span>{new Date(reply.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="reply-content">
+                    {/* On utilise MarkdownPreview aussi pour les réponses pour supporter le code */}
+                    <MarkdownPreview content={reply.content} />
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {isAuthenticated ? (
+          <div className="reply-form-wrapper">
+            <h3>Ajouter une réponse</h3>
+            <form onSubmit={handleSubmitReply}>
+              <textarea
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="Partagez votre avis ou demandez une précision..."
+                rows={5}
+              />
+              {replyError && <p className="error-msg">{replyError}</p>}
+              <div className="form-footer">
+                <p className="hint">Supporte le Markdown (code blocks, gras, etc.)</p>
+                <button type="submit" className="btn btn-primary" disabled={replyLoading}>
+                  {replyLoading ? 'Envoi...' : 'Répondre'}
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <div className="login-prompt">
+            <p><Link to="/login">Connectez-vous</Link> pour participer à la discussion.</p>
+          </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

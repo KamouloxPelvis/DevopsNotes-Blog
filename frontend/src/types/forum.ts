@@ -13,6 +13,7 @@ export interface ForumThread {
   createdAt: string;
   editedAt?: string;
   tags?: string[];
+  comments?: Reply[];
   authorId?: string;     
   authorPseudo?: string;
 }

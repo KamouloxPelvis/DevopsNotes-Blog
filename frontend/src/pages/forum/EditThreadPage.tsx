@@ -1,21 +1,17 @@
-// frontend/src/pages/EditThreadPage.tsx
-import { FormEvent, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { FormEvent, useEffect, useState, useRef } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { getAuthToken } from '../../api/auth';
 import { updateThread, getThread } from '../../api/forum';
 import TextToolbar from '../../components/TextToolbar';
 import MarkdownPreview from '../../components/MarkdownPreview';
-
-type RouteParams = {
-  id: string;
-};
+import '../../styles/NewThreadPage.css';
 
 export default function EditThreadPage() {
-  const { id } = useParams<RouteParams>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const token = getAuthToken();
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // States identiques NewThreadPage + cursor
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
@@ -23,30 +19,23 @@ export default function EditThreadPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  // Cursor states
-  const [cursorStart, setCursorStart] = useState(0);
-  const [cursorEnd, setCursorEnd] = useState(0);
-
-  // Load thread
   useEffect(() => {
-  if (!id) return;
-  
-  getThread(id)
-    .then((data) => {
-      setTitle(data.title);
-      setContent(data.content);
-      setTags(data.tags?.join(', ') || '');
-    })
-    .catch((err: any) => setError(err.message))
-    .finally(() => setLoading(false));
-}, [id]);
-
-  const handleTagsChange = (value: string) => {
-    setTags(value);
-  };
+    if (!id) return;
+    
+    getThread(id)
+      .then((data) => {
+        setTitle(data.title);
+        setContent(data.content);
+        setTags(data.tags?.join(', ') || '');
+      })
+      .catch((err: any) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [id]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!id) return;
+    
     setError(null);
     setUpdating(true);
 
@@ -56,8 +45,8 @@ export default function EditThreadPage() {
         .map((t) => t.trim())
         .filter(Boolean);
 
-      await updateThread(id!, { title, content, tags: tagsArray }, token || undefined);
-      navigate('/forum');
+      await updateThread(id, { title, content, tags: tagsArray }, token || undefined);
+      navigate(`/forum/${id}`); // Redirige vers le thread plutôt que la liste
     } catch (err: any) {
       setError(err.message || 'Failed to update thread');
     } finally {
@@ -65,74 +54,77 @@ export default function EditThreadPage() {
     }
   }
 
-  if (loading) return <div className="page-card">Loading...</div>;
-  if (error) return <div className="page-card"><p className="error">{error}</p></div>;
+  if (loading) return <div className="new-thread-container">Chargement...</div>;
 
   return (
-    <div className="page-card">
-      <h1>Edit thread</h1>
-      <form className="form-vertical" onSubmit={handleSubmit}>
-        {error && <p className="error">{error}</p>}
+    <div className="new-thread-container">
+      <div className="form-header">
+        <Link to={`/forum/${id}`} className="back-link">← Annuler</Link>
+        <h1>Modifier le sujet</h1>
+      </div>
 
-        <label>
-          Title
+      <form className="new-thread-form" onSubmit={handleSubmit}>
+        {error && <div className="error-banner">⚠️ {error}</div>}
+
+        <div className="form-group">
+          <label htmlFor="title">Titre du sujet</label>
           <input
+            id="title"
             type="text"
+            className="title-input-field"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
           />
-        </label>
-
-        <label>
-          Content
-          <textarea
-            value={content}
-            rows={8}
-            onChange={(e) => {
-              setContent(e.target.value);
-              setCursorStart(e.target.selectionStart || 0);
-              setCursorEnd(e.target.selectionEnd || 0);
-            }}
-            onSelect={(e) => {
-              setCursorStart(e.currentTarget.selectionStart || 0);
-              setCursorEnd(e.currentTarget.selectionEnd || 0);
-            }}
-            required
-          />
-        </label>
-
-        {/* Toolbar + Preview */}
-        <div style={{ margin: '10px 0' }}>
-          <TextToolbar 
-            content={content} 
-            setContent={setContent}
-            cursorStart={cursorStart}
-            cursorEnd={cursorEnd}
-          />
-        </div>
-        <div style={{ marginBottom: '20px' }}>
-          <label>Preview</label>
-          <MarkdownPreview content={content} />
         </div>
 
-        <label>
-          Tags (comma separated)
+        <div className="form-group">
+          <label htmlFor="content">Description</label>
+          <div className="editor-wrapper">
+            <TextToolbar 
+              content={content} 
+              setContent={setContent}
+              textAreaRef={textAreaRef}
+            />
+            <textarea
+              id="content"
+              ref={textAreaRef}
+              value={content}
+              rows={12}
+              onChange={(e) => setContent(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>Aperçu des modifications</label>
+          <div className="thread-preview-box">
+            <MarkdownPreview content={content} />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="tags">Tags (séparés par des virgules)</label>
           <input
+            id="tags"
             type="text"
+            className="tags-input-field"
             value={tags}
-            onChange={(e) => handleTagsChange(e.target.value)}
-            placeholder="devops,docker,terraform"
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="devops, kubernetes..."
           />
-        </label>
+        </div>
 
-        <button 
-          type="submit" 
-          className="btn btn-primary" 
-          disabled={updating}
-        >
-          {updating ? 'Updating...' : 'Update thread'}
-        </button>
+        <div className="form-actions">
+          <button 
+            type="submit" 
+            className="btn btn-primary btn-lg" 
+            disabled={updating}
+          >
+            {updating ? 'Mise à jour...' : 'Sauvegarder les modifications'}
+          </button>
+        </div>
       </form>
     </div>
   );

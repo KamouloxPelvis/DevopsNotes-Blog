@@ -1,55 +1,55 @@
-// PageLayout.tsx
+// components/PageLayout.tsx
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../styles/PageLayout.css';
-import '../styles/Toast.css'
+import devopsLogo from '../devopsnotes_logo.png'; // Vérifie le chemin !
+import devopsFav from '../devopsnotes_ico.jpg';   // Vérifie le chemin !
+import '../styles/PageLayout.css'; 
 
 type Props = {
   children: ReactNode;
 };
 
 export function PageLayout({ children }: Props) {
-  const { user, logout } = useAuth();  // <-- récupère user + logout depuis le contexte
+  const { user, logout } = useAuth();
 
   return (
-    <div className="page-layout">
-      <header className="top-user-bar">
-        <div className="top-user-bar-inner">
-          <div className="top-user-bar-left">
-            {user ? (
-              <span>
-                You are connected as <strong>{user.pseudo ?? user.email}</strong>
-              </span>
-            ) : (
-              <span>You are browsing as visitor</span>
-            )}
-          </div>
+    <div className="layout-wrapper">
+      {/* 1. Petit Logo Flottant (Fixed) */}
+      <Link to="/homepage" className="floating-home-btn">
+        <img src={devopsFav} alt="Home" />
+      </Link>
 
-          <div className="top-user-bar-right">
+      {/* 2. Barre Utilisateur (Top Right) */}
+      <div className="top-nav-bar">
+        <div className="user-status">
             {user ? (
               <>
-                <Link to="/profile" className="btn btn-secondary btn-sm">
-                  Profile
-                </Link>
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={logout}
-                  style={{ marginLeft: '0.5rem' }}
-                >
-                  Log Out
-                </button>
+                <span className="user-greeting">Hello, <strong>{user.pseudo ?? user.email}</strong></span>
+                <Link to="/profile" className="btn btn-sm btn-secondary">Profile</Link>
+                <button onClick={logout} className="btn btn-sm btn-secondary">Log Out</button>
               </>
             ) : (
-              <Link to="/login" className="btn btn-secondary btn-sm">
-                Sign In
-              </Link>
+              <>
+                 <span className="user-greeting">Visitor mode</span>
+                 <Link to="/login" className="btn btn-sm btn-primary">Sign In</Link>
+              </>
             )}
-          </div>
         </div>
-      </header>
+      </div>
 
-      {children}
+      {/* 3. Conteneur Principal Centré */}
+      <div className="main-container">
+        {/* En-tête avec le gros logo */}
+        <header className="main-header">
+           <img src={devopsLogo} alt="DevOpsNotes Logo" className="header-logo-img" />
+        </header>
+
+        {/* C'est ici que les pages (Articles, Forum...) s'affichent */}
+        <main className="content-area">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

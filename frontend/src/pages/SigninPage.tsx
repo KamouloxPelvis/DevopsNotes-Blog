@@ -1,11 +1,12 @@
-// frontend/components/LoginPage.tsx
 import { FormEvent, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import '../styles/Signup.css'; // On réutilise le même fichier de style
 
-export function LoginPage() {
+export default function Signin() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // contexte: appelle /api/auth/login
+  const { login } = useAuth();
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -17,28 +18,29 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      await login(email, password);   // admin ou member suivant le compte
-      navigate('/articles');         // redirection commune
+      await login(email, password);
+      // Redirection vers le forum ou les articles après connexion
+      navigate('/articles');
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      setError(err.message || 'Identifiants invalides');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="page-card auth-page">
+    <div className="auth-container">
       <div className="auth-card">
-        <h1>Sign In</h1>
-        <p className="auth-subtitle">
-          Sign in to manage articles and participate in the DevOps forum.
-        </p>
+        <header className="auth-header">
+          <h1>Bon retour !</h1>
+          <p>Connectez-vous pour gérer vos articles ou participer au forum.</p>
+        </header>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {error && <p className="error">{error}</p>}
+          {error && <div className="auth-error-banner">⚠️ {error}</div>}
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Adresse Email</label>
             <input
               id="email"
               type="email"
@@ -46,12 +48,12 @@ export function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="ex: devops@notes.com"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Mot de passe</label>
             <input
               id="password"
               type="password"
@@ -59,18 +61,18 @@ export function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your password"
+              placeholder="Votre mot de passe secret"
             />
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign in'}
+          <button type="submit" className="btn-auth-submit" disabled={loading}>
+            {loading ? 'Connexion...' : 'Se connecter'}
           </button>
         </form>
 
-        <p className="auth-footer">
-          No account yet? <Link to="/signup">Sign Up</Link>
-        </p>
+        <footer className="auth-footer">
+          Pas encore de compte ? <Link to="/signup">Créer un compte</Link>
+        </footer>
       </div>
     </div>
   );

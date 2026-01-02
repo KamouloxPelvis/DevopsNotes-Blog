@@ -1,10 +1,9 @@
-// frontend/src/pages/NewThreadPage.tsx
-import { FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { FormEvent, useState, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { createThread } from '../../api/forum';
 import TextToolbar from '../../components/TextToolbar';
 import MarkdownPreview from '../../components/MarkdownPreview';
-
+import '../../styles/NewThreadPage.css';
 
 export default function NewThreadPage() {
   const [title, setTitle] = useState('');
@@ -12,95 +11,104 @@ export default function NewThreadPage() {
   const [tags, setTags] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  
   const navigate = useNavigate();
-
-  const [cursorStart, setCursorStart] = useState(0);
-  const [cursorEnd, setCursorEnd] = useState(0);
-
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!title.trim() || !content.trim()) {
+      setError("Le titre et le contenu sont obligatoires.");
+      return;
+    }
+
     setError(null);
     setLoading(true);
 
     try {
-      const tagsArray =
-        tags
-          .split(',')
-          .map((t) => t.trim())
-          .filter(Boolean) || [];
+      const tagsArray = tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+        
       await createThread({ title, content, tags: tagsArray });
       navigate('/forum');
     } catch (err: any) {
-      setError(err.message || 'Failed to create thread');
+      setError(err.message || 'Impossible de créer le sujet');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="page-card">
-      <h1>New thread</h1>
-      <form className="form-vertical" onSubmit={handleSubmit}>
-        {error && <p className="error">{error}</p>}
+    <div className="new-thread-container">
+      <div className="form-header">
+        <Link to="/forum" className="back-link">← Annuler</Link>
+        <h1>Démarrer une discussion</h1>
+        <p>Partagez vos problématiques DevOps avec la communauté.</p>
+      </div>
 
-        <label>
-          Title
+      <form className="new-thread-form" onSubmit={handleSubmit}>
+        {error && <div className="error-banner">⚠️ {error}</div>}
+
+        <div className="form-group">
+          <label htmlFor="title">Titre du sujet</label>
           <input
+            id="title"
             type="text"
-            placeholder="Ex: Problèmes de build Docker en CI GitLab"
+            placeholder="Ex: Erreur 403 sur S3 avec Terraform et OIDC"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-          />
-        </label>
-
-        <label>
-          Content
-          <textarea
-            placeholder="Décris ton contexte, ta stack (Dockerfile, GitLab CI, runners, etc.)…"
-            value={content}
-            rows={8}
-            onChange={(e) => {
-              setContent(e.target.value);
-              setCursorStart(e.target.selectionStart || 0);
-              setCursorEnd(e.target.selectionEnd || 0);
-            }}
-            onSelect={(e) => {
-              setCursorStart(e.currentTarget.selectionStart || 0);
-              setCursorEnd(e.currentTarget.selectionEnd || 0);
-            }}
-            required
-          />
-        </label>
-        <div style={{ margin: '10px 0' }}>
-          <TextToolbar 
-            content={content} 
-            setContent={setContent}
-            cursorStart={cursorStart}
-            cursorEnd={cursorEnd}
+            className="title-input-field"
           />
         </div>
-        <div style={{ marginBottom: '20px' }}>
-          <label>Preview</label>
-          <MarkdownPreview content={content} />
+
+        <div className="form-group">
+          <label htmlFor="content">Description du problème</label>
+          <div className="editor-wrapper">
+            <TextToolbar 
+              content={content} 
+              setContent={setContent}
+              textAreaRef={textAreaRef}
+            />
+            <textarea
+              id="content"
+              ref={textAreaRef}
+              placeholder="Décris ton contexte, ta stack, tes logs ou ton code..."
+              value={content}
+              rows={12}
+              onChange={(e) => setContent(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
-        <label>
-          Tags (comma separated)
+        <div className="form-group">
+          <label>Aperçu du message</label>
+          <div className="thread-preview-box">
+            <MarkdownPreview content={content || "*L'aperçu de votre message s'affichera ici...*"} />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="tags">Tags (séparés par des virgules)</label>
           <input
+            id="tags"
             type="text"
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-            placeholder="devops,docker,terraform"
+            placeholder="kubernetes, aws, cicd"
+            className="tags-input-field"
           />
-        </label>
+        </div>
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Creating...' : 'Create thread'}
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+            {loading ? 'Création en cours...' : 'Publier le sujet'}
+          </button>
+        </div>
       </form>
     </div>
   );
 }
-
