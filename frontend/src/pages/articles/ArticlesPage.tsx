@@ -112,195 +112,200 @@ export function ArticlesList() {
 
   const allTags = Array.from(
     new Set(
-      articles
-        .flatMap((a) => a.tags || [])
-        .filter((t) => t && t.length > 0)
+      (articles || []) // Protection si articles est null
+        .flatMap((a) => a?.tags ?? []) // Optionnal chaining + fallback
     )
-  ).sort();
+  )
+  .filter((t): t is string => typeof t === 'string' && t.length > 0)
+  .sort();
 
   const filteredArticles = articles.filter((article) => {
-    const matchesTag =
-      activeTag === null || (article.tags || []).includes(activeTag);
+  const matchesTag =
+    activeTag === null || (article.tags || []).includes(activeTag);
 
-    const term = searchTerm.toLowerCase();
-    const matchesSearch =
-      term === '' ||
-      article.title.toLowerCase().includes(term) ||
-      article.content.toLowerCase().includes(term);
+  const term = searchTerm.toLowerCase();
+  // Protection : on s'assure que title et content existent avant le toLowerCase()
+  const matchesSearch =
+    term === '' ||
+    (article.title || '').toLowerCase().includes(term) ||
+    (article.content || '').toLowerCase().includes(term);
 
-    return matchesTag && matchesSearch;
-  });
+  return matchesTag && matchesSearch;
+});
 
   return (
-  <div className="articles-content">
-    
-    {/* --- HEADER (Corrigé : un seul bloc header) --- */}
-    <div className="articles-header-v2">
-      <h1 className="articles-title-v2">Articles</h1>
+    <div className="articles-content">
       
-      <div className="articles-actions-v2">
-        <input
-          type="text"
-          className="articles-search"
-          placeholder="Search articles..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-    
+      {/* --- HEADER --- */}
+      <div className="articles-header-v2">
+        <h1 className="articles-title-v2">Articles</h1>
+        
         <div className="articles-actions-v2">
-  
-          <Link to="/forum" className="btn btn-secondary">Forum</Link>
+          <input
+            type="text"
+            className="articles-search"
+            placeholder="Search articles..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+      
+          <div className="articles-actions-v2">
+            <Link to="/forum" className="btn btn-secondary">Forum</Link>
 
-          {user ? (
-            <>
-              <Link to="/chat" className="btn btn-secondary">Chat</Link>
-              
-              {/* Logout placé avant New Article pour qu'il reste groupé avec les actions membres */}
-              <button className="btn btn-secondary" onClick={handleLogout}>
-                Logout
-              </button>
+            {user ? (
+              <>
+                <Link to="/chat" className="btn btn-secondary">Chat</Link>
+                <button className="btn btn-secondary" onClick={handleLogout}>
+                  Logout
+                </button>
 
-              {isAdmin && (
-                <Link to="/articles/new" className="btn btn-primary">
-                  + New
-                </Link>
-              )}
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="btn btn-secondary">Sign in</Link>
-              <Link to="/signup" className="btn btn-primary">Sign up</Link>
-            </>
-          )}
-        </div>
-      </div>
-    </div> 
-
-    {/* --- TAGS FILTER --- */}
-    {allTags.length > 0 && (
-      <div className="articles-filters-v2">
-        <span className="filters-label-v2">Filter by tag</span>
-        <div className="tags-grid-v2">
-          <button
-            type="button"
-            className={`tag-pill ${activeTag === null ? 'active' : ''}`}
-            onClick={() => setActiveTag(null)}
-          >
-            All
-          </button>
-          {allTags.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              className={`tag-pill ${activeTag === tag ? 'active' : ''}`}
-              onClick={() => setActiveTag(tag)}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
-      </div>
-    )}
-
-    {/* --- ARTICLES GRID --- */}
-    <div className="articles-grid-v2">
-      {filteredArticles.map((article) => (
-        <div key={article._id} className="article-card-v2">
-          {article.imageUrl && (
-            <div className="article-image-v2">
-              <img src={`${API_URL}${article.imageUrl}`} alt={article.title} />
-            </div>
-          )}
-          
-          <div className="article-content-v2">
-            <h3 className="article-title-v2">
-              {article.title}
-              {article.status === 'draft' && <span className="draft-badge">Draft</span>}
-            </h3>
-            
-            <div className="article-excerpt">
-              <MarkdownPreview 
-                content={(article.excerpt || article.content || '').slice(0, 280) + '...'}
-                className="preview-card-clean"
-              />
-            </div>
-
-            <div className="article-tags-v2">
-              {article.tags?.slice(0, 5).map((tag) => (
-                <span
-                  key={tag}
-                  className={`tag ${activeTag === tag ? 'active' : ''}`}
-                  onClick={() => setActiveTag((prev) => (prev === tag ? null : tag))}
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-            
-            <div className="article-stats-v2">
-              <button 
-                className="stat-btn like-btn"
-                onClick={() => handleLike(article.slug)}
-                disabled={!user}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-                <span>{article.likes ?? 0}</span>
-              </button>
-              
-              <div className="stat-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3"/>
-                </svg>
-                <span>{article.views ?? 0}</span>
-              </div>
-            </div>
-          
-            <div className="article-footer-v2">
-              <Link to={`/articles/${article.slug}`} className="btn btn-primary">
-                Read more
-              </Link>
-              <span className="comments-count">
-                {commentCounts[article.slug] ?? 0} comment{(commentCounts[article.slug] ?? 0) > 1 ? 's' : ''}
-              </span>
-            </div>
+                {isAdmin && (
+                  <Link to="/articles/new" className="btn btn-primary">
+                    + New
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn-secondary">Sign in</Link>
+                <Link to="/signup" className="btn btn-primary">Sign up</Link>
+              </>
+            )}
           </div>
         </div>
-      ))}
-    </div>
+      </div> 
 
-    {/* --- PAGINATION --- */}
-    {pages > 1 && (
-      <div className="pagination-v2">
-        <div className="pagination-nav">
+      {/* --- TAGS FILTER --- */}
+      {allTags.length > 0 && (
+        <div className="articles-filters-v2">
+          <span className="filters-label-v2">Filter by tag</span>
+          <div className="tags-grid-v2">
+            <button
+              type="button"
+              className={`tag-pill ${activeTag === null ? 'active' : ''}`}
+              onClick={() => setActiveTag(null)}
+            >
+              All
+            </button>
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                className={`tag-pill ${activeTag === tag ? 'active' : ''}`}
+                onClick={() => setActiveTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* --- ARTICLES GRID --- */}
+      <div className="articles-grid-v2">
+        {filteredArticles.length > 0 ? (
+          filteredArticles.map((article) => (
+            <div key={article._id} className="article-card-v2">
+              {article.imageUrl && (
+                <div className="article-image-v2">
+                  <img src={`${API_URL}${article.imageUrl}`} alt={article.title || 'Article image'} />
+                </div>
+              )}
+              
+              <div className="article-content-v2">
+                <h3 className="article-title-v2">
+                  {article.title || "Untitled Article"}
+                  {article.status === 'draft' && <span className="draft-badge">Draft</span>}
+                </h3>
+                
+                <div className="article-excerpt">
+                  <MarkdownPreview 
+                    content={(article.excerpt || article.content || '').slice(0, 280) + '...'}
+                    className="preview-card-clean"
+                  />
+                </div>
+
+                <div className="article-tags-v2">
+                  {(article.tags || []).slice(0, 5).map((tag) => (
+                    <span
+                      key={tag}
+                      className={`tag ${activeTag === tag ? 'active' : ''}`}
+                      onClick={() => setActiveTag((prev) => (prev === tag ? null : tag))}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="article-stats-v2">
+                  <button 
+                    className="stat-btn like-btn"
+                    onClick={() => handleLike(article.slug)}
+                    disabled={!user}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    <span>{article.likes ?? 0}</span>
+                  </button>
+                  
+                  <div className="stat-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <span>{article.views ?? 0}</span>
+                  </div>
+                </div>
+              
+                <div className="article-footer-v2">
+                  <Link to={`/articles/${article.slug}`} className="btn btn-primary">
+                    Read more
+                  </Link>
+                  <span className="comments-count">
+                    {commentCounts[article.slug] ?? 0} comment{(commentCounts[article.slug] ?? 0) > 1 ? 's' : ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="no-results-message" style={{ padding: '40px', textAlign: 'center', width: '100%' }}>
+            <p>No articles found for "{searchTerm}"</p>
+          </div>
+        )}
+      </div>
+
+      {/* --- PAGINATION --- */}
+      {pages > 1 && (
+        <div className="pagination-v2">
+          <div className="pagination-nav">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              disabled={page === 1}
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            >
+              Previous
+            </button>
+            <span className="pagination-info">Page {page} of {pages}</span>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              disabled={page === pages}
+              onClick={() => setPage((p) => Math.min(p + 1, pages))}
+            >
+              Next
+            </button>
+          </div>
           <button
             type="button"
-            className="btn btn-secondary"
-            disabled={page === 1}
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            className="btn btn-light"
+            onClick={() => navigate('/homepage')}
           >
-            Previous
-          </button>
-          <span className="pagination-info">Page {page} of {pages}</span>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            disabled={page === pages}
-            onClick={() => setPage((p) => Math.min(p + 1, pages))}
-          >
-            Next
+            About
           </button>
         </div>
-        <button
-          type="button"
-          className="btn btn-light"
-          onClick={() => navigate('/homepage')}
-        >
-          About
-        </button>
-      </div>
-    )}
-  </div>
-)};
+      )}
+    </div>
+  )};
