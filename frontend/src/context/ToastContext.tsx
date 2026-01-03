@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import "../../src/styles/Toast.css";
 
 type ToastType = 'success' | 'error' | 'info';
 
