@@ -26,7 +26,7 @@ export default function EditArticle() {
   const token = getAuthToken();
   const navigate = useNavigate();
 
-  const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'https://www.devopsnotes.org/';
+  const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'https://www.devopsnotes.org';
   const API_URL = process.env.REACT_APP_API_URL ?? 'https://www.devopsnotes.org/api';
 
   // Chargement des données existantes
@@ -83,7 +83,7 @@ export default function EditArticle() {
       const formData = new FormData();
       formData.append('file', imageFile);
 
-      const res = await fetch(`${API_ROOT}/uploads`, {
+      const res = await fetch(`${API_URL}/uploads`, {
         method: 'POST',
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: formData,
