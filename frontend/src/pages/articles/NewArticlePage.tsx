@@ -4,7 +4,7 @@ import { getAuthToken } from '../../api/auth';
 import { useToast } from '../../context/ToastContext';
 import TextToolbar from '../../components/TextToolbar';
 import MarkdownPreview from '../../components/MarkdownPreview';
-import '../../styles/NewArticlePage.css';
+import '../../styles/NewArticlePage.css'; // On va adapter ce CSS
 
 export default function NewArticle() {
   const [title, setTitle] = useState('');
@@ -17,16 +17,15 @@ export default function NewArticle() {
   const [rawTags, setRawTags] = useState('');
   const [status, setStatus] = useState<'draft' | 'published'>('draft');
   const [uploading, setUploading] = useState(false);
+  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   
-  // Utilisation de la ref pour le textarea
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-  
   const { showToast } = useToast();
   const token = getAuthToken();
   const navigate = useNavigate();
 
-  const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'http://localhost:5000/';
-  const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
+  const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'https://www.devopsnotes.org/';
+  const API_URL = process.env.REACT_APP_API_URL ?? 'https://www.devopsnotes.org/api';
 
   const handleTagsChange = (value: string) => {
     setRawTags(value);
@@ -40,7 +39,7 @@ export default function NewArticle() {
       setUploading(true);
       const formData = new FormData();
       formData.append('file', imageFile);
-      const res = await fetch(`${API_ROOT}upload`, { // Correction du slash si nécessaire
+      const res = await fetch(`${API_ROOT}upload`, {
         method: 'POST',
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: formData,
@@ -48,7 +47,7 @@ export default function NewArticle() {
       if (!res.ok) throw new Error('Erreur lors de l’upload');
       const data = await res.json();
       setImageUrl(data.imageUrl);
-      showToast({ type: 'success', message: 'Image uploadée !' });
+      showToast({ type: 'success', message: 'Image prête pour l’article !' });
     } catch (err: any) {
       setError(err.message);
     } finally { setUploading(false); }
@@ -73,91 +72,96 @@ export default function NewArticle() {
   }
 
   return (
-    <div className="new-article-page">
-      {error && (
-        <div className="error-banner">
-          <p>⚠️ {error}</p>
-          <button onClick={() => setError(null)}>×</button>
-        </div>
-      )}
-        <div className="form-header">
-          <Link to="/articles" className="btn btn-secondary">← Back</Link>
-          <h1>Create New Article</h1>
-          <div className="header-actions">
-            <select value={status} onChange={(e) => setStatus(e.target.value as 'draft' | 'published')} className="status-select">
-              <option value="draft">Draft Mode</option>
-              <option value="published">Ready to Publish</option>
+    <div className="new-article-v2">
+      {/* 1. Header Fixe avec Actions */}
+      <header className="editor-header">
+        <div className="header-container">
+          <Link to="/articles" className="back-link">← Articles</Link>
+          <div className="view-switcher">
+            <button 
+              onClick={() => setViewMode('edit')} 
+              className={viewMode === 'edit' ? 'active' : ''}
+            >Édition</button>
+            <button 
+              onClick={() => setViewMode('preview')} 
+              className={viewMode === 'preview' ? 'active' : ''}
+            >Aperçu</button>
+          </div>
+          <div className="final-actions">
+            <select value={status} onChange={(e) => setStatus(e.target.value as 'draft' | 'published')}>
+              <option value="draft">Brouillon</option>
+              <option value="published">Publier</option>
             </select>
-            <button onClick={handleSubmit} className="btn btn-primary">Save Article</button>
+            <button onClick={handleSubmit} className="btn-publish">Enregistrer</button>
           </div>
         </div>
+      </header>
 
-      <div className="editor-grid">
-        <div className="editor-main">
-          <input 
-            className="title-input"
-            placeholder="Article Title..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+      {error && <div className="error-banner">⚠️ {error}</div>}
 
-          <div className="toolbar-container">
-            {/* Passage de la ref ici */}
-            <TextToolbar 
-              content={content} 
-              setContent={setContent} 
-              textAreaRef={textAreaRef} 
-            />
-          </div>
+      <main className="editor-content-area">
+        {viewMode === 'edit' ? (
+          <div className="edit-stack">
+            {/* 2. Zone Image et Tags (Meta) */}
+            <section className="meta-section">
+              <div className="image-uploader">
+                <label>Couverture</label>
+                <div className="upload-row">
+                  <input type="file" onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setImageFile(file);
+                    if (file) setImagePreview(URL.createObjectURL(file));
+                  }} />
+                  <button onClick={handleUploadImage} disabled={!imageFile || uploading}>
+                    {uploading ? '...' : 'Upload'}
+                  </button>
+                </div>
+                {imagePreview && <img src={imagePreview} className="mini-preview" alt="preview" />}
+              </div>
+              
+              <div className="tag-box">
+                <label>Tags (séparés par virgules)</label>
+                <input 
+                  value={rawTags} 
+                  onChange={(e) => handleTagsChange(e.target.value)} 
+                  placeholder="ex: devops, docker, ci-cd" 
+                />
+              </div>
+            </section>
 
-          <textarea
-            ref={textAreaRef}
-            className="content-textarea"
-            placeholder="Write your story in Markdown..."
-            value={content}
-            rows={20}
-            onChange={(e) => setContent(e.target.value)}
-          />
-        </div>
-
-        <aside className="editor-sidebar">
-          <div className="sidebar-card">
-            <h3>Featured Image</h3>
-            <div className="image-upload-zone">
-              {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="side-preview-img" />
-              ) : (
-                <div className="img-placeholder">No image selected</div>
-              )}
-              <input type="file" accept="image/*" onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                setImageFile(file);
-                if (file) setImagePreview(URL.createObjectURL(file));
-              }} />
-              <button type="button" onClick={handleUploadImage} disabled={!imageFile || uploading} className="btn btn-secondary btn-sm">
-                {uploading ? 'Uploading...' : 'Upload Image'}
-              </button>
-            </div>
-          </div>
-
-          <div className="sidebar-card">
-            <h3>Tags</h3>
+            {/* 3. Titre et Éditeur (Largeur Maximale) */}
             <input 
-              value={rawTags} 
-              onChange={(e) => handleTagsChange(e.target.value)} 
-              placeholder="devops, react, node..."
-              className="tag-input"
+              className="main-title-input"
+              placeholder="Titre de l'article technique..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+
+            <div className="toolbar-sticky">
+              <TextToolbar content={content} setContent={setContent} textAreaRef={textAreaRef} />
+            </div>
+
+            <textarea
+              ref={textAreaRef}
+              className="main-textarea"
+              placeholder="Commencez votre tutoriel en Markdown..."
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
             />
           </div>
-
-          <div className="sidebar-card preview-mini">
-            <h3>Live Preview</h3>
-            <div className="markdown-render">
-              <MarkdownPreview content={content || "*Nothing to preview yet...*"} />
+        ) : (
+          /* 4. Mode Preview plein écran */
+          <article className="full-preview">
+            {imagePreview && <img src={imagePreview} className="cover-img" alt="cover" />}
+            <h1 className="preview-title">{title || "Titre de l'article"}</h1>
+            <div className="preview-tags">
+              {tags.map(t => <span key={t}>#{t}</span>)}
             </div>
-          </div>
-        </aside>
-      </div>
+            <hr />
+            <MarkdownPreview content={content || "*Aucun contenu à afficher...*"} />
+          </article>
+        )}
+      </main>
     </div>
   );
-}
+};
