@@ -168,6 +168,17 @@ Rigueur technique : Le passage complet du module Auth en TypeScript garantit qu'
 
 Interface adaptative : Les boutons de la page d'accueil et de la liste d'articles s'adaptent désormais dynamiquement à l'état de connexion de l'utilisateur.
 
+## Commit du 3 janvier :
+Pipeline Automatisé : Le job deploy_production est passé au vert, le code se déploie automatiquement sur le VPS après chaque push.
+
+CORS résolu : La communication entre https://www.devopsnotes.org et l'API fonctionne enfin sans blocage.
+
+Validation d'email : Le lien de confirmation n'est plus "undefined" et active bien le compte.
+
+Base de données à jour : L'utilisateur "Greg_Devops" est désormais bien marqué comme isVerified: true dans MongoDB.
+
+Profil Complet : L'avatar s'affiche correctement, ce qui valide la gestion des fichiers statiques et des volumes Docker sur le serveur.
+
 ## 7. Objectif du projet
 
 Ce projet a été réalisé pour démontrer :
