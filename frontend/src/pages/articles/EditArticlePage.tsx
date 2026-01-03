@@ -82,12 +82,17 @@ export default function EditArticle() {
       setUploading(true);
       const formData = new FormData();
       formData.append('file', imageFile);
-      const res = await fetch(`${API_ROOT}upload`, {
+
+      const res = await fetch(`${API_ROOT}/uploads`, {
         method: 'POST',
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: formData,
       });
+
+      if (!res.ok) throw new Error("Erreur serveur");
+
       const data = await res.json();
+
       setImageUrl(data.imageUrl);
       showToast({ type: 'success', message: 'Image mise à jour !' });
     } catch (err) { setError("Erreur upload"); } 
