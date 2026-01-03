@@ -179,6 +179,10 @@ Base de données à jour : L'utilisateur "Greg_Devops" est désormais bien marqu
 
 Profil Complet : L'avatar s'affiche correctement, ce qui valide la gestion des fichiers statiques et des volumes Docker sur le serveur.
 
+Nginx (VPS) reçoit la requête chiffrée avec le certificat Let's Encrypt.
+
+Le chiffrement SSL/TLS est désormais en mode Full(strict)
+
 ## 7. Objectif du projet
 
 Ce projet a été réalisé pour démontrer :
@@ -187,5 +191,6 @@ Ce projet a été réalisé pour démontrer :
 - la **mise en place d’un frontend React** qui consomme cette API,
 - la **maîtrise de Docker** (images multi‑stage, gestion des fichiers statiques, volumes),
 - l’**orchestration via Docker Compose** pour rapprocher backend, frontend et base de données dans un environnement reproductible.
-
-Il peut servir de base à des évolutions futures (CI/CD, déploiement sur un VPS ou dans le cloud, ajout d’un reverse proxy Nginx unique, monitoring, etc.).
+- **l'intégration et le déploiement continues (CI/CD)**, 
+- **le déploiement sur un VPS ou dans le cloud** Ici Kamatera 
+- **l'ajout d’un reverse proxy Nginx unique** .

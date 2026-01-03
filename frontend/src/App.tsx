@@ -1,10 +1,10 @@
-// App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
 import { PageLayout } from './components/PageLayout';
 import { RequireAuthRoute } from './components/RequireAuthRoute';
+import { RequireAdminRoute } from './components/RequireAdminRoute';
 
-// Pages imports
+//Pages
 import HomePage from './pages/HomePage';
 import Signin  from './pages/SigninPage';
 import Signup from './pages/SignupPage';
@@ -21,7 +21,7 @@ import EditThreadPage from './pages/forum/EditThreadPage';
 import ThreadDetailPage from './pages/forum/ThreadDetailPage';
 import ChatPage from './pages/ChatPage';
 
-// CSS Global (Variables, Reset, Boutons communs)
+// CSS
 import './App.css';
 import ProfilePage from './pages/ProfilePage';
 
@@ -39,11 +39,11 @@ function App() {
             <Route path="/articles/:slug" element={<ArticleDetail />} />
             <Route 
               path="/articles/new" 
-              element={<RequireAuthRoute><NewArticle /></RequireAuthRoute>} 
+              element={<RequireAdminRoute><NewArticle /></RequireAdminRoute>} 
             />
             <Route 
               path="/articles/:slug/edit" 
-              element={<RequireAuthRoute><EditArticle /></RequireAuthRoute>} 
+              element={<RequireAdminRoute><EditArticle /></RequireAdminRoute>} 
             />
 
             {/* Auth */}
