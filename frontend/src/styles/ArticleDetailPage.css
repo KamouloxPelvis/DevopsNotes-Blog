@@ -38,7 +38,7 @@
 }
 
 .article-detail-title {
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   font-weight: 800;
   color: #1e293b;
   margin-bottom: 2rem;
@@ -47,7 +47,7 @@
 }
 
 .article-body {
-  font-size: 1.15rem;
+  font-size: 1rem;
   line-height: 1.8;
   color: #334155;
 }
@@ -188,7 +188,7 @@
 /* --- RESPONSIVE --- */
 @media (max-width: 768px) {
   .article-content-wrapper { padding: 2rem 1.5rem; }
-  .article-detail-title { font-size: 1.8rem; }
+  .article-detail-title { font-size: 1.3rem; }
   .related-grid-v3 { grid-template-columns: 1fr; }
   .article-detail-image { height: 250px; }
 }
