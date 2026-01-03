@@ -2,22 +2,31 @@ version: "3.9"
 
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    build: ./backend
     container_name: devopsnotes-backend
+    restart: always
     ports:
       - "5000:5000"
     env_file:
-      - ./backend/.env      # charge MONGODB_URI depuis backend/.env
+      - ./backend/.env
     volumes:
       - ./backend/uploads:/app/uploads
+    networks:
+      - devops-net
 
   frontend:
-    build:
+    build: 
       context: ./frontend
-      dockerfile: Dockerfile
+      # On passe l'URL de l'API au build si nécessaire
+      args:
+        - REACT_APP_API_URL=https://www.devopsnotes.org/api
     container_name: devopsnotes-frontend
+    restart: always
     ports:
       - "3000:80"
-    # Pour que le frontend parle au backend via process.env.REACT_APP_API_URL ou 'http://localhost:5000/api'
+    networks:
+      - devops-net
+
+networks:
+  devops-net:
+    driver: bridge
