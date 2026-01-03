@@ -82,7 +82,7 @@ export default function ArticleDetail() {
         throw new Error('Erreur HTTP');
       }
 
-      navigate('/');
+      navigate('/articles');
     } catch (err: any) {
       setError(err.message);
     }
