@@ -12,6 +12,15 @@
   --radius: 8px;
 }
 
+/* Version Dark Mode */
+[data-theme='dark'] {
+  --primary: #3b82f6;      /* Un bleu un peu plus éclatant pour le sombre */
+  --bg-color: #0f172a;    /* Le noir profond devient le fond */
+  --card-bg: #1e293b;     /* Gris foncé pour les cartes */
+  --text-main: #f1f5f9;   /* Le texte devient clair */
+  --text-muted: #94a3b8;
+}
+
 /* ===== RESET & BASE ===== */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -23,6 +32,9 @@ body {
   background-color: var(--bg-color);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
+  background-color: var(--bg-color); /* Utilise la variable ! */
+  color: var(--text-main);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 a {

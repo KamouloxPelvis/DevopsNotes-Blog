@@ -13,6 +13,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-markdown": "^10.1.0",

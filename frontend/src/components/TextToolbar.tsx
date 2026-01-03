@@ -1,4 +1,9 @@
 import { useCallback } from 'react';
+import { 
+  Bold, Italic, Underline, 
+  AlignCenter, AlignJustify, AlignRight, 
+  Heading3, List, Terminal 
+} from 'lucide-react'; // Importation des icônes
 
 interface TextToolbarProps {
   content: string;
@@ -25,57 +30,76 @@ export default function TextToolbar({ content, setContent, textAreaRef }: TextTo
 
     setTimeout(() => {
       textarea.focus();
-      // On place le curseur de manière intelligente selon qu'il y a une sélection ou non
       const newCursorPos = start + prefix.length + (selectedText.length > 0 ? selectedText.length : 0);
-      textarea.setSelectionRange(
-        start + prefix.length,
-        newCursorPos
-      );
+      textarea.setSelectionRange(start + prefix.length, newCursorPos);
     }, 0);
   }, [content, setContent, textAreaRef]);
 
   return (
-    <div className="text-toolbar" style={{
-      display: 'flex', gap: '8px', margin: '10px 0', padding: '8px',
-      background: '#2d2d2d', border: '1px solid #444', borderRadius: '8px',
-      flexWrap: 'wrap'
-    }}>
-      {/* Formatage de texte */}
-      <button type="button" style={btnStyle} onClick={() => wrapSelection('**')} title="Gras">𝐁</button>
-      <button type="button" style={btnStyle} onClick={() => wrapSelection('*')} title="Italique"><i>I</i></button>
-      <button type="button" style={btnStyle} onClick={() => wrapSelection('<u>', '</u>')} title="Souligné"><u>U</u></button>
-      
-      <div style={separatorStyle} />
-
-      {/* Alignement (HTML requis pour le Markdown) */}
-      <button type="button" style={btnStyle} onClick={() => wrapSelection('<div align="center">\n', '\n</div>')} title="Centrer">Align Center</button>
-      <button type="button" style={btnStyle} onClick={() => wrapSelection('<div style="text-align: justify">\n', '\n</div>')} title="Justifier">Justify</button>
-      <button type="button" style={btnStyle} onClick={() => wrapSelection('<div align="right">\n', '\n</div>')} title="Aligner à droite">Align Right</button>
+    <div className="text-toolbar" style={toolbarStyle}>
+      {/* Groupe : Style de texte */}
+      <div style={groupStyle}>
+        <button type="button" style={btnStyle} onClick={() => wrapSelection('**')} title="Gras"><Bold size={18} /></button>
+        <button type="button" style={btnStyle} onClick={() => wrapSelection('*')} title="Italique"><Italic size={18} /></button>
+        <button type="button" style={btnStyle} onClick={() => wrapSelection('<u>', '</u>')} title="Souligné"><Underline size={18} /></button>
+      </div>
 
       <div style={separatorStyle} />
 
-      {/* Blocs et listes */}
-      <button type="button" style={btnStyle} onClick={() => wrapSelection('### ', '')} title="Titre H3">H₃</button>
-      <button type="button" style={btnStyle} onClick={() => wrapSelection('- ', '')} title="Liste à puces">•</button>
-      <button type="button" style={btnStyle} onClick={() => wrapSelection('```yaml\n', '\n```')} title="Code YAML">YAML</button>
+      {/* Groupe : Alignement */}
+      <div style={groupStyle}>
+        <button type="button" style={btnStyle} onClick={() => wrapSelection('<div align="center">\n', '\n</div>')} title="Centrer"><AlignCenter size={18} /></button>
+        <button type="button" style={btnStyle} onClick={() => wrapSelection('<div style="text-align: justify">\n', '\n</div>')} title="Justifier"><AlignJustify size={18} /></button>
+        <button type="button" style={btnStyle} onClick={() => wrapSelection('<div align="right">\n', '\n</div>')} title="Aligner à droite"><AlignRight size={18} /></button>
+      </div>
+
+      <div style={separatorStyle} />
+
+      {/* Groupe : Structure */}
+      <div style={groupStyle}>
+        <button type="button" style={btnStyle} onClick={() => wrapSelection('### ', '')} title="Titre H3"><Heading3 size={18} /></button>
+        <button type="button" style={btnStyle} onClick={() => wrapSelection('- ', '')} title="Liste à puces"><List size={18} /></button>
+        <button type="button" style={btnStyle} onClick={() => wrapSelection('```yaml\n', '\n```')} title="Code YAML"><Terminal size={18} /></button>
+      </div>
     </div>
   );
 }
 
-// Quelques styles rapides pour l'interface
-const btnStyle = {
-  padding: '4px 10px',
-  background: '#3d3d3d',
-  color: 'white',
-  border: '1px solid #555',
-  borderRadius: '4px',
-  cursor: 'pointer',
-  fontSize: '13px'
+// Styles CSS-in-JS pour la cohérence
+const toolbarStyle: React.CSSProperties = {
+  display: 'flex', 
+  gap: '4px', 
+  margin: '10px 0', 
+  padding: '6px',
+  background: '#2d2d2d', 
+  border: '1px solid #444', 
+  borderRadius: '8px',
+  alignItems: 'center',
+  flexWrap: 'wrap'
 };
 
-const separatorStyle = {
+const groupStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '4px'
+};
+
+const btnStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '34px',
+  height: '34px',
+  background: 'transparent',
+  color: '#e0e0e0',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  transition: 'background 0.2s'
+};
+
+const separatorStyle: React.CSSProperties = {
   width: '1px',
-  height: '20px',
-  background: '#555',
-  margin: '0 4px'
+  height: '24px',
+  background: '#444',
+  margin: '0 8px'
 };
