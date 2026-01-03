@@ -48,8 +48,8 @@ export default function SignupPage() {
     <div className="auth-container">
       <div className="auth-card">
         <header className="auth-header">
-          <h1>Rejoignez l'aventure</h1>
-          <p>Créez votre profil pour contribuer au portfolio.</p>
+          <h1>Devenez membre de DevOpsNotes</h1>
+          <p>Créez votre profil pour participer à la communauté.</p>
         </header>
 
         {message && (
