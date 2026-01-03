@@ -1,24 +1,26 @@
 /* ===== VARIABLES & THEME ===== */
 :root {
-  --primary: #2563eb;       /* Un bleu moderne type "Docker" */
+  --primary: #2563eb;
   --primary-hover: #1d4ed8;
-  --secondary: #64748b;     /* Gris bleuté pour le texte secondaire */
-  --bg-color: #f1f5f9;      /* Gris très clair pour le fond global */
+  --secondary: #64748b;
+  --bg-color: #f1f5f9;      /* Fond clair */
   --card-bg: #ffffff;
-  --text-main: #0f172a;     /* Noir profond mais pas pur */
+  --text-main: #0f172a;
   --text-muted: #64748b;
   --danger: #ef4444;
   --success: #10b981;
   --radius: 8px;
+  --toolbar-separator: #e2e8f0;
 }
 
 /* Version Dark Mode */
 [data-theme='dark'] {
-  --primary: #3b82f6;      /* Un bleu un peu plus éclatant pour le sombre */
-  --bg-color: #0f172a;    /* Le noir profond devient le fond */
-  --card-bg: #1e293b;     /* Gris foncé pour les cartes */
-  --text-main: #f1f5f9;   /* Le texte devient clair */
+  --primary: #3b82f6;
+  --bg-color: #0f172a;    /* Fond sombre */
+  --card-bg: #1e293b;     /* Gris foncé pour les cartes et conteneurs */
+  --text-main: #f1f5f9;
   --text-muted: #94a3b8;
+  --toolbar-separator: #334155;
 }
 
 /* ===== RESET & BASE ===== */
@@ -28,13 +30,11 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Police moderne */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
-  background-color: var(--bg-color); /* Utilise la variable ! */
-  color: var(--text-main);
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a {
@@ -43,7 +43,6 @@ a {
 }
 
 /* ===== BOUTONS STANDARDS ===== */
-/* Utilisés partout (Header, Articles, Forms) */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -67,40 +66,26 @@ a {
 }
 
 .btn-secondary {
-  background-color: white;
-  border-color: #e2e8f0;
+  /* Modifié : utilise card-bg au lieu de white pour le mode dark */
+  background-color: var(--card-bg);
+  border: 1px solid var(--toolbar-separator);
   color: var(--text-main);
 }
 .btn-secondary:hover {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
+  background-color: var(--bg-color);
+  filter: brightness(0.95);
 }
 
-.btn-light {
-  background: transparent;
-  color: var(--primary);
-}
-.btn-light:hover {
-  background: #eff6ff;
-}
-
-.btn-danger {
-  background-color: #fee2e2;
-  color: var(--danger);
-  border-color: #fecaca;
-}
-.btn-danger:hover {
-  background-color: #fecaca;
-}
-
-/* ===== FORMULAIRES GENERIQUES ===== */
+/* ===== FORMULAIRES ===== */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 textarea {
   width: 100%;
   padding: 0.6rem 1rem;
-  border: 1px solid #e2e8f0;
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  border: 1px solid var(--toolbar-separator);
   border-radius: var(--radius);
   font-size: 0.95rem;
   transition: border-color 0.2s;
@@ -112,8 +97,6 @@ input:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* ===== TOAST NOTIFICATIONS ===== */
-/* (Si tu as gardé le ToastContext) */
 .toast-container {
   position: fixed;
   bottom: 20px;

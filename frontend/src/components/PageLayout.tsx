@@ -1,4 +1,3 @@
-// components/PageLayout.tsx
 import { ReactNode, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';

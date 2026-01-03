@@ -148,14 +148,7 @@ export function ArticlesList() {
         />
     
         <div className="articles-actions-v2">
-          <input
-            type="text"
-            className="articles-search"
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          
+  
           <Link to="/forum" className="btn btn-secondary">Forum</Link>
 
           {user ? (
