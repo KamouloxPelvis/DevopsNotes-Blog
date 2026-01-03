@@ -35,6 +35,8 @@ export default function ArticleDetail() {
   const { articles: allArticles = [], loading: loadingAllArticles } = useAllArticles(); // ✅ Fix: fallback []
   
   const navigate = useNavigate();
+
+  const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'https://www.devopsnotes.org';
   const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
 
   useEffect(() => {
@@ -138,13 +140,16 @@ export default function ArticleDetail() {
       <div className="article-detail-container">
         {/* IMAGE DE COUVERTURE : Limitée en hauteur par le CSS */}
         {article.imageUrl && (
-          <div className="article-detail-image">
-            <img
-              src={`${API_URL}${article.imageUrl}`}
-              alt={article.title}
-            />
-          </div>
-        )}
+        <div className="article-detail-image">
+          <img
+            // On utilise API_ROOT pour pointer sur https://devopsnotes.org/uploads/...
+            src={article.imageUrl.startsWith('http') 
+              ? article.imageUrl 
+              : `${API_ROOT}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`}
+            alt={article.title}
+          />
+        </div>
+      )}
 
         {/* CONTENU : Padding interne pour décoller le texte des bords */}
         <div className="article-content-wrapper">
