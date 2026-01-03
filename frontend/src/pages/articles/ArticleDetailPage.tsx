@@ -145,7 +145,7 @@ export default function ArticleDetail() {
             // On utilise API_ROOT pour pointer sur https://devopsnotes.org/uploads/...
             src={article.imageUrl.startsWith('http') 
               ? article.imageUrl 
-              : `${API_ROOT}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`}
+              : `${API_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`}
             alt={article.title}
           />
         </div>
