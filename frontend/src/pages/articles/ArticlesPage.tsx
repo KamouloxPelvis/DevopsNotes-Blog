@@ -78,15 +78,13 @@ export function ArticlesList() {
   }, [page]);
 
   useEffect(() => {
-  if (articles.length === 0) return;
+  if (!articles || articles.length === 0) return;
 
   async function loadCounts() {
     const entries = await Promise.all(
       articles.map(async (a) => {
         try {
-          const res = await fetch(
-            `${API_URL}/articles/${a.slug}/comments/count`
-          );
+          const res = await fetch(`${API_URL}/articles/${a.slug}/comments/count`);
           if (!res.ok) return [a.slug, 0] as const;
           const data = await res.json();
           return [a.slug, data.count as number] as const;
@@ -104,7 +102,9 @@ export function ArticlesList() {
   }
 
   loadCounts();
-}, [API_URL, articles]);
+  // On utilise articles.length pour éviter que l'effet ne se relance 
+  // si le contenu d'un article change (comme un Like)
+}, [articles.length, API_URL]);
 
 
   if (loading) return <p className='loading'>Loading articles...</p>;
