@@ -16,4 +16,3 @@ deploy_production:
   script:
     # On utilise des guillemets doubles pour la commande SSH
     - ssh kamal@113.30.191.17 "cd ~/projet-demo-devops-v1 && git fetch origin main && git reset --hard origin/main && docker compose up -d --build"
-    - main
