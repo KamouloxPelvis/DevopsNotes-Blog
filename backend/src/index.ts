@@ -32,6 +32,7 @@ const allowedOrigins = [
   "http://113.30.191.17:3000",
   "http://devopsnotes.org",
   "https://devopsnotes.org",
+  "https://www.devopsnotes.org"
 ];
 
 
