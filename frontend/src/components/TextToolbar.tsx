@@ -46,7 +46,7 @@ export default function TextToolbar({ content, setContent, textAreaRef }: TextTo
       <button type="button" onClick={() => wrapSelection('**')} title="Gras">𝐁</button>
       <button type="button" onClick={() => wrapSelection('*')} title="Italique"><i>I</i></button>
       <button type="button" onClick={() => wrapSelection('<u>', '</u>')} title="Souligné"><u>U</u></button>
-      <button type="button" onClick={() => wrapSelection('`')} title="Code Inline">`</button>
+      <button type="button" onClick={() => wrapSelection('```yaml\n', '\n```')} title="Bloc de Code YAML">Code Block</button>
       <button type="button" onClick={() => wrapSelection('### ', '')} title="Titre H3">H₃</button>
       <button type="button" onClick={() => wrapSelection('- ', '')} title="Liste à puces">•</button>
     </div>
