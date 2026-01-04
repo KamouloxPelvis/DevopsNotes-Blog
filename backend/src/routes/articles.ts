@@ -1,8 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { Article } from '../models/Article';
-import { generateSlug } from '../utils/slug';
 import { requireAdmin, requireAuth } from '../middleware/auth';
+import { Article } from '../models/Article';
 import { upload } from '../utils/upload';
+import { generateSlug } from '../utils/slug';
+import { getCommentsCount } from '../controllers/articleController';
 import fs from 'fs';
 import path from 'path';
 
@@ -81,7 +82,6 @@ router.post('/', requireAdmin, upload.single('image'), async (req: Request, res:
 });
 
 // --- 4. ❤️ LIKE (Unique & Toggle) ---
-// Cette route remplace tes deux anciens blocs de likes
 router.post('/:slug/like', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -170,5 +170,8 @@ router.delete('/:slug', requireAdmin, async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Error deleting article' });
   }
 });
+
+// Get le nombre de commentaires pour un article
+router.get('/:slug/comments/count', getCommentsCount);
 
 export default router;

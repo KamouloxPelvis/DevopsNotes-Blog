@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-// On importe le MODELE 'Article' pour les requêtes BDD 
-// et l'INTERFACE 'IArticle' uniquement si on a besoin de typer une variable
-import { Article, IArticle } from '../models/Article'; 
+import { Article, IArticle } from '../models/Article';
+import { Comment } from '../models/Comment';
 
 // 1. Récupérer tous les articles
 export const getAllArticles = async (req: Request, res: Response) => {
@@ -9,7 +8,7 @@ export const getAllArticles = async (req: Request, res: Response) => {
     // Utilisation du modèle Article (et non IArticle)
     const articles = await Article.find().sort({ createdAt: -1 });
     res.json(articles);
-  } catch (error) {
+} catch (error) {
     res.status(500).json({ message: "Erreur lors de la récupération des articles" });
   }
 };
@@ -60,5 +59,20 @@ export const toggleLike = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Erreur lors du traitement du like" });
+  }
+};
+
+// 4. Récupérer le nombre de commentaires pour un article
+export const getCommentsCount = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+
+    // On compte directement les documents qui ont ce slug
+    const count = await Comment.countDocuments({ articleSlug: slug });
+
+    res.json({ count });
+  } catch (error) {
+    console.error("Erreur lors du comptage des commentaires:", error);
+    res.status(500).json({ message: "Erreur serveur" });
   }
 };
