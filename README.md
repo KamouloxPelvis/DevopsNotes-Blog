@@ -194,3 +194,5 @@ Ce projet a été réalisé pour démontrer :
 - **l'intégration et le déploiement continues (CI/CD)**, 
 - **le déploiement sur un VPS ou dans le cloud** Ici Kamatera 
 - **l'ajout d’un reverse proxy Nginx unique** .
+
+
