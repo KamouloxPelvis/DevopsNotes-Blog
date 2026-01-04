@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+import jwt from 'jsonwebtoken';
 import { createServer } from 'http'; // Requis pour Socket.io
 import { Server } from 'socket.io';
 
@@ -71,18 +72,45 @@ app.use('/api', uploadRoutes); // Utilise maintenant le Routeur corrigé
 app.use('/api/chat', chatRoutes);
 app.use('/api/forum', forumRoutes);
 
-// --- LOGIQUE SOCKET.IO ---
+// --- LOGIQUE SOCKET.IO AVEC AUTHENTIFICATION ---
 io.on('connection', (socket) => {
-  console.log('📱 Un utilisateur est connecté au chat:', socket.id);
+  // 1. Récupération de l'utilisateur via le token passé dans "auth"
+  const token = socket.handshake.auth.token;
+  let userData: any = null;
 
-  socket.on('message', (data) => {
-    console.log('💬 Message reçu du client :', data);
+  try {
+    if (token) {
+      // Décodage du token pour obtenir les infos utilisateur
+      userData = jwt.verify(token, process.env.JWT_SECRET || 'votre_cle_secrete');
+      console.log(`📱 ${userData.pseudo} s'est connecté au chat`);
+    }
+  } catch (err) {
+    console.log('⚠️ Connexion socket sans token valide (Anonyme)');
+  }
 
-    io.emit('message', data);
+  // 2. Rejoindre un salon
+  socket.on('chat:join', (room) => {
+    socket.join(room);
+    console.log(`👤 ${userData?.pseudo || 'Anonyme'} a rejoint le salon: ${room}`);
   });
-  
+
+  // 3. Écouter et diffuser les messages
+  socket.on('chat:message', (data) => {
+    console.log('💬 Message reçu de', userData?.pseudo, ':', data.text);
+    
+    const fullMessage = {
+      room: data.room,
+      text: data.text,
+      fromId: userData?.id || socket.id,
+      fromPseudo: userData?.pseudo || 'Anonyme',
+      at: new Date().toISOString()
+    };
+
+    io.to(data.room).emit('chat:message', fullMessage);
+  });
+
   socket.on('disconnect', () => {
-    console.log('📴 Utilisateur déconnecté');
+    console.log(`📴 ${userData?.pseudo || 'Un utilisateur'} s'est déconnecté`);
   });
 });
 
