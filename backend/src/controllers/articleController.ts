@@ -1,0 +1,64 @@
+import { Request, Response } from 'express';
+// On importe le MODELE 'Article' pour les requêtes BDD 
+// et l'INTERFACE 'IArticle' uniquement si on a besoin de typer une variable
+import { Article, IArticle } from '../models/Article'; 
+
+// 1. Récupérer tous les articles
+export const getAllArticles = async (req: Request, res: Response) => {
+  try {
+    // Utilisation du modèle Article (et non IArticle)
+    const articles = await Article.find().sort({ createdAt: -1 });
+    res.json(articles);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la récupération des articles" });
+  }
+};
+
+// 2. Récupérer un article par son slug
+export const getArticleBySlug = async (req: Request, res: Response) => {
+  try {
+    const article = await Article.findOne({ slug: req.params.slug });
+    if (!article) return res.status(404).json({ message: "Article non trouvé" });
+    res.json(article);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+// 3. LOGIQUE DES LIKES (Unique & Toggle)
+export const toggleLike = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const userId = req.user?.id; 
+
+    if (!userId) return res.status(401).json({ message: "Vous devez être connecté" });
+
+    const article = await Article.findOne({ slug });
+    if (!article) return res.status(404).json({ message: "Article introuvable" });
+
+    // Vérification si l'utilisateur a déjà liké
+    // On convertit en string pour comparer les IDs
+    const hasLiked = article.likedBy.some(id => id.toString() === userId.toString());
+
+    if (hasLiked) {
+      // UNLIKE : Retire l'ID et décrémente
+      article.likedBy = article.likedBy.filter(id => id.toString() !== userId.toString());
+      article.likes = Math.max(0, article.likes - 1);
+    } else {
+      // LIKE : Ajoute l'ID et incrémente
+      article.likedBy.push(userId as any);
+      article.likes += 1;
+    }
+
+    // Grâce à ton interface corrigée, .save() ne posera plus de problème de type
+    await article.save();
+    
+    res.json({ 
+      likes: article.likes, 
+      hasLiked: !hasLiked 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erreur lors du traitement du like" });
+  }
+};

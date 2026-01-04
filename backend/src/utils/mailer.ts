@@ -1,10 +1,14 @@
 import { Resend } from 'resend';
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config();
 
 // Initialisation avec la clé API récupérée dans le .env
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
-  const url = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+  const url = `${process.env.FRONT_END_URL}/verify-email?token=${token}`;
 
   try {
     await resend.emails.send({
@@ -28,7 +32,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 };
 
 export const sendResetPasswordEmail = async (email: string, token: string) => {
-  const url = `${process.env.FRONTEND_URL_PROD}/reset-password?token=${token}`;
+  const url = `${process.env.FRONT_END_URL_PROD}/reset-password?token=${token}`;
 
   try {
     await resend.emails.send({

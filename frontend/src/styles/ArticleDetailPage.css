@@ -6,6 +6,10 @@
   align-items: center; /* Centre le contenu */
 }
 
+.back-nav {
+  margin-bottom: 1rem;
+}
+
 .article-detail-container {
   width: 100%;
   max-width: 900px;

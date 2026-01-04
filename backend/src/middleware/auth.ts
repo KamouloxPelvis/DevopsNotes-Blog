@@ -1,49 +1,52 @@
-  import { Request, Response, NextFunction } from 'express';
-  import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 
-  type JwtUserPayload = {
-    id?: string;
-    role?: string;
-    email?: string;
-    pseudo?: string;
+// 1. Définition propre du Payload
+export interface JwtUserPayload {
+  id: string;
+  role: string;
+  email: string;
+  pseudo: string;
+}
+
+// 2. Extension du type Request d'Express pour inclure l'utilisateur
+// Cela permet d'éviter les "as any" partout dans le projet
+declare global {
+  namespace Express {
+    interface Request {
+      user?: JwtUserPayload;
+    }
+  }
+}
+
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  // On vérifie d'abord le cookie, puis le header (pour rester flexible)
+  const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+
+  const jwtSecret = process.env.JWT_SECRET;
+  
+  try {
+    const payload = jwt.verify(token, jwtSecret!) as JwtUserPayload;
+    req.user = payload;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
+}
+
+// 3. Gestionnaire de rôles générique
+export function requireRole(roles: string[]) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Access denied: insufficient permissions' });
+    }
+    next();
   };
+}
 
-  export function requireAuth(req: Request, res: Response, next: NextFunction) {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Missing or invalid Authorization header' });
-    }
-
-    const token = authHeader.substring('Bearer '.length);
-    const jwtSecret = process.env.JWT_SECRET;
-
-    if (!jwtSecret) {
-      return res.status(500).json({ message: 'Auth not configured' });
-    }
-
-    try {
-      const payload = jwt.verify(token, jwtSecret) as JwtUserPayload;
-      (req as any).user = payload;
-      next();
-    } catch (err) {
-      return res.status(401).json({ message: 'Invalid or expired token' });
-    }
-  }
-
-  export function requireRole(roles: string[]) {
-    return (req: Request, res: Response, next: NextFunction) => {
-      const user = (req as any).user as { role?: string };
-      if (!user || !user.role || !roles.includes(user.role)) {
-        return res.status(403).json({ message: 'Forbidden' });
-      }
-      next();
-    };
-  }
-
-  export function requireAdmin(req: Request, res: Response, next: NextFunction) {
-    requireAuth(req, res, () => {
-      requireRole(['admin'])(req, res, next);
-    });
-  }
-
+// 4. Shortcut pour l'admin (Plus propre et réutilisable)
+export const requireAdmin = [requireAuth, requireRole(['admin'])];

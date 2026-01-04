@@ -1,28 +1,17 @@
-// src/context/AuthContext.tsx
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-} from 'react';
-import {
-  login as apiLogin,
-  logout as apiLogout,
-  getCurrentUser,
-} from '../api/auth';
-
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import api from '../api/axios'; // Importe ton instance Axios configurée
 import { disconnectChatSocket } from '../api/chatSocket';
 
-type JwtPayload = {
-  id?: string;
-  role?: string;
-  email?: string;
-  pseudo?: string;
-  exp?: number;
+type UserPayload = {
+  id: string;
+  role: string;
+  email: string;
+  pseudo: string;
 };
 
 type AuthContextType = {
-  user: JwtPayload | null;
+  user: UserPayload | null;
+  loading: boolean; // Ajout d'un état de chargement pour éviter les sauts d'UI
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
@@ -30,37 +19,50 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<JwtPayload | null>(null);
+  const [user, setUser] = useState<UserPayload | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Initialisation : lire le token au chargement de l’app
+  // Vérifier la session au démarrage
   useEffect(() => {
-    setUser(getCurrentUser());
+    const checkAuth = async () => {
+      try {
+        // Appelle une route "me" que nous allons créer/vérifier sur le backend
+        const res = await api.get('/auth/me');
+        setUser(res.data.user);
+      } catch (err) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAuth();
   }, []);
 
-  // Login centralisé : appelle l’API + met à jour le state global
   const login = async (email: string, password: string) => {
-    await apiLogin(email, password);   // enregistre le token dans localStorage
-    setUser(getCurrentUser());         // relit et stocke le user décodé
+    const res = await api.post('/auth/login', { email, password });
+    setUser(res.data.user);
   };
 
-  // Logout centralisé
-  const logout = () => {
-    apiLogout();       // supprime devopsnotes_token
-    disconnectChatSocket(); // ferme le socket qui utilisait l'ancien token
-    setUser(null);     // met à jour immédiatement l’UI
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout'); // Informe le backend pour supprimer le cookie
+    } catch (err) {
+      console.error("Erreur logout backend", err);
+    } finally {
+      disconnectChatSocket();
+      setUser(null);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
+      {!loading && children} 
     </AuthContext.Provider>
   );
 };
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }

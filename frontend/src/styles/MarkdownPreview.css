@@ -1,0 +1,14 @@
+.markdown-preview-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1rem 0;
+    display: block;
+  }
+  /* Style pour le code inline (ex: `docker ps`) */
+  .markdown-preview-container code:not([class]) {
+    background: #444;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #ff79c6;
+  }

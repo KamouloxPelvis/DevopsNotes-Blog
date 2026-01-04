@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getAuthToken } from '../../api/auth';
+import api from '../../api/axios'; 
 import { useToast } from '../../context/ToastContext';
 import TextToolbar from '../../components/TextToolbar';
 import MarkdownPreview from '../../components/MarkdownPreview';
@@ -8,169 +8,168 @@ import '../../styles/NewArticlePage.css';
 
 export default function EditArticle() {
   const { slug: currentSlug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // --- ÉTATS ---
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState(''); 
   const [tags, setTags] = useState<string[]>([]);
   const [rawTags, setRawTags] = useState('');
+  const [submitting, setSubmitting] = useState(false); // AJOUTÉ : Correction erreur terminal
   const [status, setStatus] = useState<'draft' | 'published'>('draft');
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-  const { showToast } = useToast();
-  const token = getAuthToken();
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
-  const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'https://www.devopsnotes.org';
-  const API_URL = process.env.REACT_APP_API_URL ?? 'https://www.devopsnotes.org/api';
+  const API_ROOT = 'http://localhost:5000';
 
-  // Chargement des données existantes
   useEffect(() => {
-  if (!currentSlug) return;
+    if (!currentSlug) return;
+    const fetchArticle = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get(`/articles/${currentSlug}`);
+        const data = res.data;
+        setTitle(data.title);
+        setContent(data.content);
+        setStatus(data.status);
+        const dbPath = data.imageUrl || '';
+        setImageUrl(dbPath);
+        if (dbPath) {
+          setImagePreview(dbPath.startsWith('http') ? dbPath : `${API_ROOT}${dbPath}`);
+        }
+        setTags(data.tags || []);
+        setRawTags((data.tags || []).join(', '));
+      } catch (err) {
+        showToast({ type: 'error', message: "Erreur de chargement" });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArticle();
+  }, [currentSlug, showToast]);
 
-  const fetchArticle = async () => {
+  // Upload manuel via bouton "Valider"
+  async function handleManualUpload() {
+    if (!imageFile || uploading) return;
     try {
-      setLoading(true);
-      const res = await fetch(`${API_URL}/articles/${currentSlug}`);
-      if (!res.ok) throw new Error("Article introuvable");
-      
-      const data = await res.json();
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', imageFile);
+      const res = await api.post('/upload', formData);
+      const relativePath = res.data.imageUrl;
+      setImageUrl(relativePath); 
+      setImagePreview(`${API_ROOT}${relativePath}`);
+      setImageFile(null);
+      showToast({ type: 'success', message: 'Nouvelle image validée !' });
+    } catch (err) {
+      showToast({ type: 'error', message: "Échec de l'upload" });
+    } finally {
+      setUploading(false);
+    }
+  }
 
-      setTitle(data.title);
-      setContent(data.content); 
-      setStatus(data.status);
+  // Soumission finale
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      let finalImageUrl = imageUrl;
       
-      // Gestion de l'image
-      if (data.imageUrl) {
-        setImageUrl(data.imageUrl);
-
-        const fullUrl = data.imageUrl.startsWith('http') 
-          ? data.imageUrl 
-          : `${API_ROOT}${data.imageUrl.startsWith('/') ? '' : '/'}${data.imageUrl}`;
-        setImagePreview(fullUrl);
+      // Sécurité : si un fichier est sélectionné mais pas encore "Validé" manuellement
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('file', imageFile);
+        const uploadRes = await api.post('/upload', formData);
+        finalImageUrl = uploadRes.data.imageUrl;
       }
 
-      // Gestion des tags
-      const articleTags = data.tags || [];
-      setTags(articleTags);
-      setRawTags(articleTags.join(', '));
+      await api.put(`/articles/${currentSlug}`, {
+        title,
+        content,
+        imageUrl: finalImageUrl, // Correction : on n'envoie plus ""
+        tags,
+        status
+      });
 
-    } catch (err: any) {
-      setError(err.message);
-      showToast({ type: 'error', message: "Erreur de chargement" });
+      showToast({ type: 'success', message: 'Article mis à jour !' });
+      navigate(`/articles/${currentSlug}`);
+    } catch (err) {
+      showToast({ type: 'error', message: "Erreur de sauvegarde" });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
-  };
-
-  fetchArticle();
-}, [currentSlug, API_URL, API_ROOT, showToast]);
+  }
 
   const handleTagsChange = (value: string) => {
     setRawTags(value);
     setTags(value.split(',').map(t => t.trim().toLowerCase()).filter(t => t.length > 0));
   };
 
-  async function handleUploadImage() {
-    if (!imageFile || uploading) return;
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append('file', imageFile);
-
-      const res = await fetch(`${API_URL}/uploads`, {
-        method: 'POST',
-        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error("Erreur serveur");
-
-      const data = await res.json();
-
-      setImageUrl(data.imageUrl);
-      showToast({ type: 'success', message: 'Image mise à jour !' });
-    } catch (err) { setError("Erreur upload"); } 
-    finally { setUploading(false); }
-  }
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    try {
-      const res = await fetch(`${API_URL}/articles/${currentSlug}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ title, content, imageUrl, tags, status }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error();
-      showToast({ type: 'success', message: 'Article mis à jour !' });
-      navigate(`/articles/${data.slug}`);
-    } catch (err) { setError("Erreur lors de la sauvegarde"); }
-  }
+  if (loading) return <div className="loading">Chargement...</div>;
 
   return (
-    <div className="new-article-v2"> {/* On garde la même classe CSS */}
+    <div className="new-article-v2">
       <header className="editor-header">
         <div className="header-container">
-          <Link to="/articles" className="back-link">← Annuler</Link>
+          <Link to={`/articles/${currentSlug}`} className="back-link">← Annuler</Link>
           <div className="view-switcher">
-            <button onClick={() => setViewMode('edit')} className={viewMode === 'edit' ? 'active' : ''}>Édition</button>
-            <button onClick={() => setViewMode('preview')} className={viewMode === 'preview' ? 'active' : ''}>Aperçu</button>
+            <button type="button" onClick={() => setViewMode('edit')} className={viewMode === 'edit' ? 'active' : ''}>Édition</button>
+            <button type="button" onClick={() => setViewMode('preview')} className={viewMode === 'preview' ? 'active' : ''}>Aperçu</button>
           </div>
           <div className="final-actions">
             <select value={status} onChange={(e) => setStatus(e.target.value as any)}>
               <option value="draft">Brouillon</option>
               <option value="published">Publier</option>
             </select>
-            <button onClick={handleSubmit} className="btn-publish">Mettre à jour</button>
+            <button onClick={handleSubmit} className="btn-publish" disabled={submitting || uploading}>
+              {submitting ? 'Enregistrement...' : 'Mettre à jour'}
+            </button>
           </div>
         </div>
       </header>
-
       <main className="editor-content-area">
         {viewMode === 'edit' ? (
           <div className="edit-stack">
             <section className="meta-section">
               <div className="image-uploader">
-                <label>Couverture</label>
+                <label>Image de couverture</label>
                 <div className="upload-row">
-                  <input type="file" onChange={(e) => {
+                  <input type="file" accept="image/*" onChange={(e) => {
                     const file = e.target.files?.[0] || null;
                     setImageFile(file);
                     if (file) setImagePreview(URL.createObjectURL(file));
                   }} />
-                  <button onClick={handleUploadImage} disabled={!imageFile || uploading}>Update</button>
+                  <button type="button" onClick={handleManualUpload} disabled={!imageFile || uploading}>Valider</button>
                 </div>
-                {imagePreview && <img src={imagePreview} className="mini-preview" alt="preview" />}
+                {imagePreview && (
+                  <div className="preview-container">
+                    <img src={imagePreview} className="mini-preview" alt="preview" />
+                    {imageFile && <span className="warning-badge">Upload nécessaire</span>}
+                    {imageUrl && !imageFile && <span className="upload-badge">✅ Synchronisé</span>}
+                  </div>
+                )}
               </div>
-              <div className="tag-box">
-                <label>Tags</label>
-                <input value={rawTags} onChange={(e) => handleTagsChange(e.target.value)} />
-              </div>
+              <div className="tag-box"><label>Tags</label><input value={rawTags} onChange={(e) => handleTagsChange(e.target.value)} /></div>
             </section>
-
-            <input className="main-title-input" value={title} onChange={(e) => setTitle(e.target.value)} />
-            <div className="toolbar-sticky">
-              <TextToolbar content={content} setContent={setContent} textAreaRef={textAreaRef} />
-            </div>
+            <input className="main-title-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre de l'article" />
+            <TextToolbar content={content} setContent={setContent} textAreaRef={textAreaRef} />
             <textarea ref={textAreaRef} className="main-textarea" value={content} onChange={(e) => setContent(e.target.value)} />
           </div>
         ) : (
           <article className="full-preview">
             {imagePreview && <img src={imagePreview} className="cover-img" alt="cover" />}
-            <h1 className="preview-title">{title}</h1>
-            <div className="preview-tags">{tags.map(t => <span key={t}>#{t} </span>)}</div>
-            <hr />
+            <h1>{title}</h1>
             <MarkdownPreview content={content} />
           </article>
         )}
       </main>
     </div>
   );
-};
+}

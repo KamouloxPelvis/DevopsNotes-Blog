@@ -31,6 +31,7 @@
   align-items: center;
 }
 
+
 .articles-actions-v2 .btn {
   padding: 0.5rem 0.8rem;
   font-size: 0.85rem;
@@ -269,4 +270,40 @@
 .pagination-info {
   font-size: 0.9rem;
   color: var(--text-muted);
+}
+
+/* --- Optimisation Markdown dans les vignettes --- */
+
+/* On force la coupure propre du texte même si c'est du Markdown */
+.preview-card-clean {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* Neutralisation des éléments Markdown encombrants */
+.preview-card-clean img, 
+.preview-card-clean h1, 
+.preview-card-clean h2, 
+.preview-card-clean h3,
+.preview-card-clean hr {
+  display: none; /* Cache les images et gros titres dans la preview */
+}
+
+/* On s'assure que le texte Markdown se comporte comme un paragraphe simple */
+.preview-card-clean p {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limite à 3 lignes */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Optionnel : réduire la taille du code inline dans les vignettes */
+.preview-card-clean code {
+  font-size: 0.8rem;
+  background: #f1f5f9;
+  padding: 2px 4px;
+  border-radius: 4px;
 }

@@ -11,9 +11,10 @@ export interface IArticle extends Document {
   author?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
-  likes: { type: Number, default: 0 },
-  views: { type: Number, default: 0 }
-
+  // CORRECTION : On définit comme 'number' pour autoriser les calculs (+=, -=)
+  likes: number; 
+  likedBy: mongoose.Types.ObjectId[];
+  views: number;
 }
 
 const ArticleSchema = new Schema<IArticle>(
@@ -23,9 +24,10 @@ const ArticleSchema = new Schema<IArticle>(
     content: { type: String, required: true },
     imageUrl: { type: String, required: false },
     excerpt: { type: String, maxlength: 300 },
+    // Mongoose comprend ici que c'est un Number avec une valeur par défaut
     likes: { type: Number, default: 0 },
+    likedBy: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
     views: { type: Number, default: 0 },
-
     author: { 
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'User' 
@@ -37,12 +39,10 @@ const ArticleSchema = new Schema<IArticle>(
     },
     tags: [{ 
         type: String, 
-        lowercase: true, // "docker", "terraform" etc.
+        lowercase: true,
       }],
-    },
+  },
   { timestamps: true },     
-
 );
-
 
 export const Article = mongoose.model<IArticle>('Article', ArticleSchema);

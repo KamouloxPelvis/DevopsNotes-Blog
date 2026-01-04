@@ -1,8 +1,5 @@
-// src/components/RelatedArticles.tsx
 import { Article } from "../types/articles";
 import { Link } from "react-router-dom";
-
-const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
 
 type RelatedArticlesProps = {
   currentArticle: Article;
@@ -10,6 +7,9 @@ type RelatedArticlesProps = {
 };
 
 export function RelatedArticles({ currentArticle, allArticles }: RelatedArticlesProps) {
+  // On définit la racine du serveur pour les images (http://localhost:5000)
+  const API_ROOT = 'http://localhost:5000';
+
   const currentTags = currentArticle.tags || [];
   if (currentTags.length === 0) return null;
 
@@ -34,7 +34,13 @@ export function RelatedArticles({ currentArticle, allArticles }: RelatedArticles
           <Link to={`/articles/${article.slug}`} key={article.slug} className="related-vignette">
             <div className="related-vignette-img">
               {article.imageUrl ? (
-                <img src={`${API_URL}${article.imageUrl}`} alt={article.title} />
+                <img 
+                  // Correction de l'URL pour pointer vers le dossier static
+                  src={article.imageUrl.startsWith('http') 
+                    ? article.imageUrl 
+                    : `${API_ROOT}${article.imageUrl}`} 
+                  alt={article.title} 
+                />
               ) : (
                 <div className="img-placeholder">DevOps</div>
               )}

@@ -17,26 +17,26 @@ export default function TextToolbar({ content, setContent, textAreaRef }: TextTo
     const textarea = textAreaRef.current;
     if (!textarea) return;
 
+    // Sauvegarde immédiate du scroll avant la mise à jour du contenu
+    const currentScrollPos = textarea.scrollTop;
+
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    
     const selectedText = content.slice(start, end);
     const before = content.slice(0, start);
     const after = content.slice(end);
 
-    const newContent = before + prefix + selectedText + suffix + after;
-    
-    setContent(newContent);
+    setContent(before + prefix + selectedText + suffix + after);
 
-    setTimeout(() => {
-      if (textarea) {
-        const scrollTop = textarea.scrollTop; // Sauvegarde la position du scroll
-        textarea.focus();
-        const newCursorPos = start + prefix.length + (selectedText.length > 0 ? selectedText.length : 0);
-        textarea.setSelectionRange(start + prefix.length, newCursorPos);
-        textarea.scrollTop = scrollTop; // Restaure le scroll
-      }
-    }, 0);
+    // On utilise requestAnimationFrame pour une exécution fluide juste après le rendu
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const newCursorPos = start + prefix.length + selectedText.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+      
+      // On restaure exactement la position du scroll
+      textarea.scrollTop = currentScrollPos;
+    });
   }, [content, setContent, textAreaRef]);
 
   return (

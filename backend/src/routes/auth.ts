@@ -1,14 +1,29 @@
 import express from 'express';
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { upload } from '../utils/upload';
 import { User } from '../models/User';
 import crypto from 'node:crypto';
 import { sendVerificationEmail, sendResetPasswordEmail } from '../utils/mailer';
+import { requireAuth } from '../middleware/auth';
 
 const authRouter = express.Router();
 
-const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{6,}$/;
+// ---------- CHECK SESSION (Essentiel pour React) ----------
+
+authRouter.get('/me', requireAuth, (req, res) => {
+  // Le middleware requireAuth a déjà vérifié le token dans le cookie
+  // et a injecté les infos dans req.user
+  return res.json({ user: req.user });
+});
+
+// Configuration des options de cookie (Réutilisable)
+const COOKIE_OPTIONS = {
+  httpOnly: true,                         // Empêche l'accès via JS (Sécurité XSS)
+  secure: process.env.NODE_ENV === 'production', // Uniquement HTTPS en prod
+  sameSite: 'strict' as const,            // Protection contre CSRF
+  maxAge: 24 * 60 * 60 * 1000             // 24 heures
+};
 
 // ---------- SIGNUP ----------
 authRouter.post('/signup', upload.single('avatar'), async (req, res) => {
@@ -21,109 +36,41 @@ authRouter.post('/signup', upload.single('avatar'), async (req, res) => {
     const existingPseudo = await User.findOne({ pseudo });
     if (existingPseudo) return res.status(400).json({ message: 'Ce pseudo est déjà pris' });
 
-    // Génération du token de vérification
     const vToken = crypto.randomBytes(32).toString('hex');
 
     const user = new User({
       email,
       pseudo,
-      password,
+      password, // Le hashing doit être géré dans le hook 'pre-save' du modèle User
       role: 'member',
-      avatarUrl: req.file ? `/uploads/${req.file.filename}` : '',
-      isVerified: false, // Important : non vérifié par défaut
+      avatarUrl: req.file ? `/uploads/${req.file.filename}` : '', // Correction chemin statique
+      isVerified: false,
       verificationToken: vToken
     });
 
     await user.save();
 
-    // TENTATIVE D'ENVOI DE MAIL (Isolée pour ne pas faire crash la route)
     try {
       await sendVerificationEmail(user.email, vToken);
     } catch (mailErr) {
       console.error("Erreur SMTP :", mailErr);
-      // On informe l'utilisateur que le compte est créé mais qu'il y a un souci de mail
       return res.status(201).json({ 
-        message: 'Compte créé, mais nous n\'avons pas pu envoyer l\'email de confirmation. Contactez l\'admin.' 
+        message: 'Compte créé, mais erreur d\'envoi d\'email. Contactez le support.' 
       });
     }
 
-    return res.status(201).json({ 
-      message: 'Inscription réussie ! Veuillez vérifier vos emails.' 
-    });
-
+    return res.status(201).json({ message: 'Inscription réussie ! Vérifiez vos emails.' });
   } catch (err) {
     console.error("Erreur Inscription :", err);
     return res.status(500).json({ message: 'Erreur lors de l\'inscription' });
   }
 });
 
-// ---------- VERIFY EMAIL ----------
-authRouter.get('/verify-email', async (req, res) => {
-  const { token } = req.query;
-  try {
-
-    let user = await User.findOne({ verificationToken: token });
-    if (!user) {
-
-      return res.status(400).json({ message: 'Ce lien a déjà été utilisé ou est invalide.' });
-    }
-
-    user.isVerified = true;
-    user.verificationToken = undefined;
-    await user.save();
-
-    return res.json({ message: 'Compte activé ! Vous pouvez maintenant vous connecter.' });
-  } catch (err) {
-    return res.status(500).json({ message: 'Erreur lors de la validation.' });
-  }
-});
-
-// ---------- FORGOT PASSWORD ----------
-authRouter.post('/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (user) {
-      const token = crypto.randomBytes(32).toString('hex');
-      user.resetPasswordToken = token;
-      user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 heure
-      await user.save();
-      await sendResetPasswordEmail(user.email, token);
-    }
-    // Message identique même si l'user n'existe pas (sécurité)
-    res.json({ message: 'Si ce compte existe, un email a été envoyé.' });
-  } catch (err) {
-    res.status(500).json({ message: 'Erreur serveur.' });
-  }
-});
-
-// ---------- RESET PASSWORD ----------
-authRouter.post('/reset-password', async (req, res) => {
-  const { token, newPassword } = req.body;
-  try {
-    const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: new Date() }
-    });
-
-    if (!user) return res.status(400).json({ message: 'Token invalide ou expiré.' });
-
-    user.password = newPassword;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    await user.save();
-
-    res.json({ message: 'Mot de passe réinitialisé.' });
-  } catch (err) {
-    res.status(500).json({ message: 'Erreur lors du changement.' });
-  }
-});
-
-// ---------- LOGIN ----------
+// ---------- LOGIN (Version avec Cookies) ----------
 authRouter.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const jwtSecret = process.env.JWT_SECRET;
-  const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '1h';
+  const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '24h';
 
   if (!jwtSecret) return res.status(500).json({ message: 'Auth not configured' });
 
@@ -131,7 +78,6 @@ authRouter.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ message: 'Identifiants invalides' });
 
-    // VÉRIFICATION DU STATUT ISVERIFIED
     if (!user.isVerified) {
       return res.status(403).json({ message: 'Veuillez confirmer votre adresse email.' });
     }
@@ -148,9 +94,70 @@ authRouter.post('/login', async (req, res) => {
     };
 
     const token = jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn as any });
-    return res.json({ token, user: payload });
+
+    // ENVOI DU TOKEN VIA COOKIE SÉCURISÉ
+    res.cookie('token', token, COOKIE_OPTIONS);
+
+    // On renvoie quand même les infos user pour le state React, mais SANS le token
+    return res.json({ user: payload });
   } catch (err) {
     return res.status(500).json({ message: 'Login failed' });
+  }
+});
+
+// ---------- LOGOUT ----------
+authRouter.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: 'Déconnecté' });
+});
+
+// ---------- VERIFY EMAIL / FORGOT / RESET (Inchangés mais fonctionnels) ----------
+authRouter.get('/verify-email', async (req, res) => {
+  const { token } = req.query;
+  try {
+    let user = await User.findOne({ verificationToken: token });
+    if (!user) return res.status(400).json({ message: 'Lien invalide.' });
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+    return res.json({ message: 'Compte activé !' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Erreur validation.' });
+  }
+});
+
+authRouter.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = crypto.randomBytes(32).toString('hex');
+      user.resetPasswordToken = token;
+      user.resetPasswordExpires = new Date(Date.now() + 3600000);
+      await user.save();
+      await sendResetPasswordEmail(user.email, token);
+    }
+    res.json({ message: 'Si ce compte existe, un email a été envoyé.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Erreur serveur.' });
+  }
+});
+
+authRouter.post('/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() }
+    });
+    if (!user) return res.status(400).json({ message: 'Token expiré.' });
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+    res.json({ message: 'Mot de passe réinitialisé.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Erreur reset.' });
   }
 });
 

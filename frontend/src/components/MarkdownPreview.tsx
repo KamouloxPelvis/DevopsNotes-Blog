@@ -3,6 +3,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import '../styles/MarkdownPreview.css';
 
 interface MarkdownPreviewProps {
   content: string;
@@ -42,7 +43,17 @@ export default function MarkdownPreview({ content, className }: MarkdownPreviewP
         .markdown-preview-container {
           white-space: pre-wrap; /* Respecte les sauts de ligne simples */
           word-break: break-word;
-          line-height: 1.6;
+          line-height: 1.5;
+        }
+        .markdown-preview-container p {
+          margin-bottom: 0.8rem; /* Réduit l'espace après chaque paragraphe */
+          margin-top: 0;
+        }
+        .markdown-preview-container h1, 
+        .markdown-preview-container h2, 
+        .markdown-preview-container h3 {
+          margin-top: 1.5rem;   /* Garde un espace sain avant les titres */
+          margin-bottom: 0.5rem; /* Réduit l'espace après les titres */
         }
         /* Style pour les divs de formatage injectées via les boutons */
         .markdown-preview-container div[align="center"] { text-align: center; }

@@ -7,7 +7,8 @@ export interface Article {
   tags?: string[];
   status?: 'draft' | 'published';
   imageUrl?: string;
-  likes?: number;    
+  likes?: number;
+  likedBy: string[];
   views?: number;   
   createdAt: string;
   updatedAt: string;

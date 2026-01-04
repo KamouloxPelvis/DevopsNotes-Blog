@@ -1,264 +1,181 @@
-// src/components/ArticleDetail.tsx
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getAuthToken } from '../../api/auth';
+import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext'; 
 import { RelatedArticles } from '../../components/RelatedArticles';
 import { useAllArticles } from '../../hooks/useAllArticles';
 import { Article } from '../../types/articles';
 import MarkdownPreview from '../../components/MarkdownPreview';
 import '../../styles/ArticleDetailPage.css';
 
-
-type RouteParams = {
-  slug: string;
-};
-
-type Comment = {
+// Interface pour les commentaires (typée pour ton Backend)
+interface Comment {
   _id: string;
-  authorName: string;
   content: string;
+  author: {
+    username: string;
+    avatar?: string;
+  };
   createdAt: string;
-};
+}
 
 export default function ArticleDetail() {
-  const { slug } = useParams<RouteParams>();
+  const { slug } = useParams<{ slug: string }>();
   const [article, setArticle] = useState<Article | null>(null);
   const [loadingArticle, setLoadingArticle] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const isAdmin = !!getAuthToken();
+  
+  // États pour la gestion des commentaires
   const [comments, setComments] = useState<Comment[]>([]);
-  const [commentAuthor, setCommentAuthor] = useState('');
   const [commentBody, setCommentBody] = useState('');
-  const [commentError, setCommentError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  
-  const { articles: allArticles = [], loading: loadingAllArticles } = useAllArticles(); // ✅ Fix: fallback []
-  
-  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const API_ROOT = process.env.REACT_APP_API_ROOT ?? 'https://www.devopsnotes.org';
-  const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const API_ROOT = 'http://localhost:5000';
+  const navigate = useNavigate();
+  const { articles: allArticles = [], loading: loadingAllArticles } = useAllArticles();
 
   useEffect(() => {
     if (!slug) return;
+    setLoadingArticle(true);
 
-    fetch(`${API_URL}/articles/${slug}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error('Erreur HTTP');
-        return res.json();
-      })
-      .then((data: Article) => setArticle(data))
-      .catch((err: any) => setError(err.message))
-      .finally(() => setLoadingArticle(false));
-
-    fetch(`${API_URL}/articles/${slug}/comments`)
+    // 1. On charge d'abord l'article (Indispensable)
+    api.get(`/articles/${slug}`)
       .then((res) => {
-        if (!res.ok) return [];
-        return res.json();
+        setArticle(res.data);
+        setError(null);
+
+        // 2. Une fois l'article chargé, on tente de charger les commentaires (Optionnel)
+        return api.get(`/comments/${slug}`);
       })
-      .then((data: Comment[]) => setComments(data))
-      .catch(() => {});
-  }, [slug, API_URL]);
+      .then((res) => {
+        setComments(res.data);
+      })
+      .catch((err) => {
+        // On différencie l'erreur selon la ressource
+        const isCommentError = err.config?.url?.includes('/comments');
+        
+        if (isCommentError) {
+          console.warn("Section commentaires indisponible (404)");
+          // On ne met pas d'erreur globale, l'article restera visible
+        } else {
+          setError(err.response?.data?.message || "Article introuvable");
+        }
+      })
+      .finally(() => setLoadingArticle(false));
+  }, [slug]);
 
-  if (loadingArticle) return <p>Loading...</p>;
-  if (error) return <p>Error : {error}</p>;
-  if (!article) return <p>Can't find this article</p>;
-
-  async function handleDelete() {
-    if (!slug) return;
-
-    const confirmDelete = window.confirm('Do you really want to delete this article ?');
-    if (!confirmDelete) return;
-
-    try {
-      const token = getAuthToken();
-
-      const res = await fetch(`${API_URL}/articles/${slug}`, {
-        method: 'DELETE',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-
-      if (!res.ok && res.status !== 204) {
-        throw new Error('Erreur HTTP');
-      }
-
-      navigate('/articles');
-    } catch (err: any) {
-      setError(err.message);
-    }
-  }
-
-  async function handleSubmitComment(e: React.FormEvent) {
+  async function handlePostComment(e: React.FormEvent) {
     e.preventDefault();
-    if (!slug) return;
+    if (!commentBody.trim() || !slug) return;
 
-    setSubmitting(true);
-    setCommentError(null);
-
+    setIsSubmitting(true);
     try {
-      const res = await fetch(`${API_URL}/articles/${slug}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          authorName: commentAuthor,
-          content: commentBody,
-        }),
+      const res = await api.post('/comments', {
+        articleSlug: slug,
+        content: commentBody
       });
-
-      if (!res.ok) throw new Error('Error posting comment');
-
-      const created: Comment = await res.json();
-      setComments((prev) => [created, ...prev]);
-      setCommentAuthor('');
+      // Mise à jour optimiste de la liste
+      setComments((prev) => [res.data, ...prev]);
       setCommentBody('');
     } catch (err: any) {
-      setCommentError(err.message);
+      alert(err.response?.data?.message || "Erreur lors de l'envoi");
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   }
 
-  function handleReplyTo(author: string) {
-    setCommentBody((prev) =>
-      prev
-        ? `${prev}\n@${author} `
-        : `@${author} `
-    );
+  async function handleDelete() {
+    if (!slug || !window.confirm('Supprimer cet article ?')) return;
+    try {
+      await api.delete(`/articles/${slug}`);
+      navigate('/articles');
+    } catch (err) {
+      setError("Erreur lors de la suppression");
+    }
   }
+
+  if (loadingArticle) return <div className="loading">Chargement...</div>;
+  if (error) return <div className="error-msg">⚠️ {error}</div>;
+  if (!article) return <p>Article introuvable.</p>;
+
+  const fullImageUrl = article.imageUrl 
+    ? (article.imageUrl.startsWith('http') 
+        ? article.imageUrl 
+        : `${API_ROOT}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`)
+    : null;
 
   return (
     <div className="article-detail-page">
-      {/* Bouton retour rapide hors du cadre pour plus de clarté */}
-      <div style={{ maxWidth: '900px', width: '100%', marginBottom: '1rem' }}>
-        <Link to="/articles" className="btn btn-secondary" style={{ border: 'none', background: 'transparent' }}>
-          ← Retour aux articles
-        </Link>
+      <div className="back-nav">
+        <Link to="/articles" className="btn btn-secondary">← Retour aux articles</Link>
       </div>
 
       <div className="article-detail-container">
-        {/* IMAGE DE COUVERTURE : Limitée en hauteur par le CSS */}
-        {article.imageUrl && (
-        <div className="article-detail-image">
-          <img
-            // On utilise API_ROOT pour pointer sur https://devopsnotes.org/uploads/...
-            src={article.imageUrl.startsWith('http') 
-              ? article.imageUrl 
-              : `${API_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`}
-            alt={article.title}
-          />
-        </div>
-      )}
+        {fullImageUrl && (
+          <div className="article-detail-image">
+            <img src={fullImageUrl} alt={article.title} />
+          </div>
+        )}
 
-        {/* CONTENU : Padding interne pour décoller le texte des bords */}
         <div className="article-content-wrapper">
           <h1 className="article-detail-title">{article.title}</h1>
-          
           <div className="article-body">
             <MarkdownPreview content={article.content || ''} />
           </div>
 
-          {/* SECTION COMMENTAIRES */}
-          <section className="comments">
-            <h3>Commentaires ({comments.length})</h3>
-            
-            <form className="comment-form" onSubmit={handleSubmitComment}>
-              {commentError && <p className="form-error">{commentError}</p>}
-              
-              <div className="form-field">
-                <label htmlFor="comment-name">Votre nom</label>
-                <input
-                  id="comment-name"
-                  type="text"
-                  value={commentAuthor}
-                  onChange={(e) => setCommentAuthor(e.target.value)}
-                  placeholder="Ex: John Doe"
-                  required
-                />
-              </div>
+          <hr className="section-divider" />
 
-              <div className="form-field">
-                <label htmlFor="comment-body">Votre message</label>
+          {/* SECTION COMMENTAIRES */}
+          <section className="comments-area">
+            <h3>Discussion ({comments.length})</h3>
+            
+            {user ? (
+              <form onSubmit={handlePostComment} className="comment-form">
                 <textarea
-                  id="comment-body"
-                  rows={4}
                   value={commentBody}
                   onChange={(e) => setCommentBody(e.target.value)}
-                  placeholder="Écrivez votre commentaire ici..."
+                  placeholder="Partagez votre avis..."
                   required
                 />
-              </div>
-
-              <div className="comment-actions-row">
-                <button type="submit" className="btn btn-primary" disabled={submitting}>
-                  {submitting ? 'Envoi...' : 'Publier le commentaire'}
+                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                  {isSubmitting ? 'Envoi...' : 'Publier'}
                 </button>
-              </div>
-            </form>
+              </form>
+            ) : (
+              <p className="auth-notice">
+                <Link to="/login">Connectez-vous</Link> pour commenter.
+              </p>
+            )}
 
-            {/* LISTE DES COMMENTAIRES */}
-            <ul className="comment-list" style={{ listStyle: 'none', padding: 0 }}>
+            <div className="comments-list">
               {comments.map((c) => (
-                <li key={c._id} className="comment-item" style={{ 
-                  padding: '1.5rem', 
-                  background: '#f8fafc', 
-                  borderRadius: '12px', 
-                  marginBottom: '1rem',
-                  border: '1px solid #e2e8f0' 
-                }}>
-                  <div className="comment-meta" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <strong style={{ color: '#1e293b' }}>{c.authorName}</strong>
-                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                      {new Date(c.createdAt).toLocaleDateString()}
-                    </span>
+                <div key={c._id} className="comment-item">
+                  <div className="comment-meta">
+                    <span className="comment-author">{c.author.username}</span>
+                    <span className="comment-date">{new Date(c.createdAt).toLocaleDateString()}</span>
                   </div>
-                  <p style={{ margin: 0, color: '#334155', lineHeight: '1.5' }}>{c.content}</p>
-                  <button
-                    type="button"
-                    className="comment-reply-btn"
-                    onClick={() => handleReplyTo(c.authorName)}
-                    style={{ background: 'none', border: 'none', color: '#7aa1e0', cursor: 'pointer', marginTop: '0.5rem', fontWeight: 'bold' }}
-                  >
-                    Répondre
-                  </button>
-                </li>
+                  <p className="comment-text">{c.content}</p>
+                </div>
               ))}
-              {comments.length === 0 && (
-                <p style={{ textAlign: 'center', color: '#94a3b8', fontStyle: 'italic' }}>
-                  Aucun commentaire pour le moment. Soyez le premier à réagir !
-                </p>
-              )}
-            </ul>
+            </div>
           </section>
 
-          {/* ARTICLES LIÉS (Composant externe) */}
-          {!loadingAllArticles && article && allArticles.length > 0 && (
-            <div style={{ marginTop: '4rem' }}>
-              <RelatedArticles 
-                currentArticle={article} 
-                allArticles={allArticles} 
-              />
+          {!loadingAllArticles && allArticles.length > 0 && (
+            <div className="related-section">
+              <RelatedArticles currentArticle={article} allArticles={allArticles} />
             </div>
           )}
 
-          {/* ACTIONS D'ADMINISTRATION */}
           {isAdmin && (
             <div className="article-admin-actions">
-              <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary">
-                Modifier l'article
-              </Link>
-              <button 
-                type="button" 
-                className="btn btn-danger" 
-                onClick={handleDelete}
-                style={{ background: '#fee2e2', color: '#ef4444', border: 'none' }}
-              >
-                Supprimer
-              </button>
+              <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary">Modifier</Link>
+              <button onClick={handleDelete} className="btn btn-danger">Supprimer</button>
             </div>
           )}
         </div>
       </div>
     </div>
-  )};
+  );
+}

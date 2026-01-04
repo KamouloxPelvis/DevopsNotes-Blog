@@ -12,6 +12,7 @@
     "@types/node": "^16.18.126",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "axios": "^1.13.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
@@ -52,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "@types/jwt-decode": "^2.2.1",
     "@types/react-router-dom": "^5.3.3",
     "@types/react-syntax-highlighter": "^15.5.13"

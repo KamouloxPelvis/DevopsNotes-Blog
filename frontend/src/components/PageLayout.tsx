@@ -2,6 +2,7 @@ import { ReactNode, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import CookieBanner from './CookieBanner';
 import devopsLogo from '../devopsnotes_logo.png';
 import devopsFav from '../devopsnotes_ico.jpg';
 import '../styles/PageLayout.css';
@@ -87,6 +88,7 @@ export function PageLayout({ children }: Props) {
         <main className="content-area">
           {children}
         </main>
+        <CookieBanner />
       </div>
     </div>
   );
