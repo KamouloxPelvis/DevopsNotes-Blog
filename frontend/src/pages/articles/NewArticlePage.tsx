@@ -26,7 +26,7 @@ export default function NewArticle() {
   const [uploading, setUploading] = useState(false);
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
 
-  const API_ROOT = 'http://localhost:5000';
+  const API_ROOT = process.env.REACT_APP_ROOT ?? 'http://localhost:5000';
 
   /**
    * 1. LOGIQUE D'UPLOAD MANUEL (Bouton Valider)

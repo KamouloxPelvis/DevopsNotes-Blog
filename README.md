@@ -19,7 +19,7 @@ L’objectif du projet est de démontrer des compétences concrètes en :
 - **Stockage fichiers** : dossier `uploads/` exposé par l’API (images des articles, avatars, etc.).
 - **Orchestration** : Docker Compose pour lancer l’ensemble de la stack.
 
-Schéma logique :
+Schéma logique (en local):
 
 - Le frontend communique avec le backend via `HTTP` sur `http://localhost:5000`.
 - Le backend communique avec MongoDB Atlas via une URI `mongodb+srv://...`.
@@ -136,7 +136,10 @@ Endpoints principaux :
 
 - Backend (healthcheck) : http://localhost:5000/api/health  
 - Backend (articles) : http://localhost:5000/api/articles  
-- Frontend : http://localhost:3000  
+- Frontend : http://localhost:3000
+- https://devopsnotes.org/api/health
+- https://devopsnotes.org/api/articles
+- https://devopsnotes.org
 
 ---
 

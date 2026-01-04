@@ -8,7 +8,7 @@ type RelatedArticlesProps = {
 
 export function RelatedArticles({ currentArticle, allArticles }: RelatedArticlesProps) {
   // On définit la racine du serveur pour les images (http://localhost:5000)
-  const API_ROOT = 'http://localhost:5000';
+  const API_ROOT = process.env.REACT_APP_ROOT ?? 'http://localhost:5000';
 
   const currentTags = currentArticle.tags || [];
   if (currentTags.length === 0) return null;

@@ -32,7 +32,7 @@ export default function ArticleDetail() {
 
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-  const API_ROOT = 'http://localhost:5000';
+  const API_ROOT = process.env.REACT_APP_ROOT ?? 'http://localhost:5000';
   const navigate = useNavigate();
   const { articles: allArticles = [], loading: loadingAllArticles } = useAllArticles();
 
