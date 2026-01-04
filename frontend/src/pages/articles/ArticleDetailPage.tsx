@@ -153,7 +153,7 @@ export default function ArticleDetail() {
               {comments.map((c) => (
                 <div key={c._id} className="comment-item">
                   <div className="comment-meta">
-                    <span className="comment-author">{c.author.username}</span>
+                    <span className="comment-author">{c.author?.username}</span>
                     <span className="comment-date">{new Date(c.createdAt).toLocaleDateString()}</span>
                   </div>
                   <p className="comment-text">{c.content}</p>
