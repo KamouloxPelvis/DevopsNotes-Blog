@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Comment from '../models/Comment';
+import { Comment } from '../models/Comment';
 
 export const getCommentsBySlug = async (req: Request, res: Response) => {
   try {
