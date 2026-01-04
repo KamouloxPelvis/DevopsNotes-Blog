@@ -74,6 +74,12 @@ app.use('/api/forum', forumRoutes);
 // --- LOGIQUE SOCKET.IO ---
 io.on('connection', (socket) => {
   console.log('📱 Un utilisateur est connecté au chat:', socket.id);
+
+  socket.on('message', (data) => {
+    console.log('💬 Message reçu du client :', data);
+
+    io.emit('message', data);
+  });
   
   socket.on('disconnect', () => {
     console.log('📴 Utilisateur déconnecté');
@@ -86,7 +92,7 @@ const MONGO_URI = process.env.MONGODB_URI;
 
 if (!MONGO_URI) {
   console.error('❌ ERREUR CRITIQUE : MONGO_URI n\'est pas définie dans le .env');
-  process.exit(1); // On arrête tout si la config est absente
+  process.exit(1);
 }
 
 mongoose
