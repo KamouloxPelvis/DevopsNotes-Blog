@@ -4,12 +4,13 @@
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
-  background-color: #1e293b !important; /* Bleu sombre DevOps */
+  background-color: #1e293b !important;
   color: white !important;
-  padding: 1.5rem;
-  z-index: 999999 !important; /* Pour passer devant le footer "Created by..." */
-  border-top: 2px solid #38bdf8; /* Ligne cyan DevSecOps */
-  box-shadow: 0 -10px 25px rgba(0,0,0,0.3);
+  padding: 1.2rem 2rem !important;
+  z-index: 999999 !important; 
+  border-top: 3px solid #38bdf8 !important; 
+  box-shadow: 0 -10px 25px rgba(0,0,0,0.3) !important;
+  box-sizing: border-box !important;
 }
 
 .cookie-content {
@@ -19,4 +20,25 @@
   justify-content: space-between;
   align-items: center;
   gap: 20px;
+}
+
+.cookie-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.cookie-close {
+  background-color: #2563eb !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+}
+
+.cookie-close:hover {
+  background-color: #1d4ed8 !important;
 }

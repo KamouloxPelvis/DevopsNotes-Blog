@@ -33,6 +33,7 @@ export function PageLayout({ children }: Props) {
 
   return (
     <div className="layout-wrapper">
+      <CookieBanner />
       {/* 1. Petit Logo Flottant (Fixed) */}
       <Link to="/homepage" className="floating-home-btn">
         <img src={devopsFav} alt="Home" />
@@ -88,7 +89,6 @@ export function PageLayout({ children }: Props) {
         <main className="content-area">
           {children}
         </main>
-        <CookieBanner />
       </div>
     </div>
   );
