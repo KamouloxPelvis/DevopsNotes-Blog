@@ -1,16 +1,21 @@
 # Étape 1 : build React
 FROM node:20-alpine AS builder
 WORKDIR /app
+
+# --- OPTIMISATION RAM ---
+ENV NODE_OPTIONS="--max-old-space-size=1536"
+# -------------------------
+
 COPY package*.json ./
 RUN npm ci
 COPY . .
 
-# --- AJOUT ICI ---
+# --- TON AJOUT ICI ---
 # On récupère l'argument passé par le docker-compose
 ARG REACT_APP_API_URL
 # On l'injecte pour que React le voit pendant le build
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
-# -----------------
+# ---------------------
 
 RUN npm run build
 

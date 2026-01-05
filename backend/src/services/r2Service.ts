@@ -1,0 +1,27 @@
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+
+// Configuration du client R2
+const r2Client = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
+  },
+});
+
+export const uploadToR2 = async (file: Express.Multer.File) => {
+  const fileKey = `articles/${Date.now()}-${file.originalname}`;
+
+  const command = new PutObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME, //
+    Key: fileKey,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+  });
+
+  await r2Client.send(command);
+  
+  //URL publique R2
+  return `https://pub-612551b2f22b4a3ab09ea087d63ab2ad.r2.dev/${fileKey}`; 
+};
