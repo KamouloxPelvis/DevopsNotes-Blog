@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
-import '../styles/CookieBanner.css'; // Vérifie bien que ce chemin est exact
+import '../styles/Cke.css';
 
 export default function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('devopsnotes_cookie_consent');
+    const consent = localStorage.getItem('devopsnotes_cke_consent');
     if (!consent) {
       setIsVisible(true);
     }
   }, []);
 
   const closeBanner = () => {
-    localStorage.setItem('devopsnotes_cookie_consent', 'true');
+    localStorage.setItem('devopsnotes_cke_consent', 'true');
     setIsVisible(false);
   };
 
@@ -20,16 +20,16 @@ export default function CookieBanner() {
 
   return (
     <div 
-      className="cookie-banner" 
-      style={{ display: 'block' }} // Sécurité supplémentaire
+      className="cke-banner" 
+      style={{ display: 'block' }}
     >
-      <div className="cookie-content">
+      <div className="cke-content">
         <p>
           🛡️ <strong>Sécurité & Confidentialité :</strong> Ce site utilise uniquement des 
           cookies techniques sécurisés (HTTPOnly & SameSite) pour votre authentification. 
           Aucun tracker publicitaire n'est utilisé, conformément au RGPD.
         </p>
-        <button className="cookie-close" onClick={closeBanner}>
+        <button className="cke-close" onClick={closeBanner}>
           Compris !
         </button>
       </div>

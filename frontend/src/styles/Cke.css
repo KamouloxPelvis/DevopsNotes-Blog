@@ -1,4 +1,4 @@
-.cookie-banner {
+.cke-banner {
   position: fixed !important;
   bottom: 0 !important;
   left: 0 !important;
@@ -13,7 +13,7 @@
   box-sizing: border-box !important;
 }
 
-.cookie-content {
+.cke-content {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
@@ -22,13 +22,13 @@
   gap: 20px;
 }
 
-.cookie-content p {
+.cke-content p {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.5;
 }
 
-.cookie-close {
+.cke-close {
   background-color: #2563eb !important;
   color: white !important;
   border: none !important;
@@ -39,6 +39,6 @@
   white-space: nowrap !important;
 }
 
-.cookie-close:hover {
+.cke-close:hover {
   background-color: #1d4ed8 !important;
 }
