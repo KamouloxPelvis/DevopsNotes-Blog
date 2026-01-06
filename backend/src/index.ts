@@ -12,7 +12,7 @@ import { Server } from 'socket.io';
 // Import des routes
 import authRoutes from './routes/auth';
 import articleRoutes from './routes/articles';
-import { uploadRoutes } from './utils/upload'; 
+import uploadRoutes from './routes/upload'; 
 import chatRoutes from './routes/chat';
 import forumRoutes from './routes/forum';
 import commentRoutes from './routes/comments';
@@ -60,21 +60,32 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https://*.cloudflare.com", "https://*.r2.cloudflarestorage.com"], // Autorise R2
-        connectSrc: ["'self'", "https://*.cloudflare.com"]
+        imgSrc: [
+          "'self'", 
+          "data:", 
+          "https://*.cloudflare.com", 
+          "https://*.r2.cloudflarestorage.com",
+          "https://pub-612551b2f22b4a3ab09ea087d63ab2ad.r2.dev"
+        ],
+        connectSrc: [
+          "'self'", 
+          "https://*.cloudflare.com",
+          "https://pub-612551b2f22b4a3ab09ea087d63ab2ad.r2.dev"
+        ],
+        upgradeInsecureRequests: null, 
       }
     },
   })
 );
 
-// --- SERVIR LES IMAGES (Correction 404) ---
+// --- SERVIR LES IMAGES EN LOCAL ---
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // --- ROUTES API ---
 app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/comments', commentRoutes);
-app.use('/api', uploadRoutes); // Utilise maintenant le Routeur corrigé
+app.use('/api', uploadRoutes); // ROUTE IMAGES R2
 app.use('/api/chat', chatRoutes);
 app.use('/api/forum', forumRoutes);
 

@@ -1,199 +1,350 @@
-/* --- STRUCTURE DE LA PAGE --- */
+/* ============================================================
+   ARTICLE DETAIL PAGE - STYLES GLOBAUX
+   ============================================================ */
+
 .article-detail-page {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Centre le contenu */
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem 5rem;
+  animation: fadeIn 0.4s ease-out;
 }
 
-.back-nav {
-  margin-bottom: 1rem;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+
+/* Navigation & Header */
+.detail-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.admin-quick-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ============================================================
+   CONTENEUR DE L'ARTICLE
+   ============================================================ */
 
 .article-detail-container {
-  width: 100%;
-  max-width: 900px;
-  background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 25px 75px rgba(0,0,0,0.12);
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--toolbar-separator);
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
 }
 
-/* --- BANNIÈRE / IMAGE DE COUVERTURE --- */
-.article-detail-image {
+/* Hero Image */
+.article-hero-image {
   width: 100%;
-  height: 400px; /* Hauteur fixe pour un look pro */
+  height: clamp(250px, 40vh, 450px);
   overflow: hidden;
-  background-color: #f1f5f9;
+  background-color: var(--bg-color);
+  border-bottom: 1px solid var(--toolbar-separator);
 }
 
-.article-detail-image img {
+.article-hero-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
-/* --- CONTENU DE L'ARTICLE --- */
-.article-content-wrapper {
-  padding: 3rem 2.5rem; /* Espace généreux pour la lecture */
+/* Header Meta Section */
+.article-header-meta {
+  padding: 3rem 3rem 1rem;
 }
 
 .article-detail-title {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 2rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
   line-height: 1.1;
+  color: var(--text-main);
+  margin-bottom: 1.5rem;
   letter-spacing: -0.02em;
 }
 
-.article-body {
-  font-size: 1rem;
-  line-height: 1.8;
-  color: #334155;
+.article-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-/* Styles Markdown spécifiques */
-.article-body h2, .article-body h3 {
-  color: #0f172a;
-  margin: 2.5rem 0 1rem;
-  font-weight: 700;
+.article-tags .tag-pill {
+  background: var(--bg-color);
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  border: 1px solid var(--toolbar-separator);
 }
 
-.article-body p {
-  margin-bottom: 1.6rem;
+/* ============================================================
+   CORPS DE L'ARTICLE (RENDU TIPTAP / HTML)
+   ============================================================ */
+
+.article-body-content {
+  padding: 1rem 3rem 3rem;
+  font-size: 1.15rem;
+  line-height: 1.75;
+  color: var(--text-main);
+  word-wrap: break-word;
 }
 
-.article-body code {
-  background: #f1f5f9;
+/* Titres dans le texte */
+.article-body-content h1, 
+.article-body-content h2, 
+.article-body-content h3 {
+  color: var(--text-main);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 800;
+}
+
+.article-body-content h1 { font-size: 2rem; }
+.article-body-content h2 { font-size: 1.6rem; border-bottom: 1px solid var(--toolbar-separator); padding-bottom: 0.5rem; }
+
+/* Paragraphes et listes */
+.article-body-content p {
+  margin-bottom: 1.5rem;
+}
+
+.article-body-content ul, 
+.article-body-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.article-body-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Citations */
+.article-body-content blockquote {
+  border-left: 4px solid var(--primary);
+  background: var(--bg-color);
+  margin: 2rem 0;
+  padding: 1rem 2rem;
+  font-style: italic;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* ============================================================
+   BLOCS DE CODE (HIGHLIGHT.JS)
+   ============================================================ */
+
+.article-body-content pre {
+  margin: 2rem 0;
+  border-radius: 12px;
+  background: #1a1b26 !important; /* Tokyo Night Dark */
+  border: 1px solid #2f334d;
+  overflow: hidden;
+  position: relative;
+}
+
+.article-body-content pre code {
+  display: block;
+  padding: 1.5rem;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  tab-size: 4;
+  background: transparent !important;
+}
+
+/* Code en ligne */
+.article-body-content :not(pre) > code {
+  background: var(--bg-color);
+  color: var(--primary);
   padding: 0.2rem 0.4rem;
   border-radius: 6px;
-  color: #e11d48; /* Rose/Rouge moderne pour le code */
-  font-family: 'Fira Code', monospace;
   font-size: 0.9em;
+  font-family: 'Fira Code', monospace;
+  border: 1px solid var(--toolbar-separator);
 }
 
-.article-body img {
+/* On affiche le bouton seulement au survol du bloc de code */
+.article-body-content pre:hover .copy-button {
+  opacity: 1;
+}
+
+.copy-button:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.copy-button.copied {
+  background: var(--success);
+  border-color: var(--success);
+  opacity: 1;
+}
+
+/* Alignement */
+:global(.ProseMirror) {
+  text-align: left; /* Par défaut */
+}
+
+:global([style*="text-align: center"]) { text-align: center; }
+:global([style*="text-align: right"]) { text-align: right; }
+:global([style*="text-align: justify"]) { text-align: justify; }
+
+/* Images dans l'éditeur */
+:global(.editor-image) {
+  display: block;
   max-width: 100%;
   height: auto;
-  border-radius: 12px;
-  margin: 2rem auto;
-  display: block;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  border-radius: var(--radius);
+  margin: 1rem auto; /* Centré par défaut */
 }
 
-/* --- SECTION COMMENTAIRES --- */
-.comments {
-  margin-top: 4rem;
-  padding-top: 3rem;
-  border-top: 2px solid #f1f5f9;
+/* Boutons actifs */
+.active {
+  background: var(--primary) !important;
+  color: white !important;
 }
 
-.comments h3 {
+.separator {
+  width: 1px;
+  height: 20px;
+  background: var(--toolbar-separator);
+  margin: 0 5px;
+}
+
+/* ============================================================
+   SECTION COMMENTAIRES
+   ============================================================ */
+
+.section-divider {
+  border: 0;
+  border-top: 1px solid var(--toolbar-separator);
+  margin: 0;
+}
+
+.comments-section {
+  padding: 3rem;
+  background: var(--bg-color);
+  opacity: 0.95;
+}
+
+.section-title {
   font-size: 1.5rem;
+  font-weight: 700;
   margin-bottom: 2rem;
-  color: #1e293b;
+  color: var(--text-main);
 }
 
-.comment-form {
-  background: #f8fafc;
-  padding: 2rem;
-  border-radius: 20px;
+.comment-box {
   margin-bottom: 3rem;
-  border: 1px solid #e2e8f0;
 }
 
-.comment-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.comment-item {
-  padding: 1.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+.comment-box textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--toolbar-separator);
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 1rem;
   transition: border-color 0.2s;
 }
 
-.comment-item:hover {
-  border-color: #cbd5e1;
+.comment-box textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* --- RELATED ARTICLES (Le style Vignette que tu voulais) --- */
-.related-articles-section {
-  margin-top: 5rem;
-  padding-top: 3rem;
-  border-top: 2px solid #f1f5f9;
-}
-
-.related-grid-v3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.comments-list {
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
 }
 
-.related-vignette {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  overflow: hidden;
-  text-decoration: none !important;
-  transition: all 0.3s ease;
+.comment-card {
+  background: var(--card-bg);
+  border: 1px solid var(--toolbar-separator);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
 }
 
-.related-vignette:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.1);
-  border-color: #7aa1e0;
-}
-
-.related-vignette-img {
-  height: 130px;
-  width: 100%;
-}
-
-.related-vignette-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.related-vignette-body {
-  padding: 1rem;
-}
-
-.related-vignette-body h4 {
-  margin: 0;
-  font-size: 0.95rem;
-  color: #1e293b;
-  font-weight: 600;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* --- ACTIONS ADMIN --- */
-.article-admin-actions {
-  margin-top: 4rem;
-  padding-top: 2rem;
-  border-top: 1px solid #e2e8f0;
+.comment-header {
   display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
 }
 
-/* --- RESPONSIVE --- */
+.comment-author {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.comment-date {
+  color: var(--text-muted);
+}
+
+.comment-text {
+  line-height: 1.6;
+  color: var(--text-main);
+}
+
+/* Related articles footer */
+.related-articles-footer {
+  padding: 3rem;
+  border-top: 1px solid var(--toolbar-separator);
+}
+
+/* Positionnement du bouton dans le bloc pre */
+.article-body-content pre {
+  position: relative; /* Nécessaire pour le bouton en absolute */
+}
+
+.copy-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0; /* Caché par défaut */
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
 @media (max-width: 768px) {
-  .article-content-wrapper { padding: 2rem 1.5rem; }
-  .article-detail-title { font-size: 1.3rem; }
-  .related-grid-v3 { grid-template-columns: 1fr; }
-  .article-detail-image { height: 250px; }
+  .article-header-meta, 
+  .article-body-content, 
+  .comments-section, 
+  .related-articles-footer {
+    padding: 1.5rem;
+  }
+  
+  .article-detail-title {
+    font-size: 1.8rem;
+  }
+  
+  .article-hero-image {
+    height: 200px;
+  }
 }

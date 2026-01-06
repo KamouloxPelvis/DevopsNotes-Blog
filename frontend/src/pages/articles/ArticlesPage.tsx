@@ -21,6 +21,7 @@ export function ArticlesList() {
   
   // État pour suivre quels articles l'utilisateur actuel a likés
   const [likedArticles, setLikedArticles] = useState<Set<string>>(new Set());
+  const [isLiking, setIsLiking] = useState<string | null>(null);
   
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -30,32 +31,40 @@ export function ArticlesList() {
 
   // --- LOGIQUE DE LIKE (Toggle Unique) ---
   const handleLike = async (slug: string) => {
-    if (!user) {
-      alert("Veuillez vous connecter pour aimer cet article.");
-      return;
-    }
-    
-    try {
-      // Appel au backend qui gère le toggle et le likedBy
-      const res = await api.post(`/articles/${slug}/like`);
-      const { likes, hasLiked } = res.data;
+  if (!user) {
+    alert("Veuillez vous connecter pour aimer cet article.");
+    return;
+  }
 
-      // Mise à jour de la liste des articles avec le nouveau nombre de likes
-      setArticles(prev => prev.map(a => 
-        a.slug === slug ? { ...a, likes: likes } : a
-      ));
+  // Si une requête est déjà en cours pour cet article, on ignore le clic
+  if (isLiking === slug) return;
 
-      // Mise à jour visuelle du bouton (Set de slugs)
-      setLikedArticles(prev => {
-        const newSet = new Set(prev);
-        if (hasLiked) newSet.add(slug);
-        else newSet.delete(slug);
-        return newSet;
-      });
-    } catch (error) {
-      console.error('Erreur lors du like:', error);
-    }
-  };
+  try {
+    setIsLiking(slug); // On verrouille le bouton
+
+    const res = await api.post(`/articles/${slug}/like`);
+    const { likes, hasLiked } = res.data;
+
+    // Mise à jour atomique du nombre de likes
+    setArticles(prev => prev.map(a => 
+      a.slug === slug ? { ...a, likes: likes } : a
+    ));
+
+    // Mise à jour du Set de façon immuable
+    setLikedArticles(prev => {
+      const newSet = new Set(prev);
+      
+      if (hasLiked) newSet.add(slug);
+      else newSet.delete(slug);
+      return newSet;
+    });
+
+  } catch (error) {
+    console.error('Erreur lors du like:', error);
+  } finally {
+    setIsLiking(null);
+  }
+};
 
   const handleLogout = () => {
     logout();
@@ -128,13 +137,13 @@ export function ArticlesList() {
     return Array.from(tags).filter(Boolean).sort();
   }, [articles]);
 
-  if (loading) return <div className="loading">Chargement des notes DevOps...</div>;
+  if (loading) return <div className="loading">Chargement des articles...</div>;
   if (error) return <div className="error-msg">Erreur: {error}</div>;
 
   return (
     <div className="articles-content">
       <div className="articles-header-v2">
-        <h1 className="articles-title-v2">DevOps Notes</h1>
+        <h1 className="articles-title-v2">Articles</h1>
 
         <div className="articles-actions-v2">
           <input
@@ -151,7 +160,7 @@ export function ArticlesList() {
               <>
                 <Link to="/chat" className="btn btn-secondary">Chat</Link>
                 <button className="btn btn-secondary" onClick={handleLogout}>Logout</button>
-                {isAdmin && <Link to="/articles/new" className="btn btn-primary">+ New</Link>}
+                {isAdmin && <Link to="/articles/new" className="btn btn-primary">+ Nouvel article</Link>}
               </>
             ) : (
               <>
@@ -221,10 +230,11 @@ export function ArticlesList() {
                   <button 
                     className={`stat-btn ${isLiked ? 'active' : ''}`} 
                     onClick={() => handleLike(article.slug)}
+                    disabled={isLiking === article.slug} // Désactive visuellement pendant l'appel API
                     style={{ 
-                      // 1. Gris si 0, Rouge si liké, Rose clair sinon
                       color: likesCount === 0 ? '#a0aec0' : (isLiked ? '#e31b23' : '#ffb6c1'),
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
+                      transform: isLiking === article.slug ? 'scale(0.9)' : 'scale(1)'
                     }}
                   >
                     ❤️ {likesCount}

@@ -21,6 +21,7 @@
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0;
+  color: var(--text-main);
   color: #1e293b;
 }
 
@@ -67,8 +68,8 @@
 }
 
 .tag-pill {
-  border: 1px solid #e2e8f0;
-  background: white;
+  border: 1px solid var(--toolbar-separator);
+  background: var(--card-bg);
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   font-size: 0.85rem;
@@ -103,8 +104,8 @@
 
 /* ===== CARTE ARTICLE (CARD) ===== */
 .article-card-v2 {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--card-bg); 
+  border: 1px solid var(--toolbar-separator);
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -144,12 +145,11 @@
   flex-direction: column;
 }
 
-.article-title-v2 {
-  font-size: 1.15rem;
-  margin: 0 0 0.5rem 0;
-  line-height: 1.4;
-  color: var(--text-main);
+.articles-title-v2 {
+  font-size: 1.8rem;
   font-weight: 700;
+  margin: 0;
+  color: var(--text-main);
 }
 
 .draft-badge {
@@ -177,6 +177,7 @@
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -203,7 +204,7 @@
   gap: 1rem;
   margin-bottom: 1rem;
   padding-top: 0.75rem;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--toolbar-separator); 
 }
 
 .stat-btn {
@@ -212,19 +213,28 @@
   gap: 0.3rem;
   font-size: 0.85rem;
   color: var(--text-muted);
-  background: none;
+  background: transparent;
   border: none;
   padding: 0;
-  cursor: default;
+  cursor: pointer;
+  user-select: none;
+  outline: none !important;
+}
+
+.stat-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .like-btn {
   cursor: pointer;
   transition: color 0.2s;
 }
+
 .like-btn:hover {
   color: var(--danger);
 }
+
 .like-btn:disabled {
   cursor: not-allowed;
   opacity: 0.6;

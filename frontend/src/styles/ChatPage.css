@@ -1,37 +1,35 @@
 .chat-page-wrapper {
     display: flex;
-    height: calc(100vh - 100px); /* Ajuste selon ton header */
-    margin: 20px;
-    background: white;
+    height: calc(100vh - 120px); 
+    margin: 20px 0; /* Aligné sur les bords */
+    background: var(--card-bg); /* S'adapte au mode sombre */
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     overflow: hidden;
+    border: 1px solid var(--toolbar-separator);
 }
 
 /* Sidebar Salons */
 .chat-sidebar {
     width: 240px;
-    background: #f8fafc;
-    border-right: 1px solid #e2e8f0;
+    background: var(--bg-color); /* Un peu plus sombre que la zone de message */
+    border-right: 1px solid var(--toolbar-separator);
     display: flex;
     flex-direction: column;
     padding: 20px;
 }
 
 .back-btn {
-    background: none;
-    border: 1px solid #cbd5e0;
+    background: var(--card-bg);
+    border: 1px solid var(--toolbar-separator);
+    color: var(--text-main);
     padding: 8px;
     border-radius: 6px;
     cursor: pointer;
     margin-bottom: 20px;
+    transition: all 0.2s;
 }
-
-.room-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
+.back-btn:hover { background: var(--toolbar-separator); }
 
 .room-item {
     text-align: left;
@@ -40,13 +38,14 @@
     background: none;
     border-radius: 8px;
     cursor: pointer;
-    color: #64748b;
+    color: var(--text-muted); /* Utilise la variable pour être visible en dark */
     font-weight: 500;
+    transition: all 0.2s;
 }
 
-.room-item:hover { background: #edf2f7; }
+.room-item:hover { background: var(--toolbar-separator); }
 .room-item.active {
-    background: #4299e1;
+    background: var(--primary);
     color: white;
 }
 
@@ -55,38 +54,31 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    background: var(--card-bg);
 }
 
 .chat-main-header {
     padding: 15px 25px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--toolbar-separator);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: var(--text-main);
 }
 
 .chat-messages-container {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-    background: #ffffff;
+    background: var(--card-bg);
 }
 
-/* Bulle de message style moderne */
-.message-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.message-row.is-me {
-    flex-direction: row-reverse;
-}
-
+/* Bulle de message */
 .message-avatar {
     width: 36px;
     height: 36px;
-    background: #cbd5e0;
+    background: var(--toolbar-separator);
+    color: var(--text-main);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -95,55 +87,51 @@
     flex-shrink: 0;
 }
 
-.message-row.is-me .message-avatar { background: #4299e1; color: white; }
-
-.message-content { max-width: 70%; }
-.message-row.is-me .message-content { text-align: right; }
-
-.message-info { margin-bottom: 4px; font-size: 0.85rem; }
-.message-author { font-weight: bold; margin-right: 8px; }
-.message-time { color: #a0aec0; }
-
 .message-text {
-    background: #f1f5f9;
+    background: var(--bg-color); /* Gris léger en clair, très sombre en dark */
+    color: var(--text-main);
     padding: 10px 15px;
     border-radius: 12px;
     border-top-left-radius: 0;
     line-height: 1.4;
 }
 
+/* Message de l'utilisateur (Moi) */
 .message-row.is-me .message-text {
-    background: #4299e1;
+    background: var(--primary);
     color: white;
     border-top-left-radius: 12px;
     border-top-right-radius: 0;
 }
 
+.message-time { color: var(--text-muted); }
+
 /* Input area */
 .chat-input-area {
     padding: 20px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--toolbar-separator);
     display: flex;
     gap: 12px;
+    background: var(--card-bg);
 }
 
 .chat-input-area input {
     flex: 1;
     padding: 12px 18px;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-color);
+    color: var(--text-main);
+    border: 1px solid var(--toolbar-separator);
     border-radius: 25px;
     outline: none;
 }
 
-.chat-input-area input:focus { border-color: #4299e1; }
+.chat-input-area input:focus { border-color: var(--primary); }
 
 .send-btn {
-    background: #4299e1;
+    background: var(--primary);
     color: white;
     border: none;
-    padding: 0 20px;
+    padding: 0 25px;
     border-radius: 25px;
     cursor: pointer;
 }
-
-.send-btn:disabled { opacity: 0.5; cursor: not-allowed; }

@@ -31,7 +31,7 @@
 /* Barre utilisateur en haut à droite */
 .top-nav-bar {
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
   display: flex;
@@ -54,7 +54,7 @@
 /* Le conteneur principal */
 .main-container {
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 16px 40px;
   flex: 1;
