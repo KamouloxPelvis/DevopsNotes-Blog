@@ -1,17 +1,18 @@
 deploy_production:
   stage: deploy
-  image: alpine:latest
   tags:
     - deploy_production
   before_script:
-    - apk add --no-cache openssh-client
+    # On démarre l'agent SSH
     - eval $(ssh-agent -s)
+    # On ajoute la clé (assurez-vous que la variable CI_CD_SSH_KEY est de type 'File' dans GitLab)
     - chmod 400 "$CI_CD_SSH_KEY"
     - ssh-add "$CI_CD_SSH_KEY"
+    # Configuration du dossier .ssh pour l'utilisateur gitlab-runner
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    # Utilisation d'une option pour ignorer la vérification stricte si keyscan échoue
-    - ssh-keyscan -H 113.30.191.17 >> ~/.ssh/known_hosts || echo "Keyscan failed, check firewall"
+    # On scanne la clé de l'hôte pour éviter le message de confirmation
+    - ssh-keyscan -H 113.30.191.17 >> ~/.ssh/known_hosts || echo "Keyscan failed"
   script:
-    # Remplacez 'user' par votre utilisateur réel (ex: root ou kamal)
+    # Connexion et déploiement
     - ssh -o StrictHostKeyChecking=no kamal@113.30.191.17 "cd projet-demo-devops-v1 && git pull && docker compose up -d --build"
