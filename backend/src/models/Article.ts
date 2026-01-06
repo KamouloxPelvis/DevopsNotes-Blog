@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IArticle extends Document {
   title: string;
   slug: string;
-  content: string;
+  content: any;
   imageUrl?: string;
   status: string;
   tags?: string[];
@@ -21,7 +21,7 @@ const ArticleSchema = new Schema<IArticle>(
   {
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    content: { type: String, required: true },
+    content: { type: Schema.Types.Mixed, required: true },
     imageUrl: { type: String, required: false },
     excerpt: { type: String, maxlength: 300 },
     // Mongoose comprend ici que c'est un Number avec une valeur par défaut

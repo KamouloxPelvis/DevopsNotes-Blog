@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import EditorJS, { OutputData } from '@editorjs/editorjs';
 import ImageTool from '@editorjs/image';
+import Header from '@editorjs/header'; // Recommandé pour structurer les articles
+import List from '@editorjs/list';    
 
 interface EditorProps {
   initialData?: OutputData;
@@ -20,22 +22,32 @@ export default function Editor({ initialData, onChange }: EditorProps) {
           if (content) onChange(content);
         },
         tools: {
+          header: Header,
+          list: List,
           image: {
-            class: ImageTool,
+            class: ImageTool as any,
             config: {
               endpoints: {
-                byFile: `${process.env.REACT_APP_API_URL}/upload`, // Ton API qui envoie vers R2
-              }
+                // MISE À JOUR : On utilise la route spécifique Editor.js et le préfixe /api
+                byFile: `${process.env.REACT_APP_API_URL}/upload-editorjs`, 
+              },
+              field: 'image', // Doit correspondre à multer côté backend
             }
           }
         },
       });
     }
+    
     return () => {
-      ejInstance.current?.destroy();
-      ejInstance.current = null;
+      // On détruit l'instance proprement lors du démontage pour éviter les doublons
+      if (ejInstance.current) {
+        ejInstance.current.destroy();
+        ejInstance.current = null;
+      }
     };
-  }, [initialData, onChange]);
+    // On retire initialData et onChange des dépendances pour éviter les resets intempestifs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); 
 
-  return <div id="editorjs" style={{ border: '1px solid #ccc', minHeight: '300px' }} />;
+  return <div id="editorjs" style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '8px', minHeight: '400px', backgroundColor: '#fff' }} />;
 }
