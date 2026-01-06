@@ -27,7 +27,7 @@ deploy_production:
         echo 'ADMIN_EMAIL=${ADMIN_EMAIL}' >> ./backend/.env &&
         echo 'ADMIN_PASSWORD=${ADMIN_PASSWORD}' >> ./backend/.env &&
         
-        echo 'JWT_SECRET=\"${JWT_SECRET}\"' >> ./backend/.env &&
+        echo 'JWT_SECRET="${JWT_SECRET}"' >> ./backend/.env &&
         echo 'JWT_EXPIRES=1h' >> ./backend/.env &&
         
         echo 'RESEND_API_KEY=${RESEND_API_KEY}' >> ./backend/.env &&
