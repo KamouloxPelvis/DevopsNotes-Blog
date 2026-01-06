@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import path from 'path';
 import multer from 'multer';
 
-// 1. Configuration du stockage (Ton code actuel, très bien)
+// 1. Configuration du stockage avec Multer
 const uploadDir = path.join(process.cwd(), 'uploads');
 
 const storage = multer.diskStorage({

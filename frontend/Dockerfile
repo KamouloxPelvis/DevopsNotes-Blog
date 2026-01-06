@@ -1,27 +1,30 @@
-# Étape 1 : build React
-FROM node:20-alpine AS builder
+# Étape 1 : Build de l'application React
+FROM node:18-alpine AS build
+
 WORKDIR /app
 
-# --- OPTIMISATION RAM ---
-ENV NODE_OPTIONS="--max-old-space-size=1536"
-# -------------------------
-
+# Installation des dépendances (optimisé pour le cache Docker)
 COPY package*.json ./
-RUN npm ci
+RUN npm install
+
+# Copie du code source
 COPY . .
 
-# --- TON AJOUT ICI ---
-# On récupère l'argument passé par le docker-compose
-ARG REACT_APP_API_URL
-# On l'injecte pour que React le voit pendant le build
-ENV REACT_APP_API_URL=$REACT_APP_API_URL
-# ---------------------
+# --- ÉTAPE CRUCIALE ---
+# On copie le fichier .env généré par GitLab dans le dossier de travail
+# Cela permet à 'npm run build' d'injecter les variables REACT_APP_
+COPY .env ./
 
+# Build de l'application
 RUN npm run build
 
-# Étape 2 : Nginx pour servir le build
-FROM nginx:alpine
-COPY --from=builder /app/build /usr/share/nginx/html
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+# Étape 2 : Serveur de production (Nginx)
+FROM nginx:stable-alpine
+
+# On copie les fichiers compilés vers le dossier Nginx
+COPY --from=build /app/build /usr/share/nginx/html
+
+# On expose le port 80
 EXPOSE 80
+
 CMD ["nginx", "-g", "daemon off;"]

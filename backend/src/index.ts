@@ -57,7 +57,13 @@ app.use(cors({
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https://*.cloudflare.com", "https://*.r2.cloudflarestorage.com"], // Autorise R2
+        connectSrc: ["'self'", "https://*.cloudflare.com"]
+      }
+    },
   })
 );
 

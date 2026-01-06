@@ -22,6 +22,7 @@ export const uploadToR2 = async (file: Express.Multer.File) => {
 
   await r2Client.send(command);
   
+  const publicUrl = process.env.R2_PUBLIC_URL || "https://pub-612551b2f22b4a3ab09ea087d63ab2ad.r2.dev";
   //URL publique R2
-  return `https://pub-612551b2f22b4a3ab09ea087d63ab2ad.r2.dev/${fileKey}`; 
+  return `${publicUrl}/${fileKey}`;
 };

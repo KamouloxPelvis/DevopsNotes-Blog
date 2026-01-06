@@ -28,13 +28,6 @@ RUN npm install --only=production
 
 COPY --from=build /app/dist ./dist
 
-# --- VARIABLES R2 ---
-# Ces variables seront remplies par GitLab CI via ton docker-compose
-ENV R2_ACCOUNT_ID=$R2_ACCOUNT_ID
-ENV R2_ACCESS_KEY_ID=$R2_ACCESS_KEY_ID
-ENV R2_SECRET_ACCESS_KEY=$R2_SECRET_ACCESS_KEY
-ENV R2_BUCKET_NAME=$R2_BUCKET_NAME
-
 ENV PORT=5000
 EXPOSE 5000
 
