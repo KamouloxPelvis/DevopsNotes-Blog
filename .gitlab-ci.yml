@@ -4,7 +4,7 @@ deploy_production:
     - deploy_production
   before_script:
     - eval $(ssh-agent -s)
-    - chmod 400 "$CI_CD_SSH_KEY"
+    - chmod 600 $CI_CD_SSH_KEY
     - ssh-add "$CI_CD_SSH_KEY"
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
