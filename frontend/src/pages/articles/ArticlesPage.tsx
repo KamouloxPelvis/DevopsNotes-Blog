@@ -204,7 +204,7 @@ export function ArticlesList() {
                   <img 
                     src={article.imageUrl.startsWith('http') ? article.imageUrl : `${API_ROOT}${article.imageUrl}`} 
                     alt={article.title}
-                    loading="lazy" 
+                    fetchPriority='high' 
                   />
                 </div>
               )}
