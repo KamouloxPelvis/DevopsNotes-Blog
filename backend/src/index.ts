@@ -17,6 +17,9 @@ import chatRoutes from './routes/chat';
 import forumRoutes from './routes/forum';
 import commentRoutes from './routes/comments';
 
+// Import du modèle Message (nécessaire pour la logique de sauvegarde)
+import { Message } from './models/Message';
+
 dotenv.config();
 
 const app = express();
@@ -93,44 +96,45 @@ app.use('/api/forum', forumRoutes);
 io.on('connection', (socket) => {
   // 1. Récupération de l'utilisateur via le token passé dans "auth"
   const token = socket.handshake.auth.token;
+  
   let userData: any = null;
 
-  try {
-    if (token) {
-      // Décodage du token pour obtenir les infos utilisateur
-      userData = jwt.verify(token, process.env.JWT_SECRET || 'votre_cle_secrete');
-      console.log(`📱 ${userData.pseudo} s'est connecté au chat`);
+    try {
+      if (token) {
+        // Décodage du token pour obtenir les infos utilisateur
+        userData = jwt.verify(token, process.env.JWT_SECRET || 'votre_cle_secrete');
+        console.log(`📱 ${userData.pseudo} s'est connecté au chat`);
+      }
+    } catch (err) {
+      console.log('⚠️ Connexion socket sans token valide (Anonyme)');
     }
-  } catch (err) {
-    console.log('⚠️ Connexion socket sans token valide (Anonyme)');
-  }
 
-  // 2. Rejoindre un salon
+    // 2. Rejoindre un salon
   socket.on('chat:join', (room) => {
     socket.join(room);
     console.log(`👤 ${userData?.pseudo || 'Anonyme'} a rejoint le salon: ${room}`);
   });
 
-  // 3. Écouter et diffuser les messages
-  socket.on('chat:message', (data) => {
-    console.log('💬 Message reçu de', userData?.pseudo, ':', data.text);
-    
-    const fullMessage = {
-      room: data.room,
-      text: data.text,
-      fromId: userData?.id || socket.id,
-      fromPseudo: userData?.pseudo || 'Anonyme',
-      at: new Date().toISOString()
-    };
+  socket.on('chat:message', async (data) => {
+    try {
+      const messageData = {
+        // On utilise la room envoyée par le front, sinon on ne pourra pas la retrouver
+        room: data.room, 
+        text: data.text,
+        fromId: userData?.id || 'anonymous',
+        fromPseudo: userData?.pseudo || 'Anonyme',
+        at: new Date()
+      };
 
-    io.to(data.room).emit('chat:message', fullMessage);
+      const savedMessage = await Message.create(messageData);
+      // On émet à la room exacte (ex: "General" avec majuscule)
+      io.to(data.room).emit('chat:message', savedMessage);
+      
+    } catch (err) {
+    console.error('❌ Erreur sauvegarde:', err);
+    }
   });
-
-  socket.on('disconnect', () => {
-    console.log(`📴 ${userData?.pseudo || 'Un utilisateur'} s'est déconnecté`);
-  });
-});
-
+})
 // --- CONNEXION MONGODB ET LANCEMENT ---
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI;
