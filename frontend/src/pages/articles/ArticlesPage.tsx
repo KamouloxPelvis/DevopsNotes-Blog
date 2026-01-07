@@ -204,6 +204,12 @@ export function ArticlesList() {
                   <img 
                     src={article.imageUrl.startsWith('http') ? article.imageUrl : `${API_ROOT}${article.imageUrl}`} 
                     alt={article.title}
+                    style={{ 
+                      width: '100%', 
+                      height: '250px', // Ou la hauteur que vous avez choisie
+                      objectFit: 'cover', 
+                      objectPosition: 'center 30%' // <--- C'est ici que la magie opère !
+                    }}
                     fetchPriority='high' 
                   />
                 </div>
