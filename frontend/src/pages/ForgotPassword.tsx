@@ -61,7 +61,7 @@ export default function ForgotPassword() {
               />
             </div>
 
-            <button type="submit" className="btn-auth-submit" disabled={loading}>
+            <button aria-label='Envoyer le lien' type="submit" className="btn-auth-submit" disabled={loading}>
               {loading ? 'Envoi en cours...' : 'Envoyer le lien'}
             </button>
           </form>

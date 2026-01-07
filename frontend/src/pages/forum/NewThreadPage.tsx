@@ -1,8 +1,6 @@
 import { FormEvent, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createThread } from '../../api/forum';
-import TextToolbar from '../../components/TextToolbar';
-import MarkdownPreview from '../../components/MarkdownPreview';
 import '../../styles/NewThreadPage.css';
 
 export default function NewThreadPage() {
@@ -67,11 +65,6 @@ export default function NewThreadPage() {
         <div className="form-group">
           <label htmlFor="content">Description du problème</label>
           <div className="editor-wrapper">
-            <TextToolbar 
-              content={content} 
-              setContent={setContent}
-              textAreaRef={textAreaRef}
-            />
             <textarea
               id="content"
               ref={textAreaRef}
@@ -81,13 +74,6 @@ export default function NewThreadPage() {
               onChange={(e) => setContent(e.target.value)}
               required
             />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Aperçu du message</label>
-          <div className="thread-preview-box">
-            <MarkdownPreview content={content || "*L'aperçu de votre message s'affichera ici...*"} />
           </div>
         </div>
 
@@ -104,7 +90,7 @@ export default function NewThreadPage() {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+          <button aria-label='Création en cours...' type="submit" className="btn btn-primary btn-lg" disabled={loading}>
             {loading ? 'Création en cours...' : 'Publier le sujet'}
           </button>
         </div>

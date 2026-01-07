@@ -68,13 +68,13 @@ export default function SigninPage() {
             />
           </div>
 
-          <button type="submit" className="btn-auth-submit" disabled={loading}>
+          <button aria-label="Se connecter" type="submit" className="btn-auth-submit" disabled={loading}>
             {loading ? 'Connexion...' : 'Se connecter'}
           </button>
         </form>
 
         <footer className="auth-footer">
-          Pas encore de compte ? <Link to="/signup">Créer un compte</Link>
+          Pas encore de compte ? <Link aria-label="Créer un compte" to="/signup">Créer un compte</Link>
         </footer>
       </div>
     </div>

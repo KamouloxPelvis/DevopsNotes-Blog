@@ -161,7 +161,7 @@ export function ArticlesList() {
             {user ? (
               <>
                 <Link to="/chat" className="btn btn-secondary">Chat</Link>
-                <button className="btn btn-secondary" onClick={handleLogout}>Logout</button>
+                <button aria-label='Se déconnecter' className="btn btn-secondary" onClick={handleLogout}>Logout</button>
                 {isAdmin && <Link to="/articles/new" className="btn btn-primary">+ Nouvel article</Link>}
               </>
             ) : (

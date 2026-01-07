@@ -48,7 +48,7 @@ export function PageLayout({ children }: Props) {
                 Hello, <strong>{user.pseudo ?? user.email}</strong>
               </span>
               <Link to="/profile" className="btn btn-sm btn-secondary">Profile</Link>
-              <button onClick={logout} className="btn btn-sm btn-secondary">Log Out</button>
+              <button arial-label='se déconnecter' onClick={logout} className="btn btn-sm btn-secondary">Log Out</button>
             </>
           ) : (
             <>
@@ -61,7 +61,8 @@ export function PageLayout({ children }: Props) {
           <div style={{ width: '1px', height: '20px', background: 'var(--toolbar-separator)', margin: '0 8px' }} />
           
           {/* Bouton Toggle Theme intégré dans la barre utilisateur */}
-          <button 
+          <button
+            aria-label='Changer le thème'
             onClick={toggleTheme} 
             className="btn-theme-toggle"
             style={{ 

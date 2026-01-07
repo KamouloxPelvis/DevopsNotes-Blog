@@ -87,13 +87,14 @@ export default function ChatPage() {
   return (
     <div className="chat-page-wrapper">
       <div className="chat-sidebar">
-        <button className="back-btn" onClick={() => navigate('/articles')}>
+        <button aria-label="Retour aux articles" className="back-btn" onClick={() => navigate('/articles')}>
           ← Retour
         </button>
         <h3>Salons</h3>
         <div className="room-list">
           {['General', 'DevOps Room', 'Relax'].map((r) => (
             <button 
+              aria-label='Salon de discussion'
               key={r} 
               className={`room-item ${room === r ? 'active' : ''}`}
               onClick={() => setRoom(r)}
@@ -144,7 +145,7 @@ export default function ChatPage() {
             onChange={(e) => setText(e.target.value)}
             placeholder={`Envoyer un message dans #${room}`}
           />
-          <button type="submit" className="send-btn" disabled={!text.trim()}>
+          <button aria-label="Envoyer le message" type="submit" className="send-btn" disabled={!text.trim()}>
             Envoyer
           </button>
         </form>

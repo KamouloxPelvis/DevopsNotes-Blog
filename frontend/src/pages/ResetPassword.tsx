@@ -25,13 +25,14 @@ export default function ResetPassword() {
     <div className="auth-container">
       <form className="auth-card" onSubmit={handleSubmit}>
         <h2>Nouveau mot de passe</h2>
-        <input 
+        <input
+          aria-label="Entrer mot de passe de 6 caractères minimum, dont une majuscule et un caractère spécial minimum" 
           type="password" 
-          placeholder="6+ caractères, 1 majuscule, 1 spécial" 
+          placeholder="Le mot de passe doit contenir au moins 6 caractères, une majuscule et un caractère spécial" 
           onChange={e => setPassword(e.target.value)} 
           required 
         />
-        <button type="submit" className="btn-auth-submit">Changer le mot de passe</button>
+        <button aria-label="Changer le mot de passe" type="submit" className="btn-auth-submit">Changer le mot de passe</button>
       </form>
     </div>
   );

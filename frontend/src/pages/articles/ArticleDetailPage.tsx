@@ -132,7 +132,7 @@ export default function ArticleDetail() {
         {isAdmin && (
           <div className="admin-quick-actions">
             <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary btn-sm">Modifier</Link>
-            <button onClick={handleDelete} className="btn btn-danger btn-sm">Supprimer</button>
+            <button aria-label="Supprimer l'article" onClick={handleDelete} className="btn btn-danger btn-sm">Supprimer</button>
           </div>
         )}
       </header>

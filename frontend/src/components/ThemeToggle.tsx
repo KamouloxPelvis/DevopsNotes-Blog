@@ -21,7 +21,8 @@ export default function ThemeToggle() {
   };
 
   return (
-    <button 
+    <button
+      aria-label="Toggle Theme" 
       onClick={toggleTheme} 
       className="btn-theme-toggle"
       title={isDark ? "Passer au mode clair" : "Passer au mode sombre"}

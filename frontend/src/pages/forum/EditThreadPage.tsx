@@ -2,8 +2,6 @@ import { FormEvent, useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { getAuthToken } from '../../api/auth';
 import { updateThread, getThread } from '../../api/forum';
-import TextToolbar from '../../components/TextToolbar';
-import MarkdownPreview from '../../components/MarkdownPreview';
 import '../../styles/NewThreadPage.css';
 
 export default function EditThreadPage() {
@@ -81,11 +79,6 @@ export default function EditThreadPage() {
         <div className="form-group">
           <label htmlFor="content">Description</label>
           <div className="editor-wrapper">
-            <TextToolbar 
-              content={content} 
-              setContent={setContent}
-              textAreaRef={textAreaRef}
-            />
             <textarea
               id="content"
               ref={textAreaRef}
@@ -98,15 +91,9 @@ export default function EditThreadPage() {
         </div>
 
         <div className="form-group">
-          <label>Aperçu des modifications</label>
-          <div className="thread-preview-box">
-            <MarkdownPreview content={content} />
-          </div>
-        </div>
-
-        <div className="form-group">
           <label htmlFor="tags">Tags (séparés par des virgules)</label>
           <input
+            aria-label='Tags'
             id="tags"
             type="text"
             className="tags-input-field"
@@ -118,6 +105,7 @@ export default function EditThreadPage() {
 
         <div className="form-actions">
           <button 
+            aria-label='Mise à jour en cours...'
             type="submit" 
             className="btn btn-primary btn-lg" 
             disabled={updating}

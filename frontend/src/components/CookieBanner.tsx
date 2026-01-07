@@ -29,7 +29,7 @@ export default function CookieBanner() {
           cookies techniques sécurisés (HTTPOnly & SameSite) pour votre authentification. 
           Aucun tracker publicitaire n'est utilisé, conformément au RGPD.
         </p>
-        <button className="cke-close" onClick={closeBanner}>
+        <button aria-label='Fermer le bandeau de cookies' className="cke-close" onClick={closeBanner}>
           Compris !
         </button>
       </div>

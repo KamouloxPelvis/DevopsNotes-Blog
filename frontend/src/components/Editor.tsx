@@ -47,6 +47,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       {/* Group 1: Style de texte */}
       <div className={styles.group}>
         <button
+          aria-label='Mettre le texte en gras'
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={editor.isActive('bold') ? styles.active : ''}
@@ -55,6 +56,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           <b>G</b>
         </button>
         <button
+          aria-label='Mettre le texte en italique'
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={editor.isActive('italic') ? styles.active : ''}
@@ -63,6 +65,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           <i>I</i>
         </button>
         <button
+          aria-label='Souligner le texte'
           type="button"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={editor.isActive('underline') ? styles.active : ''}
@@ -71,6 +74,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           <u>S</u>
         </button>
         <input
+          aria-label='Sélecteur de couleur de texte'
           type="color"
           onInput={(e) => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
           value={editor.getAttributes('textStyle').color || '#ffffff'}
@@ -84,6 +88,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       {/* Group 2: Titres */}
       <div className={styles.group}>
         <button
+          aria-label='Titre de niveau 1'
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           className={editor.isActive('heading', { level: 1 }) ? styles.active : ''}
@@ -91,6 +96,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           H1
         </button>
         <button
+          aria-label='Titre de niveau 2'
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           className={editor.isActive('heading', { level: 2 }) ? styles.active : ''}
@@ -98,6 +104,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           H2
         </button>
         <button
+          aria-label='Titre de niveau 3'
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
           className={editor.isActive('heading', { level: 3 }) ? styles.active : ''}
@@ -111,6 +118,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       {/* Group 3: Alignement */}
       <div className={styles.group}>
         <button
+          aria-label='Aligner le texte à gauche'
           type="button"
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
           className={editor.isActive({ textAlign: 'left' }) ? styles.active : ''}
@@ -118,6 +126,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           ⬅
         </button>
         <button
+          aria-label='Centrer le texte'
           type="button"
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
           className={editor.isActive({ textAlign: 'center' }) ? styles.active : ''}
@@ -125,6 +134,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           ↔
         </button>
         <button
+          aria-label='Aligner le texte à droite'
           type="button"
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
           className={editor.isActive({ textAlign: 'right' }) ? styles.active : ''}
@@ -132,6 +142,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           ➡
         </button>
         <button
+          aria-label='Justifier le texte'
           type="button"
           onClick={() => editor.chain().focus().setTextAlign('justify').run()}
           className={editor.isActive({ textAlign: 'justify' }) ? styles.active : ''}
@@ -145,6 +156,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       {/* Group 4: Blocs & Médias */}
       <div className={styles.group}>
         <button
+          aria-label='Insérer un bloc de code'
           type="button"
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
           className={editor.isActive('codeBlock') ? styles.active : ''}
@@ -152,6 +164,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           Code
         </button>
         <button
+          aria-label='Insérer une image'
           type="button"
           onClick={() => fileInputRef.current?.click()}
           title="Uploader une image vers R2"
@@ -159,6 +172,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           🖼️ Image
         </button>
         <input
+          aria-label='Choisir une image'
           type="file"
           ref={fileInputRef}
           onChange={handleFileUpload}

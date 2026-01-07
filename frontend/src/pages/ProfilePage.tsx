@@ -23,7 +23,7 @@ export default function ProfilePage() {
       <div className="profile-container">
         <div className="auth-card">
           <p>Veuillez vous connecter pour voir votre profil.</p>
-          <button onClick={() => navigate('/login')} className="btn-profile-primary">
+          <button aria-label='Se Connecter' onClick={() => navigate('/login')} className="btn-profile-primary">
             Se connecter
           </button>
         </div>
@@ -65,10 +65,10 @@ export default function ProfilePage() {
         </div>
 
         <div className="profile-actions">
-          <button onClick={() => navigate('/articles')} className="btn-profile-secondary">
+          <button aria-label='Retour aux articles' onClick={() => navigate('/articles')} className="btn-profile-secondary">
             Retour aux articles
           </button>
-          <button onClick={() => { logout(); navigate('/'); }} className="btn-profile-danger">
+          <button aria-label='Se déconnecter' onClick={() => { logout(); navigate('/'); }} className="btn-profile-danger">
             Se déconnecter
           </button>
         </div>

@@ -92,15 +92,15 @@ export default function NewArticle() {
         <div className="header-container">
           <Link to="/articles" className="back-link">← Annuler</Link>
           <div className="view-switcher">
-            <button type="button" onClick={() => setViewMode('edit')} className={viewMode === 'edit' ? 'active' : ''}>Édition</button>
-            <button type="button" onClick={() => setViewMode('preview')} className={viewMode === 'preview' ? 'active' : ''}>Aperçu</button>
+            <button aria-label="Mode Édition" type="button" onClick={() => setViewMode('edit')} className={viewMode === 'edit' ? 'active' : ''}>Édition</button>
+            <button aria-label="Mode Aperçu" type="button" onClick={() => setViewMode('preview')} className={viewMode === 'preview' ? 'active' : ''}>Aperçu</button>
           </div>
           <div className="final-actions">
             <select value={status} onChange={(e) => setStatus(e.target.value as any)}>
               <option value="draft">Brouillon</option>
               <option value="published">Publier</option>
             </select>
-            <button onClick={handleSubmit} className="btn-publish" disabled={submitting || uploading}>
+            <button aria-label="Créer l'article" onClick={handleSubmit} className="btn-publish" disabled={submitting || uploading}>
               {submitting ? 'Création...' : "Créer l'article"}
             </button>
           </div>

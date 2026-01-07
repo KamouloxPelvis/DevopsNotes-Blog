@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getThread, getReplies, createReply } from '../../api/forum';
 import { ForumThread, Reply } from '../../types/forum';
 import { getAuthToken, getCurrentUser } from '../../api/auth';
-import MarkdownPreview from '../../components/MarkdownPreview';
 import '../../styles/ThreadDetailPage.css';
 
 export default function ThreadDetailPage() {
@@ -90,7 +89,7 @@ export default function ThreadDetailPage() {
         {canEditOrDelete && (
           <div className="admin-actions">
             <Link to={`/forum/${thread._id}/edit`} className="btn btn-secondary btn-sm">Modifier</Link>
-            <button onClick={handleDeleteThread} className="btn btn-danger btn-sm">Supprimer</button>
+            <button aria-label="Supprimer le sujet" onClick={handleDeleteThread} className="btn btn-danger btn-sm">Supprimer</button>
           </div>
         )}
       </nav>
@@ -107,10 +106,6 @@ export default function ThreadDetailPage() {
             </div>
           </div>
         </header>
-
-        <div className="thread-content">
-          <MarkdownPreview content={thread.content} />
-        </div>
 
         {thread.tags && (
           <div className="thread-tags">
@@ -139,8 +134,6 @@ export default function ThreadDetailPage() {
                     <span>{new Date(reply.createdAt).toLocaleString()}</span>
                   </div>
                   <div className="reply-content">
-                    {/* On utilise MarkdownPreview aussi pour les réponses pour supporter le code */}
-                    <MarkdownPreview content={reply.content} />
                   </div>
                 </div>
               </div>
@@ -161,7 +154,7 @@ export default function ThreadDetailPage() {
               {replyError && <p className="error-msg">{replyError}</p>}
               <div className="form-footer">
                 <p className="hint">Supporte le Markdown (code blocks, gras, etc.)</p>
-                <button type="submit" className="btn btn-primary" disabled={replyLoading}>
+                <button aria-label="Soumettre" type="submit" className="btn btn-primary" disabled={replyLoading}>
                   {replyLoading ? 'Envoi...' : 'Répondre'}
                 </button>
               </div>

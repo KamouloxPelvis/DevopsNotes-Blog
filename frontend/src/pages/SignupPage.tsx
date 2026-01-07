@@ -102,13 +102,13 @@ export default function SignupPage() {
             />
           </div>
 
-          <button type="submit" className="btn-auth-submit" disabled={loading}>
+          <button aria-label="S'inscrire" type="submit" className="btn-auth-submit" disabled={loading}>
             {loading ? 'Création...' : 'S\'inscrire'}
           </button>
         </form>
 
         <footer className="auth-footer">
-          Déjà un compte ? <Link to="/login">Se connecter</Link>
+          Déjà un compte ? <Link aria-label='Se connecter' to="/login">Se connecter</Link>
         </footer>
       </div>
     </div>

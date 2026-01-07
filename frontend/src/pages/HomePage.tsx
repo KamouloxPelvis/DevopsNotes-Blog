@@ -36,8 +36,8 @@ export default function HomePage() {
     <div className="landing-root">
       {/* Sélecteur de langue en haut à droite */}
       <div className="lang-selector">
-        <button onClick={() => setLang('FR')} className={lang === 'FR' ? 'active' : ''}>🇫🇷 FR</button>
-        <button onClick={() => setLang('EN')} className={lang === 'EN' ? 'active' : ''}>🇺🇸 EN</button>
+        <button aria-label="Sélectionner la langue française" onClick={() => setLang('FR')} className={lang === 'FR' ? 'active' : ''}>🇫🇷 FR</button>
+        <button aria-label="Sélectionner la langue anglaise" onClick={() => setLang('EN')} className={lang === 'EN' ? 'active' : ''}>🇺🇸 EN</button>
       </div>
 
       <div className="landing-hero">
@@ -60,6 +60,7 @@ export default function HomePage() {
         
         <div className="landing-buttons">
           <button
+            aria-label="Aller vers la page d'articles"
             className="btn btn-primary landing-btn"
             onClick={() => navigate('/articles')}
           >
@@ -79,10 +80,10 @@ export default function HomePage() {
           
           {!isAuthenticated && (
             <div className="auth-group">
-              <button className="btn btn-light landing-btn" onClick={() => navigate('/login')}>
+              <button aria-label='Se connecter' className="btn btn-light landing-btn" onClick={() => navigate('/login')}>
                 👤 Sign In
               </button>
-              <button className="btn btn-outline-primary landing-btn signup-btn" onClick={() => navigate('/signup')}>
+              <button aria-label="S'inscrire" className="btn btn-outline-primary landing-btn signup-btn" onClick={() => navigate('/signup')}>
                 Sign Up
               </button>
             </div>
@@ -103,5 +104,5 @@ export default function HomePage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
