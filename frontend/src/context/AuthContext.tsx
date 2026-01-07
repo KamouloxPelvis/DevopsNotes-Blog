@@ -24,19 +24,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Vérifier la session au démarrage
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Appelle une route "me" que nous allons créer/vérifier sur le backend
-        const res = await api.get('/auth/me');
-        setUser(res.data.user);
-      } catch (err) {
-        setUser(null);
-      } finally {
-        setLoading(false);
+  const checkAuth = async () => {
+    try {
+      // On tente l'appel
+      const res = await api.get('/auth/me');
+      setUser(res.data.user);
+    } catch (err: any) {
+      // ÉTAPE CLÉ : On vérifie si c'est une 401 (non connecté)
+      // Si c'est le cas, on ne logge RIEN dans la console.
+      if (err.response?.status !== 401) {
+        // On ne logge que les vraies erreurs (ex: 500 serveur HS)
+        console.error("Erreur d'authentification inattendue", err);
       }
-    };
-    checkAuth();
-  }, []);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+  checkAuth();
+}, []);
 
   const login = async (email: string, password: string) => {
     const res = await api.post('/auth/login', { email, password });
