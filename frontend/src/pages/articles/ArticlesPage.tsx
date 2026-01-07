@@ -27,7 +27,9 @@ export function ArticlesList() {
   const { user, logout } = useAuth();
   const isAdmin = user?.role === 'admin';
 
-  const API_ROOT = process.env.REACT_APP_ROOT ?? 'http://localhost:5000';
+  const API_ROOT = process.env.NODE_ENV === 'production'
+  ? 'https://www.devopsnotes.org'
+  : (process.env.REACT_APP_ROOT ?? 'http://localhost:5000');
 
   // --- LOGIQUE DE LIKE (Toggle Unique) ---
   const handleLike = async (slug: string) => {

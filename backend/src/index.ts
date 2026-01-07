@@ -79,7 +79,7 @@ app.use(
 );
 
 // --- SERVIR LES IMAGES EN LOCAL ---
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/uploads', express.static('/app/uploads'));
 
 // --- ROUTES API ---
 app.use('/api/auth', authRoutes);

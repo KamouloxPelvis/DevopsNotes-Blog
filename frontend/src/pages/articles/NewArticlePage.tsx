@@ -24,7 +24,9 @@ export default function NewArticle() {
   const [uploading, setUploading] = useState(false);
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
 
-  const API_ROOT = process.env.REACT_APP_ROOT ?? 'http://localhost:5000';
+  const API_ROOT = process.env.NODE_ENV === 'production' 
+  ? 'https://www.devopsnotes.org' 
+  : (process.env.REACT_APP_ROOT ?? 'http://localhost:5000');
 
   async function handleManualUpload() {
     if (!imageFile || uploading) return;

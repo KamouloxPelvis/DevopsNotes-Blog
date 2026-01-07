@@ -3,8 +3,9 @@ import { io, Socket } from 'socket.io-client';
 import { getAuthToken } from './auth';
 
 let socket: Socket | null = null;
-const SOCKET_URL =
-  process.env.REACT_APP_SOCKET_URL ?? 'http://localhost:5000';
+const SOCKET_URL = process.env.NODE_ENV === 'production'
+  ? 'https://www.devopsnotes.org'
+  : (process.env.REACT_APP_SOCKET_URL ?? 'http://localhost:5000');
 
 
 export function getChatSocket(): Socket {

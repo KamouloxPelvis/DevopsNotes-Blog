@@ -23,7 +23,9 @@ export default function EditArticle() {
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const [loading, setLoading] = useState(true);
 
-  const API_ROOT = process.env.REACT_APP_ROOT ?? 'http://localhost:5000';
+  const API_ROOT = process.env.NODE_ENV === 'production' 
+    ? 'https://www.devopsnotes.org' 
+    : (process.env.REACT_APP_ROOT ?? 'http://localhost:5000');
 
   useEffect(() => {
     if (!currentSlug) return;
