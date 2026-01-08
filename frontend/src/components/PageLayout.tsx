@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CookieBanner from './CookieBanner';
-import devopsLogo from '../public/devopsnotes_logo.png';
-import devopsFav from '../devopsnotes_ico.jpg';
+import devopsLogo from '../../public/logo_devopsnotes.webp';
+import devopsFav from '../../public/icone_devopsnotes.webp';
 import '../styles/PageLayout.css';
 
 type Props = {
