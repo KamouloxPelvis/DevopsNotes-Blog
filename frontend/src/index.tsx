@@ -20,6 +20,23 @@ const resizeObserverErrorHandler = (e: ErrorEvent) => {
   }
 };
 
+const registerServiceWorker = (): void => {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/service-worker.js')
+        .then((registration: ServiceWorkerRegistration) => {
+          console.log('SW registered: ', registration);
+        })
+        .catch((error: Error) => {
+          console.log('SW registration failed: ', error);
+        });
+    });
+  }
+};
+
+registerServiceWorker();
+
 window.addEventListener('error', resizeObserverErrorHandler);
 
 const root = ReactDOM.createRoot(

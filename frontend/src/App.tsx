@@ -6,33 +6,34 @@ import { RequireAuthRoute } from './components/RequireAuthRoute';
 import { RequireAdminRoute } from './components/RequireAdminRoute';
 import './App.css';
 
-
-//Pages
-import ProfilePage from './pages/ProfilePage';
+// --- Chargement IMMÉDIAT (uniquement la page d'accueil) ---
 import HomePage from './pages/HomePage';
-import Signin  from './pages/SigninPage';
-import Signup from './pages/SignupPage';
-import VerifyEmail from './pages/VerifyEmail';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import ForumPage from './pages/forum/ForumPage';
-import NewThreadPage from './pages/forum/NewThreadPage';
-import EditThreadPage from './pages/forum/EditThreadPage';
-import ThreadDetailPage from './pages/forum/ThreadDetailPage';
-import ChatPage from './pages/ChatPage';
-import { ArticlesList } from './pages/articles/ArticlesPage';
-import ArticleDetail from './pages/articles/ArticleDetailPage';
-const NewArticle = lazy(() => import ('./pages/articles/NewArticlePage'));
-const EditArticle = lazy(() => import ('./pages/articles/EditArticlePage'));
 
-// CSS
+// --- Chargement DIFFÉRÉ (Lazy Loading) ---
+// On déplace tous les autres imports ici pour réduire le bundle initial
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const Signin = lazy(() => import('./pages/SigninPage'));
+const Signup = lazy(() => import('./pages/SignupPage'));
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const ForumPage = lazy(() => import('./pages/forum/ForumPage'));
+const NewThreadPage = lazy(() => import('./pages/forum/NewThreadPage'));
+const EditThreadPage = lazy(() => import('./pages/forum/EditThreadPage'));
+const ThreadDetailPage = lazy(() => import('./pages/forum/ThreadDetailPage'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
+const ArticlesList = lazy(() => import('./pages/articles/ArticlesPage').then(module => ({ default: module.ArticlesList })));
+const ArticleDetail = lazy(() => import('./pages/articles/ArticleDetailPage'));
+const NewArticle = lazy(() => import('./pages/articles/NewArticlePage'));
+const EditArticle = lazy(() => import('./pages/articles/EditArticlePage'));
 
 function App() {
   return (
     <BrowserRouter>
       <ToastProvider>
         <PageLayout>
-          <Suspense fallback={<div className="loading">Chargement de l'éditeur...</div>}>
+          {/* Le Suspense affiche un fallback léger pendant que le chunk de la page charge */}
+          <Suspense fallback={<div style={{ textAlign: 'center', padding: '2rem' }}>Chargement...</div>}>
             <Routes>
               <Route path="/" element={<Navigate to="/homepage" replace />} />
               <Route path="/homepage" element={<HomePage />} />

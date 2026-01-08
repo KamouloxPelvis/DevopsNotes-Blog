@@ -1,28 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
+<html lang="fr"> <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Mini-blog de notes sur le DevOps "
-    />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    <meta name="description" content="Mini-blog de notes sur le DevOps" />
+    
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <title>DevOpsNotes</title>
+
+    <style>
+      #root { min-height: 100vh; }
+      /* Extrait de App.css et PageLayout.css pour affichage immédiat */
+      :root {
+        --bg-color: #f1f5f9;
+        --text-main: #0f172a;
+        --card-bg: #ffffff;
+      }
+      [data-theme='dark'] {
+        --bg-color: #0f172a;    
+        --card-bg: #1e293b;     
+        --text-main: #f8fafc;
+      }
+      body {
+        margin: 0;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+      .layout-wrapper { min-height: 100vh; display: flex; flex-direction: column; }
+      .main-container { width: 100%; max-width: 1100px; margin: 0 auto; }
+    </style>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>Vous devez activer JavaScript pour accéder à cette application.</noscript>
+    
     <div id="root"></div>
-    <!-- Body
-    -->
+
+    <footer style="text-align: center; font-size: small; padding: 20px 0; margin-top: auto;">
+      Created by Kamal Guidadou © 2025-2026 DevOpsNotes - All rights reserved
+    </footer>
   </body>
-  <footer style="text-align: center; font-size:small; margin-bottom: 2%;">
-    Created by Kamal Guidadou © 2025-2026 DevOpsNotes - All rights reserved
-  </footer>
 </html>

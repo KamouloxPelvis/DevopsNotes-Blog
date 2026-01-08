@@ -1,34 +1,30 @@
 /* PageLayout.css */
 
-/* Fond global de l'application */
 .layout-wrapper {
   min-height: 100vh;
-  background-color: var(--bg-color); /* Utilisation de la variable */
-  position: relative;
+  background-color: var(--bg-color);
   display: flex;
   flex-direction: column;
+  /* On ne garde la transition que pour le changement de thème, pas au chargement */
   transition: background-color 0.3s ease;
 }
 
-/* Petit logo flottant à gauche */
+/* Petit logo flottant - Optimisé pour ne pas bloquer le scroll */
 .floating-home-btn {
   position: fixed;
   top: 20px;
   left: 20px;
   z-index: 1000;
-  transition: transform 0.2s;
+  will-change: transform;
 }
 .floating-home-btn img {
   width: 40px;
   height: 40px;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-.floating-home-btn:hover {
-  transform: scale(1.1);
+  display: block; /* Évite l'espace blanc sous l'image */
 }
 
-/* Barre utilisateur en haut à droite */
 .top-nav-bar {
   width: 100%;
   max-width: 1100px;
@@ -43,15 +39,13 @@
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  background: var(--card-bg); /* S'adapte au mode dark */
+  background: var(--card-bg);
   color: var(--text-main);
   padding: 8px 16px;
   border-radius: 20px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  transition: background-color 0.3s, color 0.3s;
 }
 
-/* Le conteneur principal */
 .main-container {
   width: 100%;
   max-width: 1100px;
@@ -62,34 +56,31 @@
   flex-direction: column;
 }
 
-/* Header avec le gros logo */
 .main-header {
   text-align: center;
   padding: 20px 0 40px;
 }
 
+/* Fixé pour éviter le CLS (saut de mise en page) */
 .header-logo-img {
-  height: clamp(80px, 12vw, 180px);
+  height: 120px; /* Taille fixe par défaut pour la stabilité */
   width: auto;
+  max-width: 100%;
   border-radius: 16px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-  background: var(--card-bg); /* Pour que le fond du logo suive le thème */
+  background: var(--card-bg);
   padding: 10px;
-  transition: background-color 0.3s;
 }
 
-/* Zone de contenu dynamique */
+@media (min-width: 768px) {
+  .header-logo-img { height: 180px; }
+}
+
 .content-area {
-  background: var(--card-bg); /* Devient gris foncé en dark mode */
+  background: var(--card-bg);
   color: var(--text-main);
   border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   min-height: 400px;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.btn-sm {
-  padding: 4px 10px;
-  font-size: 0.8rem;
 }
