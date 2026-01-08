@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ForumThread } from '../types/forum';
 import { getThreads } from '../api/forum';
 import { Link } from 'react-router-dom';
-import '../../styles/ForumPage.css';
+import '../styles/ForumPage.css';
 
 export default function ForumPage() {
   const [threads, setThreads] = useState<ForumThread[]>([]);
