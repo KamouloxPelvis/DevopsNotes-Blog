@@ -139,11 +139,13 @@ export function ArticlesList() {
     return Array.from(tags).filter(Boolean).sort();
   }, [articles]);
 
-  if (loading) return <div className="loading">Chargement des articles...</div>;
+  if (error) return <div className="error-msg">Erreur: {error}</div>;
+
   if (error) return <div className="error-msg">Erreur: {error}</div>;
 
   return (
     <div className="articles-content">
+      {/* 1. Header TOUJOURS visible (Améliore le FCP) */}
       <div className="articles-header-v2">
         <h1 className="articles-title-v2">Articles</h1>
 
@@ -174,6 +176,7 @@ export function ArticlesList() {
         </div>
       </div>
 
+      {/* 2. Filtres visibles dès que possible */}
       {allTags.length > 0 && (
         <div className="articles-filters-v2">
           <div className="tags-grid-v2">
@@ -192,77 +195,99 @@ export function ArticlesList() {
         </div>
       )}
 
+      {/* 3. Grille d'articles avec gestion du chargement à l'intérieur */}
       <div className="articles-grid-v2">
-        {filteredArticles.map((article) => {
-          const isLiked = likedArticles.has(article.slug);
-          const likesCount = article.likes || 0;
+        {loading ? (
+          // Skeletons : On affiche des boîtes vides pendant le chargement
+          [...Array(6)].map((_, i) => (
+            <div key={i} className="article-card-v2 skeleton-card">
+              <div style={{ height: '250px', background: '#2d3748', borderRadius: '8px', opacity: 0.5 }}></div>
+              <div style={{ height: '20px', background: '#2d3748', margin: '15px', width: '70%', borderRadius: '4px' }}></div>
+            </div>
+          ))
+        ) : (
+          filteredArticles.map((article, index) => {
+            const isLiked = likedArticles.has(article.slug);
+            const likesCount = article.likes || 0;
 
-          return (
-            <div key={article._id} className="article-card-v2">
-              {article.imageUrl && (
-                <div className="article-image-v2">
-                  <img 
-                    src={article.imageUrl.startsWith('http') ? article.imageUrl : `${API_ROOT}${article.imageUrl}`} 
-                    alt={article.title}
-                    style={{ 
-                      width: '100%', 
-                      height: '250px', // Ou la hauteur que vous avez choisie
-                      objectFit: 'cover', 
-                      objectPosition: 'center 30%' // <--- C'est ici que la magie opère !
-                    }}
-                    fetchPriority='high' 
-                  />
-                </div>
-              )}
-              
-              <div className="article-content-v2">
-                <h3 className="article-title-v2">
-                  {article.title}
-                  {article.status === 'draft' && <span className="draft-badge">Brouillon</span>}
-                </h3>
+            return (
+              <div key={article._id} className="article-card-v2">
+                {article.imageUrl && (
+                  <div className="article-image-v2">
+                    <picture>
+                      {/* On tente de charger le WebP (optimisation Backend Sharp) */}
+                      <source 
+                        srcSet={article.imageUrl.replace(/\.(jpg|jpeg|png)$/i, '.webp')} 
+                        type="image/webp" 
+                      />
+                      <img 
+                        src={article.imageUrl.startsWith('http') ? article.imageUrl : `${API_ROOT}${article.imageUrl}`} 
+                        alt={article.title}
+                        style={{ 
+                          width: '100%', 
+                          height: '250px', 
+                          objectFit: 'cover', 
+                          objectPosition: 'center 30%' 
+                        }}
+                        // PRIORITÉ : High pour le 1er article (LCP), auto pour les autres
+                        fetchPriority={index === 0 ? 'high' : 'auto'}
+                        // CHARGEMENT : Immédiat pour le 1er, différé (lazy) pour les autres
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                      />
+                    </picture>
+                  </div>
+                )}
                 
-                <div className="article-excerpt">
-                  <MarkdownPreview 
-                    content={(article.excerpt || article.content || '').slice(0, 180) + '...'}
-                    className="preview-card-clean" 
-                  />
-                </div>
+                <div className="article-content-v2">
+                  <h3 className="article-title-v2">
+                    {article.title}
+                    {article.status === 'draft' && <span className="draft-badge">Brouillon</span>}
+                  </h3>
+                  
+                  <div className="article-excerpt">
+                    <MarkdownPreview 
+                      content={(article.excerpt || article.content || '').slice(0, 180) + '...'}
+                      className="preview-card-clean" 
+                    />
+                  </div>
 
-                <div className="article-tags-v2">
-                  {(article.tags || []).map((tag) => (
-                    <span key={tag} className="tag">#{tag}</span>
-                  ))}
-                </div>
+                  <div className="article-tags-v2">
+                    {(article.tags || []).map((tag) => (
+                      <span key={tag} className="tag">#{tag}</span>
+                    ))}
+                  </div>
+                  
+                  <div className="article-stats-v2">
+                    <button 
+                      className={`stat-btn ${isLiked ? 'active' : ''}`} 
+                      onClick={() => handleLike(article.slug)}
+                      disabled={isLiking === article.slug}
+                      style={{ 
+                        color: likesCount === 0 ? '#a0aec0' : (isLiked ? '#e31b23' : '#ffb6c1'),
+                        transition: 'all 0.2s ease',
+                        transform: isLiking === article.slug ? 'scale(0.9)' : 'scale(1)'
+                      }}
+                    >
+                      ❤️ {likesCount}
+                    </button>
+                    <div className="stat-btn">👁️ {article.views ?? 0}</div>
+                    <span className="comments-count">
+                       💬 {commentCounts[article.slug] ?? 0}
+                    </span>
+                  </div>
                 
-                <div className="article-stats-v2">
-                  <button 
-                    className={`stat-btn ${isLiked ? 'active' : ''}`} 
-                    onClick={() => handleLike(article.slug)}
-                    disabled={isLiking === article.slug} // Désactive visuellement pendant l'appel API
-                    style={{ 
-                      color: likesCount === 0 ? '#a0aec0' : (isLiked ? '#e31b23' : '#ffb6c1'),
-                      transition: 'all 0.2s ease',
-                      transform: isLiking === article.slug ? 'scale(0.9)' : 'scale(1)'
-                    }}
-                  >
-                    ❤️ {likesCount}
-                  </button>
-                  <div className="stat-btn">👁️ {article.views ?? 0}</div>
-                  <span className="comments-count">
-                     💬 {commentCounts[article.slug] ?? 0}
-                  </span>
-                </div>
-              
-                <div className="article-footer-v2">
-                  <Link to={`/articles/${article.slug}`} className="btn btn-primary">Lire l'article</Link>
+                  <div className="article-footer-v2">
+                    <Link to={`/articles/${article.slug}`} className="btn btn-primary">Lire l'article</Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
-      {pages > 1 && (
+      {/* 4. Pagination (affichée seulement si on ne charge pas et qu'il y a plusieurs pages) */}
+      {!loading && pages > 1 && (
         <div className="pagination-v2">
           <button className="btn btn-secondary" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Précédent</button>
           <span className="pagination-info">Page {page} sur {pages}</span>
@@ -270,5 +295,4 @@ export function ArticlesList() {
         </div>
       )}
     </div>
-  );
-}
+  );}
