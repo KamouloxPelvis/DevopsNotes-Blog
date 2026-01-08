@@ -1,49 +1,46 @@
 deploy_production:
   stage: deploy
+  only:
+    - main  # Déploie seulement quand tu pousses sur la branche main
   tags:
     - deploy_production
   before_script:
     - eval $(ssh-agent -s)
-    - chmod 600 $CI_CD_SSH_KEY
+    - chmod 600 "$CI_CD_SSH_KEY"
     - ssh-add "$CI_CD_SSH_KEY"
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - ssh-keyscan -H 113.30.191.17 >> ~/.ssh/known_hosts || echo "Keyscan failed"
+    - ssh-keyscan -H 113.30.191.17 >> ~/.ssh/known_hosts
   script:
     - |
-      ssh -A -o StrictHostKeyChecking=no kamal@113.30.191.17 "
+      ssh -o StrictHostKeyChecking=no kamal@113.30.191.17 "
         cd projet-demo-devops-v1 &&
-        git pull &&
+        git pull origin main &&
         
-        # --- GÉNÉRATION DU FICHIER .ENV ---
-        # On utilise '>' pour la première ligne pour écraser l'ancien fichier
-        echo 'MONGODB_URI=${MONGODB_URI}' > ./backend/.env &&
+        # --- BACKEND .ENV ---
+        cat <<EOF > ./backend/.env
+        MONGODB_URI=${MONGODB_URI}
+        PORT=5000
+        FRONT_END_URL=https://www.devopsnotes.org
+        REACT_APP_API_URL=https://www.devopsnotes.org/api
+        ADMIN_EMAIL=${ADMIN_EMAIL}
+        ADMIN_PASSWORD=${ADMIN_PASSWORD}
+        JWT_SECRET=${JWT_SECRET}
+        JWT_EXPIRES=1h
+        RESEND_API_KEY=${RESEND_API_KEY}
+        R2_ACCOUNT_ID=${R2_ACCOUNT_ID}
+        R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+        R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
+        R2_BUCKET_NAME=${R2_BUCKET_NAME}
+        R2_PUBLIC_URL=https://resources.devopsnotes.org
+        EOF
         
-        # On utilise '>>' pour ajouter les lignes suivantes
-        echo 'PORT=5000' >> ./backend/.env &&
-        echo 'FRONT_END_URL=https://www.devopsnotes.org' >> ./backend/.env &&
-        echo 'REACT_APP_API_URL=https://www.devopsnotes.org/api' >> ./backend/.env &&
+        # --- FRONTEND .ENV ---
+        cat <<EOF > ./frontend/.env
+        REACT_APP_API_URL=https://www.devopsnotes.org/api
+        REACT_APP_ROOT=https://www.devopsnotes.org
+        EOF
         
-        echo 'ADMIN_EMAIL=${ADMIN_EMAIL}' >> ./backend/.env &&
-        echo 'ADMIN_PASSWORD=${ADMIN_PASSWORD}' >> ./backend/.env &&
-        
-        echo 'JWT_SECRET=${JWT_SECRET}' >> ./backend/.env &&
-        echo 'JWT_EXPIRES=1h' >> ./backend/.env &&
-        
-        echo 'RESEND_API_KEY=${RESEND_API_KEY}' >> ./backend/.env &&
-        
-        # Configuration Cloudflare R2
-        echo 'R2_ACCOUNT_ID=${R2_ACCOUNT_ID}' >> ./backend/.env &&
-        echo 'R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}' >> ./backend/.env &&
-        echo 'R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}' >> ./backend/.env &&
-        echo 'R2_BUCKET_NAME=${R2_BUCKET_NAME}' >> ./backend/.env &&
-        echo 'R2_PUBLIC_URL=${R2_PUBLIC_URL}' >> ./backend/.env &&
-
-        # --- .ENV FRONTEND ---
-        # On recrée le fichier pour être sûr qu'il est à jour
-        echo 'REACT_APP_API_URL=https://www.devopsnotes.org/api' > ./frontend/.env &&
-        echo 'REACT_APP_ROOT=https://www.devopsnotes.org' >> ./frontend/.env &&
-        
-        # --- RELANCE DE DOCKER ---
-        docker compose up -d --build --force-recreate
+        # --- DOCKER ---
+        docker compose up -d --build --remove-orphans
       "
