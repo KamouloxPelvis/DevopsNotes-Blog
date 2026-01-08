@@ -58,26 +58,37 @@ router.post('/', requireAdmin, upload.single('image'), async (req: Request, res:
   try {
     const { title, content, tags, status = 'draft' } = req.body;
     
-    if (!title || !content) return res.status(400).json({ message: 'Required fields missing' });
+    // 1. Validation de base
+    if (!title || !content) {
+      return res.status(400).json({ message: 'Required fields missing' });
+    }
 
+    // 2. Gestion du Slug
     const slug = generateSlug(title);
     const existing = await Article.findOne({ slug });
+    if (existing) {
+      return res.status(400).json({ message: 'Title already exists' });
+    }
 
-    if (existing) return res.status(400).json({ message: 'Title already exists' });
-
-    let imageUrl = req.body.imageUrl;
+    // 3. Gestion de l'image (Optimisation Sharp + Upload R2)
+    let imageUrl = req.body.imageUrl || ''; // Valeur par défaut si rien n'est fourni
 
     if (req.file) {
-      // On appelle r2Service qui va optimiser ET uploader
+      // On utilise r2Service qui :
+      // - Redimensionne en 1600px
+      // - Convertit en WebP
+      // - Upload sur Cloudflare
       imageUrl = await uploadToR2(req.file);
     }
 
+    // 4. Génération de l'extrait
     const excerpt = content.slice(0, 200).replace(/[#*`]/g, '') + '...';
 
+    // 5. Création de l'article en base de données
     const article = await Article.create({
       title,
       slug,
-      imageUrl: req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl,
+      imageUrl: imageUrl, // On utilise l'URL finale (R2 ou body)
       content,
       excerpt,
       tags: Array.isArray(tags) ? tags : (tags ? tags.split(',') : []),
@@ -87,6 +98,7 @@ router.post('/', requireAdmin, upload.single('image'), async (req: Request, res:
 
     return res.status(201).json(article);
   } catch (err) {
+    console.error("Erreur création article:", err);
     return res.status(500).json({ message: 'Error creating article' });
   }
 });
