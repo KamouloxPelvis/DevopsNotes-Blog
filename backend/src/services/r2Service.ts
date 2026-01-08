@@ -10,7 +10,7 @@ const r2Client = new S3Client({
   },
 });
 
-export const uploadToR2 = async (file: Express.Multer.File) => {
+export const uploadToR2 = async (file: any) => {
   // 1. Transformation de l'image
   // On génère un buffer optimisé (WebP, 1600px max, qualité 80)
   const optimizedBuffer = await sharp(file.buffer)

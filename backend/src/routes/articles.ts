@@ -140,39 +140,32 @@ router.put('/:slug', requireAdmin, upload.single('image'), async (req: Request, 
     
     if (!article) return res.status(404).json({ message: 'Article not found' });
 
+    // Mise à jour du contenu et de l'extrait
     if (content) {
       article.excerpt = content.slice(0, 200).replace(/[#*`]/g, '') + '...';
       article.content = content;
     }
+    
+    // Mise à jour du titre
     if (title) article.title = title;
 
+    // GESTION DE L'IMAGE (Optimisation WebP + R2)
     if (req.file) {
-      article.imageUrl = `/uploads/${req.file.filename}`;
+      // On utilise le service R2 qui compresse et convertit en WebP
+      article.imageUrl = await uploadToR2(req.file);
     } else if (req.body.imageUrl === '') {
         article.imageUrl = '';
     }
 
+    // Mise à jour des tags et du statut
     if (tags) article.tags = Array.isArray(tags) ? tags : tags.split(',');
     if (status) article.status = status;
 
     await article.save();
     return res.json(article);
   } catch (err) {
+    console.error("Erreur update article:", err);
     return res.status(500).json({ message: 'Error updating article' });
-  }
-});
-
-// --- 6. 👁️ VIEWS ---
-router.put('/:slug/view', async (req, res) => {
-  try {
-    const article = await Article.findOneAndUpdate(
-      { slug: req.params.slug },
-      { $inc: { views: 1 } },
-      { new: true }
-    );
-    res.json({ views: article?.views || 0 });
-  } catch (error) {
-    res.status(500).json({ error: 'Error view' });
   }
 });
 
