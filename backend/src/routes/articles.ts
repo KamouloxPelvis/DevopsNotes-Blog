@@ -4,6 +4,7 @@ import { Article } from '../models/Article';
 import { upload } from '../utils/upload';
 import { generateSlug } from '../utils/slug';
 import { getCommentsCount } from '../controllers/articleController';
+import { uploadToR2 } from '../services/r2Service';
 import fs from 'fs';
 import path from 'path';
 
@@ -46,7 +47,7 @@ router.get('/:slug', async (req, res) => {
       .populate('author', 'pseudo');
 
     if (!article) return res.status(404).json({ message: 'Article not found' });
-    return res.json(article);
+    return res.json(article); 
   } catch (err) {
     return res.status(500).json({ message: 'Error fetching article' });
   }
@@ -56,11 +57,20 @@ router.get('/:slug', async (req, res) => {
 router.post('/', requireAdmin, upload.single('image'), async (req: Request, res: Response) => {
   try {
     const { title, content, tags, status = 'draft' } = req.body;
+    
     if (!title || !content) return res.status(400).json({ message: 'Required fields missing' });
 
     const slug = generateSlug(title);
     const existing = await Article.findOne({ slug });
+
     if (existing) return res.status(400).json({ message: 'Title already exists' });
+
+    let imageUrl = req.body.imageUrl;
+
+    if (req.file) {
+      // On appelle r2Service qui va optimiser ET uploader
+      imageUrl = await uploadToR2(req.file);
+    }
 
     const excerpt = content.slice(0, 200).replace(/[#*`]/g, '') + '...';
 

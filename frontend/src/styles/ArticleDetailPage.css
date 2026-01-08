@@ -64,6 +64,7 @@
 .article-detail-title {
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 900;
+  font-size: 1.2rem;
   line-height: 1.1;
   color: var(--text-main);
   margin-bottom: 1.5rem;
@@ -338,13 +339,5 @@
   .comments-section, 
   .related-articles-footer {
     padding: 1.5rem;
-  }
-  
-  .article-detail-title {
-    font-size: 1.8rem;
-  }
-  
-  .article-hero-image {
-    height: 200px;
   }
 }
