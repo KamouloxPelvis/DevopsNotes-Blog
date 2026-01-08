@@ -1,6 +1,6 @@
 import { FormEvent, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { createThread } from '../../api/forum';
+import { createThread } from '../api/forum';
 import '../../styles/NewThreadPage.css';
 
 export default function NewThreadPage() {

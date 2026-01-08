@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import api from '../../api/axios';
-import { useAuth } from '../../context/AuthContext'; 
-import { RelatedArticles } from '../../components/RelatedArticles';
-import { useAllArticles } from '../../hooks/useAllArticles';
-import { Article } from '../../types/articles';
+import api from '../api/axios';
+import { useAuth } from '../context/AuthContext'; 
+import { RelatedArticles } from '../components/RelatedArticles';
+import { useAllArticles } from '../hooks/useAllArticles';
+import { Article } from '../types/articles';
 
 // Coloration syntaxique
 import hljs from 'highlight.js';

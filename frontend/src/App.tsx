@@ -17,15 +17,15 @@ const Signup = lazy(() => import('./pages/SignupPage'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
-const ForumPage = lazy(() => import('./pages/forum/ForumPage'));
-const NewThreadPage = lazy(() => import('./pages/forum/NewThreadPage'));
-const EditThreadPage = lazy(() => import('./pages/forum/EditThreadPage'));
-const ThreadDetailPage = lazy(() => import('./pages/forum/ThreadDetailPage'));
+const ForumPage = lazy(() => import('./pages/ForumPage'));
+const NewThreadPage = lazy(() => import('./pages/NewThreadPage'));
+const EditThreadPage = lazy(() => import('./pages/EditThreadPage'));
+const ThreadDetailPage = lazy(() => import('./pages/ThreadDetailPage'));
 const ChatPage = lazy(() => import('./pages/ChatPage'));
-const ArticlesList = lazy(() => import('./pages/articles/ArticlesPage').then(module => ({ default: module.ArticlesList })));
-const ArticleDetail = lazy(() => import('./pages/articles/ArticleDetailPage'));
-const NewArticle = lazy(() => import('./pages/articles/NewArticlePage'));
-const EditArticle = lazy(() => import('./pages/articles/EditArticlePage'));
+const ArticlesList = lazy(() => import('./pages/ArticlesPage').then(module => ({ default: module.ArticlesList })));
+const ArticleDetail = lazy(() => import('./pages/ArticleDetailPage'));
+const NewArticle = lazy(() => import('./pages/NewArticlePage'));
+const EditArticle = lazy(() => import('./pages/EditArticlePage'));
 
 function App() {
   return (

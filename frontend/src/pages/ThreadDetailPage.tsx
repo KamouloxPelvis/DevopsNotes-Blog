@@ -1,8 +1,8 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getThread, getReplies, createReply } from '../../api/forum';
-import { ForumThread, Reply } from '../../types/forum';
-import { getAuthToken, getCurrentUser } from '../../api/auth';
+import { getThread, getReplies, createReply } from '../api/forum';
+import { ForumThread, Reply } from '../types/forum';
+import { getAuthToken, getCurrentUser } from '../api/auth';
 import '../../styles/ThreadDetailPage.css';
 
 export default function ThreadDetailPage() {

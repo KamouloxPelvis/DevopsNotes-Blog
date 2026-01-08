@@ -1,10 +1,10 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../../api/axios'; 
-import { getArticles } from '../../api/articles';
-import { Article } from '../../types/articles';
-import { useAuth } from '../../context/AuthContext';
-import MarkdownPreview from '../../components/MarkdownPreview';
+import api from '../api/axios'; 
+import { getArticles } from '../api/articles';
+import { Article } from '../types/articles';
+import { useAuth } from '../context/AuthContext';
+import MarkdownPreview from '../components/MarkdownPreview';
 import '../../styles/ArticlesPage.css';
 
 type CommentCountMap = Record<string, number>;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ForumThread } from '../../types/forum';
-import { getThreads } from '../../api/forum';
+import { ForumThread } from '../types/forum';
+import { getThreads } from '../api/forum';
 import { Link } from 'react-router-dom';
 import '../../styles/ForumPage.css';
 
