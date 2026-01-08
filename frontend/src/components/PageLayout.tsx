@@ -36,7 +36,9 @@ export function PageLayout({ children }: Props) {
       <CookieBanner />
       {/* 1. Petit Logo Flottant (Fixed) */}
       <Link to="/homepage" className="floating-home-btn">
-        <img src={devopsFav} alt="Home" />
+        <img src={devopsFav} 
+             alt="Home" 
+             fetchpriority="high" />
       </Link>
 
       {/* 2. Barre de Navigation Supérieure */}
@@ -83,7 +85,10 @@ export function PageLayout({ children }: Props) {
       <div className="main-container">
         {/* En-tête avec le gros logo */}
         <header className="main-header">
-          <img src={devopsLogo} alt="DevOpsNotes Logo" className="header-logo-img" />
+          <img src={devopsLogo} 
+               alt="DevOpsNotes Logo" 
+               className="header-logo-img"
+               fetchpriority="high" />
         </header>
 
         {/* Zone de contenu dynamique */}
