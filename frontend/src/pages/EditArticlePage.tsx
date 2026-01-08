@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../api/axios'; 
 import { useToast } from '../context/ToastContext';
 import TiptapEditor from '../components/Editor';
-import '../../styles/NewArticlePage.css';
+import '../styles/NewArticlePage.css';
 
 export default function EditArticle() {
   const { slug: currentSlug } = useParams<{ slug: string }>();

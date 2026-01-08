@@ -5,7 +5,7 @@ import { getArticles } from '../api/articles';
 import { Article } from '../types/articles';
 import { useAuth } from '../context/AuthContext';
 import MarkdownPreview from '../components/MarkdownPreview';
-import '../../styles/ArticlesPage.css';
+import '../styles/ArticlesPage.css';
 
 type CommentCountMap = Record<string, number>;
 

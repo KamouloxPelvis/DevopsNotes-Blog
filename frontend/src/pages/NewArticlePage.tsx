@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios'; 
 import { useToast } from '../context/ToastContext';
 import TiptapEditor from '../components/Editor'; // Ton nouvel éditeur
-import '../../styles/NewArticlePage.css';
+import '../styles/NewArticlePage.css';
 
 export default function NewArticle() {
   const navigate = useNavigate();

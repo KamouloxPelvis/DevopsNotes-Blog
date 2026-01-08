@@ -10,7 +10,7 @@ import { Article } from '../types/articles';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/tokyo-night-dark.css'; 
 
-import '../../styles/ArticleDetailPage.css';
+import '../styles/ArticleDetailPage.css';
 
 interface Comment {
   _id: string;
