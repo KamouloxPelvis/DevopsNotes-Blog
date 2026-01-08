@@ -52,22 +52,25 @@ export default function EditArticle() {
   }, [currentSlug, showToast, API_ROOT]);
 
   async function handleManualUpload() {
-    if (!imageFile || uploading) return;
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append('file', imageFile);
-      const res = await api.post('/upload', formData);
-      setImageUrl(res.data.imageUrl); 
-      setImagePreview(`${API_ROOT}${res.data.imageUrl}`);
-      setImageFile(null);
-      showToast({ type: 'success', message: 'Image mise à jour !' });
-    } catch (err) {
-      showToast({ type: 'error', message: "Échec de l'upload" });
-    } finally {
-      setUploading(false);
-    }
+  if (!imageFile || uploading) return;
+  try {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', imageFile);
+    
+    const res = await api.post('/articles/upload', formData); // Vérifie bien ta route
+    const newImageUrl = res.data.imageUrl; // C'est déjà l'URL complète R2
+    
+    setImageUrl(newImageUrl); 
+    setImagePreview(newImageUrl); // Plus besoin de ${API_ROOT} !
+    setImageFile(null);
+    showToast({ type: 'success', message: 'Image envoyée sur R2 !' });
+  } catch (err) {
+    showToast({ type: 'error', message: "Échec de l'upload." });
+  } finally {
+    setUploading(false);
   }
+}
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

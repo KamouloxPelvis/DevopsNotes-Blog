@@ -24,28 +24,26 @@ export default function NewArticle() {
   const [uploading, setUploading] = useState(false);
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
 
-  const API_ROOT = process.env.NODE_ENV === 'production' 
-  ? 'https://www.devopsnotes.org' 
-  : (process.env.REACT_APP_ROOT ?? 'http://localhost:5000');
-
   async function handleManualUpload() {
-    if (!imageFile || uploading) return;
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append('file', imageFile);
-      const res = await api.post('/upload', formData);
-      const relativePath = res.data.imageUrl;
-      setImageUrl(relativePath); 
-      setImagePreview(`${API_ROOT}${relativePath}`);
-      setImageFile(null);
-      showToast({ type: 'success', message: 'Image envoyée !' });
-    } catch (err) {
-      showToast({ type: 'error', message: "Échec de l'upload." });
-    } finally {
-      setUploading(false);
-    }
+  if (!imageFile || uploading) return;
+  try {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', imageFile);
+    
+    const res = await api.post('/articles/upload', formData);
+    const newImageUrl = res.data.imageUrl;
+    
+    setImageUrl(newImageUrl); 
+    setImagePreview(newImageUrl);
+    setImageFile(null);
+    showToast({ type: 'success', message: 'Image envoyée sur R2 !' });
+  } catch (err) {
+    showToast({ type: 'error', message: "Échec de l'upload." });
+  } finally {
+    setUploading(false);
   }
+}
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

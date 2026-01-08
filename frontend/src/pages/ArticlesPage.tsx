@@ -214,28 +214,19 @@ export function ArticlesList() {
               <div key={article._id} className="article-card-v2">
                 {article.imageUrl && (
                   <div className="article-image-v2">
-                    <picture>
-                      {/* On tente de charger le WebP (optimisation Backend Sharp) */}
-                      <source 
-                        srcSet={article.imageUrl.replace(/\.(jpg|jpeg|png)$/i, '.webp')} 
-                        type="image/webp" 
-                      />
-                      <img 
-                        src={article.imageUrl.startsWith('http') ? article.imageUrl : `${API_ROOT}${article.imageUrl}`} 
-                        alt={article.title}
-                        style={{ 
-                          width: '100%', 
-                          height: '250px', 
-                          objectFit: 'cover', 
-                          objectPosition: 'center 30%' 
-                        }}
-                        // PRIORITÉ : High pour le 1er article (LCP), auto pour les autres
-                        fetchPriority={index === 0 ? 'high' : 'auto'}
-                        // CHARGEMENT : Immédiat pour le 1er, différé (lazy) pour les autres
-                        loading={index === 0 ? 'eager' : 'lazy'}
-                      />
-                    </picture>
-                  </div>
+                  <img
+                    src={article.imageUrl.startsWith('http') ? article.imageUrl : `${API_ROOT}${article.imageUrl}`} 
+                    alt={article.title}
+                    style={{ 
+                      width: '100%', 
+                      height: '250px', 
+                      objectFit: 'cover', 
+                      objectPosition: 'center 30%' 
+                    }}
+                    fetchPriority={index === 0 ? 'high' : 'auto'}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                </div>
                 )}
                 
                 <div className="article-content-v2">

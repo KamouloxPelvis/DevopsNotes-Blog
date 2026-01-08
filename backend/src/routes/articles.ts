@@ -174,12 +174,7 @@ router.delete('/:slug', requireAdmin, async (req: Request, res: Response) => {
   try {
     const article = await Article.findOneAndDelete({ slug: req.params.slug });
     if (!article) return res.status(404).json({ message: 'Article not found' });
-
-    if (article.imageUrl && article.imageUrl.startsWith('/uploads/')) {
-        const filePath = path.join(process.cwd(), article.imageUrl);
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    }
-
+    
     return res.status(204).send();
   } catch (err) {
     return res.status(500).json({ message: 'Error deleting article' });
