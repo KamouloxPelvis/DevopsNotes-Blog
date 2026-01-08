@@ -94,13 +94,13 @@ export default function HomePage() {
       <div className="landing-powered">
         <p className="landing-powered-title">{t.powered}</p>
         <div className="landing-tech-grid">
-          <img src="/logos/react.png" alt="React" title="React 18 + TypeScript" />
-          <img src="/logos/node.png" alt="Node.js" title="Node.js 20 + Express" />
-          <img src="/logos/mongodb.png" alt="MongoDB" title="MongoDB + Mongoose" />
-          <img src="/logos/docker.png" alt="Docker" title="Docker Containerization" />
-          <img src="/logos/gitlab.png" alt="GitLab" title="GitLab CI/CD Pipelines" />
-          <img src="/logos/kubernetes.png" alt="Kubernetes" title="k3s Orchestration" />
-          <img src="/logos/terraform.png" alt="Terraform" title="Infrastructure as Code" />
+          <img src="/logos/react.webp" alt="React" title="React 18 + TypeScript" />
+          <img src="/logos/node.webp" alt="Node.js" title="Node.js 20 + Express" />
+          <img src="/logos/mongodb.webp" alt="MongoDB" title="MongoDB + Mongoose" />
+          <img src="/logos/docker.webp" alt="Docker" title="Docker Containerization" />
+          <img src="/logos/gitlab.webp" alt="GitLab" title="GitLab CI/CD Pipelines" />
+          <img src="/logos/kubernetes.webp" alt="Kubernetes" title="k3s Orchestration" />
+          <img src="/logos/terraform.webp" alt="Terraform" title="Infrastructure as Code" />
         </div>
       </div>
     </div>
