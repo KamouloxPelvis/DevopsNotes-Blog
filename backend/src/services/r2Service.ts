@@ -26,11 +26,13 @@ export const uploadToR2 = async (file: any) => {
   const fileNameWithoutExt = file.originalname.split('.').slice(0, -1).join('.');
   const fileKey = `articles/${Date.now()}-${fileNameWithoutExt}.webp`;
 
+  // Exemple avec AWS SDK (utilisé pour R2)
   const command = new PutObjectCommand({
     Bucket: process.env.R2_BUCKET_NAME,
     Key: fileKey,
     Body: optimizedBuffer, // On utilise le buffer optimisé
-    ContentType: "image/webp", // On force le type MIME webp
+    ContentType: "image/webp",
+    CacheControl: "public, max-age=2592000", // Dit au navigateur de garder l'image 30 jours
   });
 
   await r2Client.send(command);
