@@ -5,11 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { RelatedArticles } from '../components/RelatedArticles';
 import { useAllArticles } from '../hooks/useAllArticles';
 import { Article } from '../types/articles';
-
-// Coloration syntaxique
 import hljs from 'highlight.js';
 import 'highlight.js/styles/tokyo-night-dark.css'; 
-
 import '../styles/ArticleDetailPage.css';
 
 interface Comment {
@@ -38,7 +35,6 @@ export default function ArticleDetail() {
   const isAdmin = user?.role === 'admin';
   const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
-  // 1. Fetch de l'article et des commentaires
   useEffect(() => {
     if (!slug) return;
     setLoadingArticle(true);
@@ -57,23 +53,17 @@ export default function ArticleDetail() {
       .finally(() => setLoadingArticle(false));
   }, [slug]);
 
-  // 2. Logique de coloration + Bouton Copier
   useEffect(() => {
     if (article?.content && !loadingArticle) {
       const preBlocks = document.querySelectorAll('.article-body-content pre');
-      
       preBlocks.forEach((pre) => {
         const codeBlock = pre.querySelector('code');
         if (codeBlock) {
-          // Coloration
           hljs.highlightElement(codeBlock as HTMLElement);
-
-          // Ajout bouton copier si absent
           if (!pre.querySelector('.copy-button')) {
             const button = document.createElement('button');
             button.className = 'copy-button';
             button.innerText = 'Copier';
-            
             button.onclick = () => {
               const text = codeBlock.innerText;
               navigator.clipboard.writeText(text).then(() => {
@@ -121,8 +111,11 @@ export default function ArticleDetail() {
   if (error) return <div className="error-msg">⚠️ {error}</div>;
   if (!article) return <p>Article introuvable.</p>;
 
+  // --- CORRECTION ICI : Gestion uniforme du slash ---
   const fullImageUrl = article.imageUrl 
-    ? (article.imageUrl.startsWith('http') ? article.imageUrl : `${R2_PUBLIC_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`)
+    ? (article.imageUrl.startsWith('http') 
+        ? article.imageUrl 
+        : `${R2_PUBLIC_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`)
     : null;
 
   return (
@@ -151,7 +144,6 @@ export default function ArticleDetail() {
           </div>
         </div>
 
-        {/* Injection du HTML de TipTap */}
         <div 
           className="article-body-content"
           dangerouslySetInnerHTML={{ __html: article.content || '' }} 

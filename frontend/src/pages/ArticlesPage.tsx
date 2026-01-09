@@ -19,7 +19,6 @@ export function ArticlesPage() {
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   
-  // État pour suivre quels articles l'utilisateur actuel a likés
   const [likedArticles, setLikedArticles] = useState<Set<string>>(new Set());
   const [isLiking, setIsLiking] = useState<string | null>(null);
   
@@ -29,49 +28,40 @@ export function ArticlesPage() {
 
   const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
-  // --- LOGIQUE DE LIKE (Toggle Unique) ---
   const handleLike = async (slug: string) => {
-  if (!user) {
-    alert("Veuillez vous connecter pour aimer cet article.");
-    return;
-  }
+    if (!user) {
+      alert("Veuillez vous connecter pour aimer cet article.");
+      return;
+    }
+    if (isLiking === slug) return;
 
-  // Si une requête est déjà en cours pour cet article, on ignore le clic
-  if (isLiking === slug) return;
+    try {
+      setIsLiking(slug); 
+      const res = await api.post(`/articles/${slug}/like`);
+      const { likes, hasLiked } = res.data;
 
-  try {
-    setIsLiking(slug); // On verrouille le bouton
+      setArticles(prev => prev.map(a => 
+        a.slug === slug ? { ...a, likes: likes } : a
+      ));
 
-    const res = await api.post(`/articles/${slug}/like`);
-    const { likes, hasLiked } = res.data;
-
-    // Mise à jour atomique du nombre de likes
-    setArticles(prev => prev.map(a => 
-      a.slug === slug ? { ...a, likes: likes } : a
-    ));
-
-    // Mise à jour du Set de façon immuable
-    setLikedArticles(prev => {
-      const newSet = new Set(prev);
-      
-      if (hasLiked) newSet.add(slug);
-      else newSet.delete(slug);
-      return newSet;
-    });
-
-  } catch (error) {
-    console.error('Erreur lors du like:', error);
-  } finally {
-    setIsLiking(null);
-  }
-};
+      setLikedArticles(prev => {
+        const newSet = new Set(prev);
+        if (hasLiked) newSet.add(slug);
+        else newSet.delete(slug);
+        return newSet;
+      });
+    } catch (error) {
+      console.error('Erreur lors du like:', error);
+    } finally {
+      setIsLiking(null);
+    }
+  };
 
   const handleLogout = () => {
     logout();
     navigate('/articles');    
   };
 
-  // --- CHARGEMENT INITIAL ---
   useEffect(() => {
     setLoading(true);
     getArticles(page, 6)
@@ -79,8 +69,6 @@ export function ArticlesPage() {
         setArticles(data.items);
         setPages(data.pages);
 
-        // Initialisation des likes au chargement :
-        // On regarde si l'ID de l'utilisateur est présent dans le tableau likedBy de chaque article
         if (user) {
           const initialLikes = new Set<string>();
           data.items.forEach((a: Article) => {
@@ -95,12 +83,10 @@ export function ArticlesPage() {
       .finally(() => setLoading(false));
   }, [page, user]);
 
-  // --- CHARGEMENT DES COMPTEURS DE COMMENTAIRES ---
   const articleIds = JSON.stringify(articles.map(a => a._id));
 
   useEffect(() => {
     if (articles.length === 0) return;
-
     const loadCounts = async () => {
       const counts: CommentCountMap = {};
       await Promise.all(
@@ -115,12 +101,10 @@ export function ArticlesPage() {
       );
       setCommentCounts(counts);
     };
-
     loadCounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articleIds]);
 
-  // --- FILTRAGE ---
   const filteredArticles = useMemo(() => {
     return articles.filter((article) => {
       const matchesTag = activeTag === null || (article.tags || []).includes(activeTag);
@@ -139,14 +123,10 @@ export function ArticlesPage() {
 
   if (error) return <div className="error-msg">Erreur: {error}</div>;
 
-  if (error) return <div className="error-msg">Erreur: {error}</div>;
-
   return (
     <div className="articles-content">
-      {/* 1. Header TOUJOURS visible (Améliore le FCP) */}
       <div className="articles-header-v2">
         <h1 className="articles-title-v2">Articles</h1>
-
         <div className="articles-actions-v2">
           <input
             type="text"
@@ -155,7 +135,6 @@ export function ArticlesPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-
           <div className="articles-actions-v2">
             <Link to="/forum" className="btn btn-secondary">Forum</Link>
             {user ? (
@@ -174,29 +153,19 @@ export function ArticlesPage() {
         </div>
       </div>
 
-      {/* 2. Filtres visibles dès que possible */}
       {allTags.length > 0 && (
         <div className="articles-filters-v2">
           <div className="tags-grid-v2">
-            <button
-              className={`tag-pill ${activeTag === null ? 'active' : ''}`}
-              onClick={() => setActiveTag(null)}
-            >All</button>
+            <button className={`tag-pill ${activeTag === null ? 'active' : ''}`} onClick={() => setActiveTag(null)}>All</button>
             {allTags.map((tag) => (
-              <button
-                key={tag}
-                className={`tag-pill ${activeTag === tag ? 'active' : ''}`}
-                onClick={() => setActiveTag(tag)}
-              >{tag}</button>
+              <button key={tag} className={`tag-pill ${activeTag === tag ? 'active' : ''}`} onClick={() => setActiveTag(tag)}>{tag}</button>
             ))}
           </div>
         </div>
       )}
 
-      {/* 3. Grille d'articles avec gestion du chargement à l'intérieur */}
       <div className="articles-grid-v2">
         {loading ? (
-          // Skeletons : On affiche des boîtes vides pendant le chargement
           [...Array(6)].map((_, i) => (
             <div key={i} className="article-card-v2 skeleton-card">
               <div style={{ height: '250px', background: '#2d3748', borderRadius: '8px', opacity: 0.5 }}></div>
@@ -208,12 +177,19 @@ export function ArticlesPage() {
             const isLiked = likedArticles.has(article.slug);
             const likesCount = article.likes || 0;
 
+            // --- CORRECTION URL IMAGE ---
+            const imageUrl = article.imageUrl 
+              ? (article.imageUrl.startsWith('http') 
+                  ? article.imageUrl 
+                  : `${R2_PUBLIC_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`)
+              : null;
+
             return (
               <div key={article._id} className="article-card-v2">
-                {article.imageUrl && (
+                {imageUrl && (
                   <div className="article-image-v2">
                   <img
-                    src={article.imageUrl.startsWith('http') ? article.imageUrl : `${R2_PUBLIC_URL}${article.imageUrl}`} 
+                    src={imageUrl} 
                     alt={article.title}
                     style={{ 
                       width: '100%', 
@@ -275,7 +251,6 @@ export function ArticlesPage() {
         )}
       </div>
 
-      {/* 4. Pagination (affichée seulement si on ne charge pas et qu'il y a plusieurs pages) */}
       {!loading && pages > 1 && (
         <div className="pagination-v2">
           <button className="btn btn-secondary" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Précédent</button>
@@ -284,4 +259,5 @@ export function ArticlesPage() {
         </div>
       )}
     </div>
-  );}
+  );
+}

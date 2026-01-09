@@ -131,43 +131,33 @@ router.post('/:slug/like', requireAuth, async (req: Request, res: Response) => {
 // --- 5. PUT (Update) ---
 router.put('/:slug', requireAdmin, upload.single('image'), async (req: Request, res: Response) => {
   try {
-    const { title, content, tags, status } = req.body;
-    
-    // 1. Recherche de l'article existant
+    const { title, content, tags, status, imageUrl: bodyImageUrl } = req.body; // Récupérer imageUrl du body
     const article = await Article.findOne({ slug: req.params.slug });
     if (!article) return res.status(404).json({ message: 'Article not found' });
 
-    // 2. Mise à jour du contenu et génération automatique de l'excerpt
     if (content) {
       article.excerpt = content.slice(0, 200).replace(/[#*`]/g, '') + '...';
       article.content = content;
     }
-    
-    // 3. Mise à jour du titre (le slug reste généralement identique pour le SEO)
     if (title) article.title = title;
 
-    // 4. Gestion de l'image avec Cache Busting
+    // --- LOGIQUE CORRIGÉE ---
     if (req.file) {
-      // Upload vers R2
+      // Cas 1 : Nouveau fichier envoyé dans le formulaire
       const uploadedUrl = await uploadToR2(req.file);
-      
-      // On ajoute un timestamp (?v=...) pour forcer Cloudflare et le navigateur
-      // à ignorer l'ancienne version mise en cache.
       article.imageUrl = `${uploadedUrl}?v=${Date.now()}`;
-    } else if (req.body.imageUrl === '') {
-      // Si l'utilisateur a supprimé l'image
-      article.imageUrl = '';
+    } else if (bodyImageUrl !== undefined) {
+      // Cas 2 : On reçoit une URL (venant de l'upload préalable ou l'URL existante)
+      // Si bodyImageUrl est une chaîne vide, cela supprimera l'image.
+      article.imageUrl = bodyImageUrl;
     }
 
-    // 5. Mise à jour des métadonnées
     if (tags) {
       article.tags = Array.isArray(tags) ? tags : tags.split(',').map((t: string) => t.trim());
     }
     if (status) article.status = status;
 
-    // 6. Sauvegarde en base de données
     await article.save();
-    
     return res.json(article);
   } catch (err) {
     console.error("Erreur update article:", err);
