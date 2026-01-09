@@ -1,7 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { upload } from '../utils/upload';
 import { User } from '../models/User';
 import crypto from 'node:crypto';
 import { sendVerificationEmail, sendResetPasswordEmail } from '../utils/mailer';
