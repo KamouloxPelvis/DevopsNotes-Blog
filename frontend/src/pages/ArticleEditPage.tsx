@@ -56,8 +56,8 @@ export default function EditArticle() {
     const formData = new FormData();
     formData.append('file', imageFile);
     
-    const res = await api.post('/articles/upload', formData); // Vérifie bien ta route
-    const newImageUrl = res.data.imageUrl; // C'est déjà l'URL complète R2
+    const res = await api.post('/upload', formData);
+    const newImageUrl = res.data.imageUrl;
     
     setImageUrl(newImageUrl); 
     setImagePreview(newImageUrl);

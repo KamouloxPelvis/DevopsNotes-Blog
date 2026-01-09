@@ -31,7 +31,7 @@ export default function NewArticle() {
     const formData = new FormData();
     formData.append('file', imageFile);
     
-    const res = await api.post('/articles/upload', formData);
+    const res = await api.post('/upload', formData);
     const newImageUrl = res.data.imageUrl;
     
     setImageUrl(newImageUrl); 
