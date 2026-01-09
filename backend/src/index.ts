@@ -36,6 +36,7 @@ const io = new Server(httpServer, {
               'https://www.devopsnotes.org',
               'https://devopsnotes.org/api',
               'https://www.devopsnotes.org/api',
+              "https://resources.devopsnotes.org",
             ], 
     credentials: true
   }
@@ -48,11 +49,11 @@ app.use(cors({
   origin: ['http://localhost:3000', 
             'http://127.0.0.1:3000',
             'http://localhost:5000',
-            'devopsnotes.org',
             'http://devopsnotes.org',
             'https://devopsnotes.org',
             'https://www.devopsnotes.org',
-            'https://devopsnotes.org/api'
+            'https://devopsnotes.org/api',
+            "https://resources.devopsnotes.org",
           ],
   credentials: true
 }));
@@ -68,12 +69,13 @@ app.use(
           "data:", 
           "https://*.cloudflare.com", 
           "https://*.r2.cloudflarestorage.com",
-          "https://pub-612551b2f22b4a3ab09ea087d63ab2ad.r2.dev"
+          "https://resources.devopsnotes.org",
         ],
         connectSrc: [
           "'self'", 
           "https://*.cloudflare.com",
-          "https://pub-612551b2f22b4a3ab09ea087d63ab2ad.r2.dev"
+          "https://resources.devopsnotes.org",
+          "wss://*.devopsnotes.org",
         ],
         upgradeInsecureRequests: null, 
       }
