@@ -1,5 +1,6 @@
 import { Article } from "../types/articles";
 import { Link } from "react-router-dom";
+import '../styles/RelatedArticles.css';
 
 type RelatedArticlesProps = {
   currentArticle: Article;
@@ -28,14 +29,13 @@ export function RelatedArticles({ currentArticle, allArticles }: RelatedArticles
 
   return (
     <section className="related-articles-section">
-      <h3 className="related-section-title">Articles liés</h3>
+      <h3 className="related-section-title">À lire ensuite</h3>
       <div className="related-grid-v3">
         {related.map((article) => (
           <Link to={`/articles/${article.slug}`} key={article.slug} className="related-vignette">
             <div className="related-vignette-img">
               {article.imageUrl ? (
                 <img 
-                  // Correction de l'URL pour pointer vers le dossier static
                   src={article.imageUrl.startsWith('http') 
                     ? article.imageUrl 
                     : `${API_ROOT}${article.imageUrl}`} 
