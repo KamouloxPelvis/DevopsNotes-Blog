@@ -23,7 +23,7 @@ export default function EditArticle() {
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const [loading, setLoading] = useState(true);
 
-  const R2_PUBLIC_URL = process.env.REACT_APP_R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
+  const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
   useEffect(() => {
     if (!currentSlug) return;

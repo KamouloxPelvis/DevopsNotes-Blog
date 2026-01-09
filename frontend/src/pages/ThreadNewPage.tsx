@@ -1,7 +1,7 @@
 import { FormEvent, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createThread } from '../api/forum';
-import '../styles/NewThreadPage.css';
+import '../styles/ThreadNewPage.css';
 
 export default function ThreadNewPage() {
   const [title, setTitle] = useState('');

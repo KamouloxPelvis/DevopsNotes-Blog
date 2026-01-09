@@ -27,7 +27,7 @@ export function ArticlesPage() {
   const { user, logout } = useAuth();
   const isAdmin = user?.role === 'admin';
 
-  const R2_PUBLIC_URL = process.env.REACT_APP_R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
+  const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
   // --- LOGIQUE DE LIKE (Toggle Unique) ---
   const handleLike = async (slug: string) => {
