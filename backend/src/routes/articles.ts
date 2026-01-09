@@ -1,14 +1,19 @@
 import { Router, Request, Response } from 'express';
+import multer from 'multer'; // Import direct pour remplacer l'ancien utils
 import { requireAdmin, requireAuth } from '../middleware/auth';
 import { Article } from '../models/Article';
-import { upload } from '../utils/upload';
 import { generateSlug } from '../utils/slug';
 import { getCommentsCount } from '../controllers/articleController';
 import { uploadToR2 } from '../services/r2Service';
-import fs from 'fs';
-import path from 'path';
 
 const router = Router();
+
+// Configuration de Multer en mémoire (Buffer)
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // Limite à 5MB
+});
 
 // --- 1. GET ALL (Paginé) ---
 router.get('/', async (req: Request, res: Response) => {
@@ -54,41 +59,34 @@ router.get('/:slug', async (req, res) => {
 });
 
 // --- 3. POST (Create) ---
+// Note l'utilisation de upload.single('image') défini plus haut
 router.post('/', requireAdmin, upload.single('image'), async (req: Request, res: Response) => {
   try {
     const { title, content, tags, status = 'draft' } = req.body;
     
-    // 1. Validation de base
     if (!title || !content) {
       return res.status(400).json({ message: 'Required fields missing' });
     }
 
-    // 2. Gestion du Slug
     const slug = generateSlug(title);
     const existing = await Article.findOne({ slug });
     if (existing) {
       return res.status(400).json({ message: 'Title already exists' });
     }
 
-    // 3. Gestion de l'image (Optimisation Sharp + Upload R2)
-    let imageUrl = req.body.imageUrl || ''; // Valeur par défaut si rien n'est fourni
+    let imageUrl = req.body.imageUrl || ''; 
 
+    // Si un fichier est présent, Multer l'a mis dans req.file
     if (req.file) {
-      // On utilise r2Service qui :
-      // - Redimensionne en 1600px
-      // - Convertit en WebP
-      // - Upload sur Cloudflare
       imageUrl = await uploadToR2(req.file);
     }
 
-    // 4. Génération de l'extrait
     const excerpt = content.slice(0, 200).replace(/[#*`]/g, '') + '...';
 
-    // 5. Création de l'article en base de données
     const article = await Article.create({
       title,
       slug,
-      imageUrl: imageUrl, // On utilise l'URL finale (R2 ou body)
+      imageUrl, 
       content,
       excerpt,
       tags: Array.isArray(tags) ? tags : (tags ? tags.split(',') : []),
@@ -112,15 +110,12 @@ router.post('/:slug/like', requireAuth, async (req: Request, res: Response) => {
     const article = await Article.findOne({ slug: req.params.slug });
     if (!article) return res.status(404).json({ message: 'Article not found' });
 
-    // Vérification si l'utilisateur est déjà dans le tableau likedBy
     const hasLiked = article.likedBy.includes(userId as any);
 
     if (hasLiked) {
-      // S'il a déjà liké, on retire son like (Unlike)
       article.likedBy = article.likedBy.filter(id => id.toString() !== userId);
       article.likes = Math.max(0, article.likes - 1);
     } else {
-      // Sinon, on ajoute l'utilisateur
       article.likedBy.push(userId as any);
       article.likes += 1;
     }
@@ -140,24 +135,19 @@ router.put('/:slug', requireAdmin, upload.single('image'), async (req: Request, 
     
     if (!article) return res.status(404).json({ message: 'Article not found' });
 
-    // Mise à jour du contenu et de l'extrait
     if (content) {
       article.excerpt = content.slice(0, 200).replace(/[#*`]/g, '') + '...';
       article.content = content;
     }
     
-    // Mise à jour du titre
     if (title) article.title = title;
 
-    // GESTION DE L'IMAGE (Optimisation WebP + R2)
     if (req.file) {
-      // On utilise le service R2 qui compresse et convertit en WebP
       article.imageUrl = await uploadToR2(req.file);
     } else if (req.body.imageUrl === '') {
         article.imageUrl = '';
     }
 
-    // Mise à jour des tags et du statut
     if (tags) article.tags = Array.isArray(tags) ? tags : tags.split(',');
     if (status) article.status = status;
 
@@ -169,7 +159,7 @@ router.put('/:slug', requireAdmin, upload.single('image'), async (req: Request, 
   }
 });
 
-// --- 7. DELETE ---
+// --- 6. DELETE ---
 router.delete('/:slug', requireAdmin, async (req: Request, res: Response) => {
   try {
     const article = await Article.findOneAndDelete({ slug: req.params.slug });
@@ -181,7 +171,6 @@ router.delete('/:slug', requireAdmin, async (req: Request, res: Response) => {
   }
 });
 
-// Get le nombre de commentaires pour un article
 router.get('/:slug/comments/count', getCommentsCount);
 
 export default router;

@@ -83,14 +83,11 @@ app.use(
   })
 );
 
-// --- SERVIR LES IMAGES EN LOCAL ---
-app.use('/uploads', express.static('/app/uploads'));
-
 // --- ROUTES API ---
+app.use('/api', uploadRoutes); // ROUTE IMAGES R2
 app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/comments', commentRoutes);
-app.use('/api', uploadRoutes); // ROUTE IMAGES R2
 app.use('/api/chat', chatRoutes);
 app.use('/api/forum', forumRoutes);
 

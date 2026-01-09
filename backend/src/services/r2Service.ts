@@ -37,7 +37,7 @@ export const uploadToR2 = async (file: any) => {
 
   await r2Client.send(command);
   
-  const publicUrl = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
+  const publicUrl = "https://resources.devopsnotes.org";
   return `${publicUrl}/${fileKey}`;
 };
 

@@ -24,7 +24,6 @@ const ArticleSchema = new Schema<IArticle>(
     content: { type: Schema.Types.Mixed, required: true },
     imageUrl: { type: String, required: false },
     excerpt: { type: String, maxlength: 300 },
-    // Mongoose comprend ici que c'est un Number avec une valeur par défaut
     likes: { type: Number, default: 0 },
     likedBy: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
     views: { type: Number, default: 0 },
