@@ -36,7 +36,7 @@ export default function ArticleDetail() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isAdmin = user?.role === 'admin';
-  const API_ROOT = process.env.REACT_APP_ROOT ?? 'http://localhost:5000';
+  const R2_PUBLIC_URL = process.env.REACT_APP_R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
   // 1. Fetch de l'article et des commentaires
   useEffect(() => {
@@ -122,7 +122,7 @@ export default function ArticleDetail() {
   if (!article) return <p>Article introuvable.</p>;
 
   const fullImageUrl = article.imageUrl 
-    ? (article.imageUrl.startsWith('http') ? article.imageUrl : `${API_ROOT}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`)
+    ? (article.imageUrl.startsWith('http') ? article.imageUrl : `${R2_PUBLIC_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`)
     : null;
 
   return (

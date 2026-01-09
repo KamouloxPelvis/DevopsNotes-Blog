@@ -23,9 +23,7 @@ export default function EditArticle() {
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const [loading, setLoading] = useState(true);
 
-  const API_ROOT = process.env.NODE_ENV === 'production' 
-    ? 'https://www.devopsnotes.org' 
-    : (process.env.REACT_APP_ROOT ?? 'http://localhost:5000');
+  const R2_PUBLIC_URL = process.env.REACT_APP_R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
   useEffect(() => {
     if (!currentSlug) return;
@@ -38,7 +36,7 @@ export default function EditArticle() {
         setStatus(data.status);
         setImageUrl(data.imageUrl || '');
         if (data.imageUrl) {
-          setImagePreview(data.imageUrl.startsWith('http') ? data.imageUrl : `${API_ROOT}${data.imageUrl}`);
+          setImagePreview(data.imageUrl.startsWith('http') ? data.imageUrl : `${R2_PUBLIC_URL}${data.imageUrl}`);
         }
         setTags(data.tags || []);
         setRawTags((data.tags || []).join(', '));
@@ -49,7 +47,7 @@ export default function EditArticle() {
       }
     };
     fetchArticle();
-  }, [currentSlug, showToast, API_ROOT]);
+  }, [currentSlug, showToast, R2_PUBLIC_URL]);
 
   async function handleManualUpload() {
   if (!imageFile || uploading) return;
@@ -62,7 +60,7 @@ export default function EditArticle() {
     const newImageUrl = res.data.imageUrl; // C'est déjà l'URL complète R2
     
     setImageUrl(newImageUrl); 
-    setImagePreview(newImageUrl); // Plus besoin de ${API_ROOT} !
+    setImagePreview(newImageUrl);
     setImageFile(null);
     showToast({ type: 'success', message: 'Image envoyée sur R2 !' });
   } catch (err) {

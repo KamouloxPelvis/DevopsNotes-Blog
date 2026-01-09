@@ -31,7 +31,7 @@ deploy_production:
         echo 'R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}' >> ./backend/.env &&
         echo 'R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}' >> ./backend/.env &&
         echo 'R2_BUCKET_NAME=${R2_BUCKET_NAME}' >> ./backend/.env &&
-        echo 'R2_PUBLIC_URL=https://resources.devopsnotes.org' >> ./backend/.env &&
+        echo 'R2_PUBLIC_URL=${R2_PUBLIC_URL}' >> ./backend/.env &&
 
         # --- GÉNÉRATION DU FICHIER .ENV FRONTEND ---
         echo 'REACT_APP_API_URL=https://www.devopsnotes.org/api' > ./frontend/.env &&

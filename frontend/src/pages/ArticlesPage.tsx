@@ -27,9 +27,7 @@ export function ArticlesList() {
   const { user, logout } = useAuth();
   const isAdmin = user?.role === 'admin';
 
-  const API_ROOT = process.env.NODE_ENV === 'production'
-  ? 'https://www.devopsnotes.org'
-  : (process.env.REACT_APP_ROOT ?? 'http://localhost:5000');
+  const R2_PUBLIC_URL = process.env.REACT_APP_R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
   // --- LOGIQUE DE LIKE (Toggle Unique) ---
   const handleLike = async (slug: string) => {
@@ -215,7 +213,7 @@ export function ArticlesList() {
                 {article.imageUrl && (
                   <div className="article-image-v2">
                   <img
-                    src={article.imageUrl.startsWith('http') ? article.imageUrl : `${API_ROOT}${article.imageUrl}`} 
+                    src={article.imageUrl.startsWith('http') ? article.imageUrl : `${R2_PUBLIC_URL}${article.imageUrl}`} 
                     alt={article.title}
                     style={{ 
                       width: '100%', 
