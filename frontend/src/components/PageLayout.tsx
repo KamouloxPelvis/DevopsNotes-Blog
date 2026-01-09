@@ -47,15 +47,15 @@ export function PageLayout({ children }: Props) {
           {user ? (
             <>
               <span className="user-greeting">
-                Hello, <strong>{user.pseudo ?? user.email}</strong>
+                Bonjour, <strong>{user.pseudo ?? user.email}</strong>
               </span>
               <Link to="/profile" className="btn btn-sm btn-secondary">Profile</Link>
-              <button arial-label='se déconnecter' onClick={logout} className="btn btn-sm btn-secondary">Log Out</button>
+              <button arial-label='se déconnecter' onClick={logout} className="btn btn-sm btn-secondary">Se déconnecter</button>
             </>
           ) : (
             <>
-              <span className="user-greeting">Visitor mode</span>
-              <Link to="/login" className="btn btn-sm btn-primary">Sign In</Link>
+              <span className="user-greeting">Mode visiteur</span>
+              <Link to="/login" className="btn btn-sm btn-primary">Connexion</Link>
             </>
           )}
           
