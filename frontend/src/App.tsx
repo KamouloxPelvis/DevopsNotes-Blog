@@ -11,21 +11,22 @@ import HomePage from './pages/HomePage';
 
 // --- Chargement DIFFÉRÉ (Lazy Loading) ---
 // On déplace tous les autres imports ici pour réduire le bundle initial
+const ArticlesPage = lazy(() => import('./pages/ArticlesPage').then(module => ({ default: module.ArticlesPage })));
+const ArticleDetail = lazy(() => import('./pages/ArticleDetailPage'));
+const NewArticle = lazy(() => import('./pages/ArticleNewPage'));
+const EditArticle = lazy(() => import('./pages/ArticleEditPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const ProfileEditPage = lazy(() => import('./pages/ProfileEditPage'));
 const Signin = lazy(() => import('./pages/SigninPage'));
 const Signup = lazy(() => import('./pages/SignupPage'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
-const ForumPage = lazy(() => import('./pages/ForumPage'));
-const NewThreadPage = lazy(() => import('./pages/NewThreadPage'));
-const EditThreadPage = lazy(() => import('./pages/EditThreadPage'));
+const ThreadsPage = lazy(() => import('./pages/ThreadsPage'));
+const ThreadNewPage = lazy(() => import('./pages/ThreadNewPage'));
+const ThreadEditPage = lazy(() => import('./pages/ThreadEditPage'));
 const ThreadDetailPage = lazy(() => import('./pages/ThreadDetailPage'));
 const ChatPage = lazy(() => import('./pages/ChatPage'));
-const ArticlesList = lazy(() => import('./pages/ArticlesPage').then(module => ({ default: module.ArticlesList })));
-const ArticleDetail = lazy(() => import('./pages/ArticleDetailPage'));
-const NewArticle = lazy(() => import('./pages/NewArticlePage'));
-const EditArticle = lazy(() => import('./pages/EditArticlePage'));
 
 function App() {
   return (
@@ -39,7 +40,7 @@ function App() {
               <Route path="/homepage" element={<HomePage />} />
               
               {/* Articles */}
-              <Route path="/articles" element={<ArticlesList />} />
+              <Route path="/articles" element={<ArticlesPage />} />
               <Route path="/articles/:slug" element={<ArticleDetail />} />
               <Route 
                 path="/articles/new" 
@@ -60,17 +61,21 @@ function App() {
                 path="/profile" 
                 element={<RequireAuthRoute><ProfilePage /></RequireAuthRoute>} 
               />
+              <Route 
+                path="/profile/:id/edit" 
+                element={<RequireAuthRoute><ProfileEditPage /></RequireAuthRoute>} 
+              />
 
               {/* Forum */}
-              <Route path="/forum" element={<ForumPage />} />
+              <Route path="/forum" element={<ThreadsPage />} />
               <Route path="/forum/:id" element={<ThreadDetailPage />} />
               <Route 
                 path="/forum/new" 
-                element={<RequireAuthRoute><NewThreadPage /></RequireAuthRoute>} 
+                element={<RequireAuthRoute><ThreadNewPage /></RequireAuthRoute>} 
               />
               <Route 
                 path="/forum/:id/edit" 
-                element={<RequireAuthRoute><EditThreadPage /></RequireAuthRoute>} 
+                element={<RequireAuthRoute><ThreadEditPage /></RequireAuthRoute>} 
               />
 
               {/* Chat */}

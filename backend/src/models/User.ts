@@ -7,6 +7,11 @@ export interface IUser extends Document {
   password: string;
   role: string;
   avatarUrl?: string;
+  birthday?: Date;
+  location?: {
+    city?: string;
+    country?: string;
+  };
   isVerified: boolean;
   verificationToken?: string;
   resetPasswordToken?: string;
@@ -19,6 +24,11 @@ const UserSchema = new Schema<IUser>({
   password: { type: String, required: true },
   role: { type: String, default: 'member' },
   avatarUrl: { type: String },
+  birthday: { type: Date },
+  location: {
+    city: { type: String, trim: true },
+    country: { type: String, trim: true }
+  },
   isVerified: { type: Boolean, default: false },
   verificationToken: { type: String },
   resetPasswordToken: { type: String },

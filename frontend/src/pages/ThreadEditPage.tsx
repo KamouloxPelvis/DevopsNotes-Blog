@@ -2,9 +2,9 @@ import { FormEvent, useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { getAuthToken } from '../api/auth';
 import { updateThread, getThread } from '../api/forum';
-import '../styles/NewThreadPage.css';
+import '../styles/ThreadNewPage.css';
 
-export default function EditThreadPage() {
+export default function ThreadEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const token = getAuthToken();

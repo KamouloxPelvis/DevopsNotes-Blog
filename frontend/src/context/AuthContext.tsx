@@ -11,6 +11,7 @@ type UserPayload = {
 
 type AuthContextType = {
   user: UserPayload | null;
+  setUser: React.Dispatch<React.SetStateAction<UserPayload | null>>;
   loading: boolean; // Ajout d'un état de chargement pour éviter les sauts d'UI
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -61,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, loading, login, logout }}>
       {!loading && children} 
     </AuthContext.Provider>
   );

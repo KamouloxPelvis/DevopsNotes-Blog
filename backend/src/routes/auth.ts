@@ -1,30 +1,36 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { User } from '../models/User';
+import multer from 'multer'; // Import direct pour la gestion mémoire
 import crypto from 'node:crypto';
+import { User } from '../models/User';
 import { sendVerificationEmail, sendResetPasswordEmail } from '../utils/mailer';
 import { requireAuth } from '../middleware/auth';
+import { uploadToR2 } from '../services/r2Service'; // Ton nouveau service R2
 
 const authRouter = express.Router();
 
-// ---------- CHECK SESSION (Essentiel pour React) ----------
+// Configuration Multer pour les avatars (Stockage en RAM)
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 } // Limite à 2MB pour un avatar
+});
 
+// Options de cookie sécurisées
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
+  maxAge: 24 * 60 * 60 * 1000 
+};
+
+// ---------- CHECK SESSION ----------
 authRouter.get('/me', requireAuth, (req, res) => {
-  // Le middleware requireAuth a déjà vérifié le token dans le cookie
-  // et a injecté les infos dans req.user
   return res.json({ user: req.user });
 });
 
-// Configuration des options de cookie (Réutilisable)
-const COOKIE_OPTIONS = {
-  httpOnly: true,                         // Empêche l'accès via JS (Sécurité XSS)
-  secure: process.env.NODE_ENV === 'production', // Uniquement HTTPS en prod
-  sameSite: 'strict' as const,            // Protection contre CSRF
-  maxAge: 24 * 60 * 60 * 1000             // 24 heures
-};
-
-// ---------- SIGNUP ----------
+// ---------- SIGNUP (Version R2) ----------
 authRouter.post('/signup', upload.single('avatar'), async (req, res) => {
   const { email, password, pseudo } = req.body;
   
@@ -37,12 +43,19 @@ authRouter.post('/signup', upload.single('avatar'), async (req, res) => {
 
     const vToken = crypto.randomBytes(32).toString('hex');
 
+    // GESTION DE L'AVATAR VIA R2
+    let avatarUrl = '';
+    if (req.file) {
+      // On utilise le même service que pour les articles
+      avatarUrl = await uploadToR2(req.file);
+    }
+
     const user = new User({
       email,
       pseudo,
-      password, // Le hashing doit être géré dans le hook 'pre-save' du modèle User
+      password, 
       role: 'member',
-      avatarUrl: req.file ? `/uploads/${req.file.filename}` : '', // Correction chemin statique
+      avatarUrl, // URL resources.devopsnotes.org/...
       isVerified: false,
       verificationToken: vToken
     });
@@ -65,7 +78,7 @@ authRouter.post('/signup', upload.single('avatar'), async (req, res) => {
   }
 });
 
-// ---------- LOGIN (Version avec Cookies) ----------
+// ---------- LOGIN ----------
 authRouter.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const jwtSecret = process.env.JWT_SECRET;
@@ -94,10 +107,7 @@ authRouter.post('/login', async (req, res) => {
 
     const token = jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn as any });
 
-    // ENVOI DU TOKEN VIA COOKIE SÉCURISÉ
     res.cookie('token', token, COOKIE_OPTIONS);
-
-    // On renvoie quand même les infos user pour le state React, mais SANS le token
     return res.json({ user: payload });
   } catch (err) {
     return res.status(500).json({ message: 'Login failed' });
@@ -110,15 +120,15 @@ authRouter.post('/logout', (req, res) => {
   res.json({ message: 'Déconnecté' });
 });
 
-// ---------- VERIFY EMAIL / FORGOT / RESET (Inchangés mais fonctionnels) ----------
+// ---------- VERIFY / FORGOT / RESET (Simplifiés) ----------
 authRouter.get('/verify-email', async (req, res) => {
   const { token } = req.query;
   try {
-    let user = await User.findOne({ verificationToken: token });
+    const user = await User.findOneAndUpdate(
+      { verificationToken: token },
+      { isVerified: true, $unset: { verificationToken: "" } }
+    );
     if (!user) return res.status(400).json({ message: 'Lien invalide.' });
-    user.isVerified = true;
-    user.verificationToken = undefined;
-    await user.save();
     return res.json({ message: 'Compte activé !' });
   } catch (err) {
     return res.status(500).json({ message: 'Erreur validation.' });
@@ -157,6 +167,35 @@ authRouter.post('/reset-password', async (req, res) => {
     res.json({ message: 'Mot de passe réinitialisé.' });
   } catch (err) {
     res.status(500).json({ message: 'Erreur reset.' });
+  }
+});
+
+// Route de mise à jour du profil
+authRouter.put('/update-profile', requireAuth, upload.single('avatar'), async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const { city, country, birthday } = req.body;
+    
+    const updateData: any = {
+      'location.city': city,
+      'location.country': country,
+      birthday: birthday ? new Date(birthday) : undefined
+    };
+
+    // Si un nouvel avatar est uploadé
+    if (req.file) {
+      updateData.avatarUrl = await uploadToR2(req.file);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true }
+    ).select('-password');
+
+    res.json({ user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur lors de la mise à jour du profil" });
   }
 });
 

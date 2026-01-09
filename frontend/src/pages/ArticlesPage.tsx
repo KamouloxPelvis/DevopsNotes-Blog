@@ -9,7 +9,7 @@ import '../styles/ArticlesPage.css';
 
 type CommentCountMap = Record<string, number>;
 
-export function ArticlesList() {
+export function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [commentCounts, setCommentCounts] = useState<CommentCountMap>({});
   const [loading, setLoading] = useState(true);
