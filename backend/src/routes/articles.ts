@@ -59,7 +59,6 @@ router.get('/:slug', async (req, res) => {
 });
 
 // --- 3. POST (Create) ---
-// Note l'utilisation de upload.single('image') défini plus haut
 router.post('/', requireAdmin, upload.single('image'), async (req: Request, res: Response) => {
   try {
     const { title, content, tags, status = 'draft' } = req.body;
@@ -76,9 +75,11 @@ router.post('/', requireAdmin, upload.single('image'), async (req: Request, res:
 
     let imageUrl = req.body.imageUrl || ''; 
 
-    // Si un fichier est présent, Multer l'a mis dans req.file
+    // Gestion de l'upload initial avec timestamp
     if (req.file) {
-      imageUrl = await uploadToR2(req.file);
+      const uploadedUrl = await uploadToR2(req.file);
+      // Uniformisation avec le paramètre de version ?v=
+      imageUrl = `${uploadedUrl}?v=${Date.now()}`;
     }
 
     const excerpt = content.slice(0, 200).replace(/[#*`]/g, '') + '...';
@@ -89,7 +90,7 @@ router.post('/', requireAdmin, upload.single('image'), async (req: Request, res:
       imageUrl, 
       content,
       excerpt,
-      tags: Array.isArray(tags) ? tags : (tags ? tags.split(',') : []),
+      tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map((t: string) => t.trim()) : []),
       status,
       author: req.user?.id
     });
@@ -131,27 +132,42 @@ router.post('/:slug/like', requireAuth, async (req: Request, res: Response) => {
 router.put('/:slug', requireAdmin, upload.single('image'), async (req: Request, res: Response) => {
   try {
     const { title, content, tags, status } = req.body;
-    const article = await Article.findOne({ slug: req.params.slug });
     
+    // 1. Recherche de l'article existant
+    const article = await Article.findOne({ slug: req.params.slug });
     if (!article) return res.status(404).json({ message: 'Article not found' });
 
+    // 2. Mise à jour du contenu et génération automatique de l'excerpt
     if (content) {
       article.excerpt = content.slice(0, 200).replace(/[#*`]/g, '') + '...';
       article.content = content;
     }
     
+    // 3. Mise à jour du titre (le slug reste généralement identique pour le SEO)
     if (title) article.title = title;
 
+    // 4. Gestion de l'image avec Cache Busting
     if (req.file) {
-      article.imageUrl = await uploadToR2(req.file);
+      // Upload vers R2
+      const uploadedUrl = await uploadToR2(req.file);
+      
+      // On ajoute un timestamp (?v=...) pour forcer Cloudflare et le navigateur
+      // à ignorer l'ancienne version mise en cache.
+      article.imageUrl = `${uploadedUrl}?v=${Date.now()}`;
     } else if (req.body.imageUrl === '') {
-        article.imageUrl = '';
+      // Si l'utilisateur a supprimé l'image
+      article.imageUrl = '';
     }
 
-    if (tags) article.tags = Array.isArray(tags) ? tags : tags.split(',');
+    // 5. Mise à jour des métadonnées
+    if (tags) {
+      article.tags = Array.isArray(tags) ? tags : tags.split(',').map((t: string) => t.trim());
+    }
     if (status) article.status = status;
 
+    // 6. Sauvegarde en base de données
     await article.save();
+    
     return res.json(article);
   } catch (err) {
     console.error("Erreur update article:", err);
