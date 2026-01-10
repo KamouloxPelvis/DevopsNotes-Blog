@@ -4,6 +4,8 @@ import { requireAdmin, requireAuth } from '../middleware/auth';
 import { Article } from '../models/Article';
 import { generateSlug } from '../utils/slug';
 import { getCommentsCount } from '../controllers/articleController';
+import { antivirusScan } from '../middleware/antivirus';
+import { processImage } from '../middleware/imageProcessor';
 import { uploadToR2 } from '../services/r2Service';
 
 const router = Router();
@@ -59,7 +61,7 @@ router.get('/:slug', async (req, res) => {
 });
 
 // --- 3. POST (Create) ---
-router.post('/', requireAdmin, upload.single('image'), async (req: Request, res: Response) => {
+router.post('/', requireAdmin, upload.single('image'), antivirusScan, processImage, async (req: Request, res: Response) => {
   try {
     const { title, content, tags, status = 'draft' } = req.body;
     
@@ -129,7 +131,7 @@ router.post('/:slug/like', requireAuth, async (req: Request, res: Response) => {
 });
 
 // --- 5. PUT (Update) ---
-router.put('/:slug', requireAdmin, upload.single('image'), async (req: Request, res: Response) => {
+router.put('/:slug', requireAdmin, upload.single('image'), antivirusScan, processImage, async (req: Request, res: Response) => {
   try {
     const { title, content, tags, status, imageUrl: bodyImageUrl } = req.body; // Récupérer imageUrl du body
     const article = await Article.findOne({ slug: req.params.slug });

@@ -7,6 +7,8 @@ import { User } from '../models/User';
 import { sendVerificationEmail, sendResetPasswordEmail } from '../utils/mailer';
 import { requireAuth } from '../middleware/auth';
 import { uploadToR2 } from '../services/r2Service'; // Ton nouveau service R2
+import { antivirusScan } from '../middleware/antivirus';
+import { processImage } from '../middleware/imageProcessor';
 
 const authRouter = express.Router();
 
@@ -46,7 +48,7 @@ authRouter.get('/me', requireAuth, async (req, res) => {
 });
 
 // ---------- SIGNUP (Version R2) ----------
-authRouter.post('/signup', upload.single('avatar'), async (req, res) => {
+authRouter.post('/signup', upload.single('avatar'), antivirusScan, processImage, async (req, res) => {
   const { email, password, pseudo } = req.body;
   
   try {
@@ -188,7 +190,7 @@ authRouter.post('/reset-password', async (req, res) => {
 });
 
 // Route de mise à jour du profil
-authRouter.put('/update-profile', requireAuth, upload.single('avatar'), async (req, res) => {
+authRouter.put('/update-profile', requireAuth, upload.single('avatar'), antivirusScan, processImage, async (req, res) => {
   console.log('--- DEBUG UPDATE PROFILE ---');
   console.log('Body:', req.body);   // Doit afficher city, country, pseudo...
   console.log('File:', req.file);   // Doit afficher les infos de l'image si présente
