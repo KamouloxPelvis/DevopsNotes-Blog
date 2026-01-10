@@ -1,100 +1,184 @@
-import { FormEvent, useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { createThread } from '../api/forum';
-import '../styles/ThreadNewPage.css';
+import { useEffect, useState, FormEvent } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { getThread, getReplies, createReply } from '../api/forum';
+import { ForumThread, Reply } from '../types/forum';
+import { useAuth } from '../context/AuthContext'; // Correction : Utilisation du contexte global
+import '../styles/ThreadDetailPage.css';
 
-export default function ThreadNewPage() {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [tags, setTags] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  
+export default function ThreadDetailPage() {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const { user } = useAuth(); // Récupération de l'utilisateur et de l'état de session
+  
+  const [thread, setThread] = useState<ForumThread | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [replies, setReplies] = useState<Reply[]>([]);
+  const [replyContent, setReplyContent] = useState('');
+  const [replyError, setReplyError] = useState<string | null>(null);
+  const [replyLoading, setReplyLoading] = useState(false);
+  
+  // Synchronisation avec le système de cookies HTTP-Only via le Contexte
+  const isAuthenticated = !!user;
+  const currentUser = user;
+  
+  const canEditOrDelete = !!thread && !!currentUser &&
+    (currentUser.role === 'admin' || 
+     (thread.authorId && (thread.authorId as any).toString?.() === currentUser.id));
 
-  async function handleSubmit(e: FormEvent) {
+  const API_URL = process.env.REACT_APP_API_URL || 'https://www.devopsnotes.org/api';
+
+  useEffect(() => {
+    if (!id) return;
+    const loadData = async () => {
+      try {
+        const [threadData, repliesData] = await Promise.all([
+          getThread(id),
+          getReplies(id)
+        ]);
+        setThread(threadData);
+        setReplies(repliesData);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [id]);
+
+  async function handleSubmitReply(e: FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      setError("Le titre et le contenu sont obligatoires.");
+    if (!id || !replyContent.trim()) {
+      setReplyError('Vous devez écrire quelque chose pour répondre.');
       return;
     }
 
-    setError(null);
-    setLoading(true);
-
+    setReplyError(null);
+    setReplyLoading(true);
     try {
-      const tagsArray = tags
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean);
-        
-      await createThread({ title, content, tags: tagsArray });
-      navigate('/forum');
+      // createReply utilisera l'instance axios configurée avec withCredentials
+      const newReply = await createReply(id, replyContent);
+      setReplies((prev) => [...prev, newReply]);
+      setReplyContent('');
     } catch (err: any) {
-      setError(err.message || 'Impossible de créer le sujet');
+      setReplyError(err.message || 'Erreur lors de l\'envoi');
     } finally {
-      setLoading(false);
+      setReplyLoading(false);
     }
   }
 
+  async function handleDeleteThread() {
+    if (!id || !window.confirm('Supprimer définitivement ce sujet ?')) return;
+
+    try {
+      const res = await fetch(`${API_URL}/forum/threads/${id}`, {
+        method: 'DELETE',
+        // Note: fetch nécessite aussi credentials: 'include' pour les cookies
+        // mais l'idéal serait d'utiliser ton instance 'api' d'Axios ici aussi
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) throw new Error('Erreur lors de la suppression');
+      navigate('/forum');
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }
+
+  if (loading) return <div className="thread-detail-container loading">Chargement de la discussion...</div>;
+  if (error || !thread) return <div className="thread-detail-container error">⚠️ {error || 'Thread introuvable'}</div>;
+
   return (
-    <div className="new-thread-container">
-      <div className="form-header">
-        <Link to="/forum" className="back-link">← Annuler</Link>
-        <h1>Démarrer une discussion</h1>
-        <p>Partagez vos problématiques DevOps avec la communauté.</p>
-      </div>
-
-      <form className="new-thread-form" onSubmit={handleSubmit}>
-        {error && <div className="error-banner">⚠️ {error}</div>}
-
-        <div className="form-group">
-          <label htmlFor="title">Titre du sujet</label>
-          <input
-            id="title"
-            type="text"
-            placeholder="Ex: Erreur 403 sur S3 avec Terraform et OIDC"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="title-input-field"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="content">Description du problème</label>
-          <div className="editor-wrapper">
-            <textarea
-              id="content"
-              ref={textAreaRef}
-              placeholder="Décris ton contexte, ta stack, tes logs ou ton code..."
-              value={content}
-              rows={12}
-              onChange={(e) => setContent(e.target.value)}
-              required
-            />
+    <div className="thread-detail-container">
+      <nav className="thread-nav">
+        <Link to="/forum" className="back-link">← Retour au Forum</Link>
+        {canEditOrDelete && (
+          <div className="admin-actions">
+            <Link to={`/forum/${thread._id}/edit`} className="btn btn-secondary btn-sm">Modifier</Link>
+            <button aria-label="Supprimer le sujet" onClick={handleDeleteThread} className="btn btn-danger btn-sm">Supprimer</button>
           </div>
+        )}
+      </nav>
+
+      <article className="main-thread-post">
+        <header className="thread-header">
+          <h1>{thread.title}</h1>
+          <div className="thread-meta">
+            <span className="author-badge">{thread.authorPseudo?.charAt(0).toUpperCase()}</span>
+            <div className="meta-text">
+              <strong>{thread.authorPseudo || 'Anonyme'}</strong>
+              <span>Posté le {new Date(thread.createdAt).toLocaleString()}</span>
+              {thread.editedAt && <span className="edited-tag">(Modifié)</span>}
+            </div>
+          </div>
+        </header>
+
+        <div className="thread-content-body">
+            {thread.content}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="tags">Tags (séparés par des virgules)</label>
-          <input
-            id="tags"
-            type="text"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="kubernetes, aws, cicd"
-            className="tags-input-field"
-          />
+        {thread.tags && (
+          <div className="thread-tags">
+            {thread.tags.map(tag => <span key={tag} className="tag-pill">{tag}</span>)}
+          </div>
+        )}
+      </article>
+
+      <section className="replies-section">
+        <div className="replies-header">
+          <h2>Réponses ({replies.length})</h2>
         </div>
 
-        <div className="form-actions">
-          <button aria-label='Création en cours...' type="submit" className="btn btn-primary btn-lg" disabled={loading}>
-            {loading ? 'Création en cours...' : 'Publier le sujet'}
-          </button>
+        <div className="replies-list">
+          {replies.length === 0 ? (
+            <p className="no-replies">Soyez le premier à répondre à cette discussion !</p>
+          ) : (
+            replies.map((reply) => (
+              <div key={reply._id} className="reply-item">
+                <div className="reply-sidebar">
+                  <div className="reply-avatar">{reply.authorPseudo?.charAt(0).toUpperCase()}</div>
+                </div>
+                <div className="reply-body">
+                  <div className="reply-meta">
+                    <strong>{reply.authorPseudo}</strong>
+                    <span>{new Date(reply.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="reply-content">
+                    {/* Correction : Affichage effectif du contenu */}
+                    {reply.content}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
-      </form>
+
+        {isAuthenticated ? (
+          <div className="reply-form-wrapper">
+            <h3>Ajouter une réponse</h3>
+            <form onSubmit={handleSubmitReply}>
+              <textarea
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="Partagez votre avis ou demandez une précision..."
+                rows={5}
+              />
+              {replyError && <p className="error-msg">{replyError}</p>}
+              <div className="form-footer">
+                <p className="hint">Supporte le Markdown (code blocks, gras, etc.)</p>
+                <button aria-label="Soumettre" type="submit" className="btn btn-primary" disabled={replyLoading}>
+                  {replyLoading ? 'Envoi...' : 'Répondre'}
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <div className="login-prompt">
+            {/* Si non connecté, on affiche le lien de login */}
+            <p><Link to="/login">Connectez-vous</Link> pour participer à la discussion.</p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
