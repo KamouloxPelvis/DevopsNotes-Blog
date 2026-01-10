@@ -29,15 +29,10 @@ const httpServer = createServer(app); // On crée le serveur HTTP
 // Configuration de Socket.io
 const io = new Server(httpServer, {
   cors: {
-    origin: ['http://localhost:3000', 
-              'http://127.0.0.1:3000',
-              'http://localhost:5000',
-              'http://devopsnotes.org',
+    origin: ['http://localhost:3000',
               'https://devopsnotes.org',
               'https://blog.devopsnotes.org',
               'https://www.devopsnotes.org',
-              'https://devopsnotes.org/api',
-              'https://www.devopsnotes.org/api',
               "https://resources.devopsnotes.org",
             ], 
     credentials: true
@@ -48,14 +43,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: ['http://localhost:3000', 
-            'http://127.0.0.1:3000',
-            'http://localhost:5000',
-            'http://devopsnotes.org',
+  origin: ['http://localhost:3000',
             'https://devopsnotes.org',
             'https://blog.devopsnotes.org',
             'https://www.devopsnotes.org',
-            'https://devopsnotes.org/api',
             "https://resources.devopsnotes.org",
           ],
   credentials: true
@@ -70,16 +61,20 @@ app.use(
         imgSrc: [
           "'self'", 
           "data:",
-          'https://blog.devopsnotes.org', 
           "https://*.cloudflare.com", 
           "https://*.r2.cloudflarestorage.com",
           "https://resources.devopsnotes.org",
+          'https://blog.devopsnotes.org',
+          'https://www.devopsnotes.org', 
         ],
         connectSrc: [
           "'self'",
-          'https://blog.devopsnotes.org', 
           "https://*.cloudflare.com",
           "https://resources.devopsnotes.org",
+          'https://blog.devopsnotes.org',
+          'https://www.devopsnotes.org',
+          'https://devopsnotes.org', 
+          "wss://devopsnotes.org",
           "wss://*.devopsnotes.org",
         ],
         upgradeInsecureRequests: null, 
