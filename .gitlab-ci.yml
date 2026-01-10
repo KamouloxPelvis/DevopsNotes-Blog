@@ -35,8 +35,10 @@ deploy_production:
 
         # --- GÉNÉRATION DU FICHIER .ENV FRONTEND ---
         echo 'REACT_APP_API_URL=https://www.devopsnotes.org/api' > ./frontend/.env &&
+        echo 'NODE_ENV=production' >> ./frontend/.env &&
         echo 'REACT_APP_ROOT=https://www.devopsnotes.org' >> ./frontend/.env &&
         
         # --- RELANCE DE DOCKER ---
+        docker compose down &&
         docker compose up -d --build --force-recreate --remove-orphans
       "

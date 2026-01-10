@@ -1,223 +1,197 @@
-import { useEffect, useState, FormEvent, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
 import { getChatSocket } from '../api/chatSocket';
-import { useToast } from '../context/ToastContext';
-import { useNavigate, Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import '../styles/ChatPage.css';
 
-type ChatMessage = {
-  room: string;
-  text: string;
-  fromId?: string;
-  fromPseudo?: string;
-  fromAvatar?: string;
-  at: string;
-};
-
-export default function ChatPage() {
-  // --- 1. HOOKS TOUJOURS EN PREMIER ---
-  const { user, loading } = useAuth();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [text, setText] = useState('');
-  const [room, setRoom] = useState('General');
-  const { showToast } = useToast();
-  const navigate = useNavigate();
+const ChatPage: React.FC = () => {
+  const [messages, setMessages] = useState<any[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [activeRoom, setActiveRoom] = useState('Général');
+  const [rooms] = useState(['Général', 'Salon DevOps | DevSecOps', 'Relax']);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  
+  const socket = getChatSocket();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const API_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:5000/api';
-  const R2_PUBLIC_URL = 'https://resources.devopsnotes.org';
+  // --- CONFIGURATION R2 (Frontend uniquement) ---
+  const R2_PUBLIC_URL = "https://resources.devopsnotes.org";
 
-  // --- 2. LOGIQUE DE SCROLL ---
+  const commonEmojis = ['😊', '😂', '🚀', '🔥', '💻', '👍', '🙌', '🤔', '✅', '❌'];
+
+  // --- LOGIQUE SOCKET & HISTORY ---
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    socket.emit('chat:join', activeRoom);
 
-  // --- 3. LOGIQUE DU SOCKET ET DE L'HISTORIQUE ---
-  useEffect(() => {
-    // On ne lance le socket que si l'utilisateur est chargé et connecté
-    if (loading || !user) return;
-
-    const socket = getChatSocket();
-    setMessages([]);
-    const controller = new AbortController();
-
-    async function loadHistory() {
+    const fetchHistory = async () => {
       try {
-        const res = await fetch(
-          `${API_URL}/chat/messages?room=${room}`,
-          { signal: controller.signal }
-        );
-        if (!res.ok) throw new Error('History failed');
-        const data: ChatMessage[] = await res.json();
-        setMessages(data);
-      } catch (e: any) {
-        if (e.name !== 'AbortError') {
-          showToast({ type: 'error', message: 'Impossible de charger l\'historique.' });
-        }
+        const res = await axios.get(`https://devopsnotes.org/api/chat/messages?room=${activeRoom}`, { 
+          withCredentials: true 
+        });
+        setMessages(res.data);
+      } catch (err) {
+        console.error("Erreur historique:", err);
       }
-    }
+    };
+    fetchHistory();
 
-    loadHistory();
-    socket.emit('chat:join', room);
-
-    const handler = (msg: ChatMessage) => {
-      if (msg.room === room) {
+    const handleNewMessage = (msg: any) => {
+      if (msg.room === activeRoom) {
         setMessages((prev) => [...prev, msg]);
       }
     };
 
-    socket.on('chat:message', handler);
+    socket.on('chat:message', handleNewMessage);
+    return () => { socket.off('chat:message', handleNewMessage); };
+  }, [activeRoom, socket]);
 
-    return () => {
-      controller.abort();
-      socket.off('chat:message', handler);
-    };
-  }, [room, user, loading, showToast, API_URL]);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
-  // --- 4. GESTION DES AFFICHAGES CONDITIONNELS (Après les Hooks) ---
-  if (loading) {
-    return <div className="chat-loading">Vérification de la session...</div>;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Ici, 'user' est garanti d'exister
-  const currentPseudo = user.pseudo;
-
-  // --- 5. FONCTIONS UTILITAIRES ---
-  const formatFullDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const dayMonthYear = new Intl.DateTimeFormat('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }).format(date);
-    const hoursMinutes = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    return ` - ${dayMonthYear} ${hoursMinutes}`;
+  // --- ACTIONS ---
+  const handleSend = () => {
+    if (!inputValue.trim()) return;
+    socket.emit('chat:message', { room: activeRoom, text: inputValue });
+    setInputValue('');
+    setShowEmojiPicker(false);
   };
 
-  const getAvatarSrc = (m: ChatMessage) => {
-    if (m.fromAvatar) {
-      return m.fromAvatar.startsWith('http') 
-        ? m.fromAvatar 
-        : `${R2_PUBLIC_URL}/${m.fromAvatar}`;
+  const insertCodeBlock = () => {
+    setInputValue(prev => `${prev}\` \``);
+  };
+
+  const addEmoji = (emoji: string) => {
+    setInputValue(prev => prev + emoji);
+    setShowEmojiPicker(false);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'attachments');
+
+    try {
+      const res = await axios.post('https://devopsnotes.org/api/upload', formData, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      // On construit l'URL complète ici pour le message
+      const uploadedImageUrl = `${R2_PUBLIC_URL}/${res.data.imageUrl || res.data.url}`;
+      socket.emit('chat:message', { room: activeRoom, text: uploadedImageUrl });
+    } catch (err) {
+      console.error("Upload failed", err);
     }
-    const initials = encodeURIComponent(m.fromPseudo || '?');
-    return `https://ui-avatars.com/api/?name=${initials}&background=2563eb&color=fff`;
   };
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    const trimmed = text.trim();
-    if (!trimmed || !user) return;
+  const handleMentionClick = () => {
+    setInputValue(prev => prev + '@');
+    // Optionnel : on redonne le focus à l'input après le clic
+    const inputElement = document.querySelector('.chat-input-area input') as HTMLInputElement;
+    inputElement?.focus();
+  };
 
-    const socket = getChatSocket();
-    // On envoie l'ID de l'auteur pour que le backend enregistre correctement le message
-    socket.emit('chat:message', { 
-      room, 
-      text: trimmed,
-      author: user.id 
-    });
-    setText('');
-  }
-
-  // --- 6. LE RENDU JSX ---
   return (
     <div className="chat-page-wrapper">
-      {/* Sidebar : Navigation entre les salons */}
-      <div className="chat-sidebar">
-        <button 
-          aria-label="Retour aux articles" 
-          className="back-btn" 
-          onClick={() => navigate('/articles')}
-        >
-          ← Retour
-        </button>
+      <aside className="chat-sidebar">
+        <button className="back-btn" onClick={() => window.history.back()}>← Retour</button>
         <h3>Salons</h3>
-        <div className="room-list">
-          {['General', 'DevOps Room', 'Relax'].map((r) => (
-            <button 
-              key={r} 
-              className={`room-item ${room === r ? 'active' : ''}`}
-              onClick={() => setRoom(r)}
-            >
-              # {r}
-            </button>
-          ))}
-        </div>
-      </div>
+        {rooms.map(room => (
+          <button 
+            key={room}
+            className={`room-item ${activeRoom === room ? 'active' : ''}`}
+            onClick={() => setActiveRoom(room)}
+          >
+            # {room}
+          </button>
+        ))}
+      </aside>
 
-      {/* Main Chat Area */}
-      <div className="chat-main">
+      <main className="chat-main">
         <header className="chat-main-header">
-          <h2>#{room}</h2>
-          <span className="user-info">
-            Connecté en tant que <strong>{currentPseudo}</strong>
-          </span>
+          <h2>#{activeRoom}</h2>
+          <span className="message-time-full">Connecté en tant que Greg_Devops</span>
         </header>
 
-        {/* 3/ Conteneur des messages avec gestion du scroll */}
         <div className="chat-messages-container">
-          {messages.length === 0 && (
-            <div className="chat-empty">Aucun message ici. Soyez le premier !</div>
-          )}
-          
+          {messages.length === 0 && <div className="chat-empty">Aucun message dans ce salon...</div>}
           {messages.map((m, idx) => {
-            // 2/ Détermination si le message vient de l'utilisateur connecté
-            const isMe = m.fromPseudo === currentPseudo;
+            // LOGIQUE DE RÉPARATION DE L'URL AVATAR
+            const avatarPath = m.fromAvatar;
+            const fullAvatarUrl = avatarPath && avatarPath.startsWith('http') 
+              ? avatarPath 
+              : avatarPath 
+                ? `${R2_PUBLIC_URL}/${avatarPath}` 
+                : '/default-avatar.png';
+
             return (
-              <div key={idx} className={`message-row ${isMe ? 'is-me' : ''}`}>
+              <div key={idx} className={`message-row ${m.fromPseudo === 'Greg_Devops' ? 'is-me' : ''}`}>
                 <img 
-                  src={getAvatarSrc(m)} 
-                  alt={m.fromPseudo} 
+                  src={fullAvatarUrl} 
+                  alt="avatar" 
                   className="message-avatar-img" 
+                  onError={(e) => {(e.target as HTMLImageElement).src = '/default-avatar.png'}}
                 />
-                
                 <div className="message-content">
                   <div className="message-info">
                     <span className="message-author">{m.fromPseudo}</span>
-                    <span className="message-time-full">
-                      {formatFullDate(m.at)}
-                    </span>
+                    <span className="message-time-full">{new Date(m.at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                   </div>
-                  <div className="message-text">{m.text}</div>
+                  <div className="message-text">
+                    {/* Détection basique pour afficher les images uploadées */}
+                    {m.text.startsWith('http') && m.text.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
+                      <img src={m.text} alt="upload" className="chat-inline-img" style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '5px' }} />
+                    ) : (
+                      m.text
+                    )}
+                  </div>
                 </div>
               </div>
             );
           })}
-          {/* Ancre pour le scroll automatique vers le bas */}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* 1/ Zone d'input améliorée avec boutons de fonctionnalités */}
         <div className="chat-input-wrapper">
-          <form className="chat-input-area" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder={`Envoyer un message dans #${room}`}
-            />
-            <button 
-              aria-label="Envoyer le message" 
-              type="submit" 
-              className="send-btn" 
-              disabled={!text.trim()}
-            >
-              Envoyer
-            </button>
-          </form>
+          {showEmojiPicker && (
+            <div className="emoji-picker-popup">
+              {commonEmojis.map(emoji => (
+                <span key={emoji} onClick={() => addEmoji(emoji)} style={{ cursor: 'pointer' }}>{emoji}</span>
+              ))}
+            </div>
+          )}
 
-          {/* Barre d'actions sous l'input pour l'UX */}
+          <div className="chat-input-area">
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              onChange={handleFileUpload} 
+              accept="image/*"
+            />
+            <input 
+              type="text" 
+              placeholder={`Envoyer un message dans #${activeRoom}`}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            />
+            <button className="send-btn" onClick={handleSend}>Envoyer</button>
+          </div>
+
           <div className="chat-input-actions">
-            <button type="button" className="action-btn" title="Émojis">😊</button>
-            <button type="button" className="action-btn" title="Joindre un fichier">📎</button>
-            <button type="button" className="action-btn" title="Code snippet">{'< >'}</button>
-            <button type="button" className="action-btn" title="Mentionner">@</button>
+            <button className="action-btn" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>😊</button>
+            <button className="action-btn" onClick={() => fileInputRef.current?.click()}>📎</button>
+            <button className="action-btn" onClick={insertCodeBlock}>{"< >"}</button>
+            <button className="action-btn" onClick={handleMentionClick}>@</button>
           </div>
         </div>
-      </div>
+      </main>
     </div>
-  )};
+  );
+};
+
+export default ChatPage;

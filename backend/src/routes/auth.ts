@@ -20,9 +20,10 @@ const upload = multer({
 // Options de cookie sécurisées
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-  maxAge: 24 * 60 * 60 * 1000 
+  secure: true, // Obligatoire pour partager le cookie entre sous-domaines en HTTPS
+  sameSite: 'lax' as const,
+  domain: '.devopsnotes.org', 
+  maxAge: 24 * 60 * 60 * 1000
 };
 
 // ---------- CHECK SESSION ----------
@@ -132,7 +133,7 @@ authRouter.post('/login', async (req, res) => {
 
 // ---------- LOGOUT ----------
 authRouter.post('/logout', (req, res) => {
-  res.clearCookie('token');
+  res.clearCookie('token', { domain: '.devopsnotes.org' });
   res.json({ message: 'Déconnecté' });
 });
 
