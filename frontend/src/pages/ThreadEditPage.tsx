@@ -1,13 +1,13 @@
 import { FormEvent, useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { getAuthToken } from '../api/auth';
+import { useAuth } from '../context/AuthContext'; // Correction : Import du contexte
 import { updateThread, getThread } from '../api/forum';
 import '../styles/ThreadNewPage.css';
 
 export default function ThreadEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const token = getAuthToken();
+  const { user, loading: authLoading } = useAuth(); // Utilisation du contexte global
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [title, setTitle] = useState('');
@@ -16,6 +16,13 @@ export default function ThreadEditPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+
+  // Sécurité : redirection si non connecté ou si ce n'est pas l'auteur (optionnel ici, géré par le backend)
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/login');
+    }
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (!id) return;
@@ -43,16 +50,17 @@ export default function ThreadEditPage() {
         .map((t) => t.trim())
         .filter(Boolean);
 
-      await updateThread(id, { title, content, tags: tagsArray }, token || undefined);
-      navigate(`/forum/${id}`); // Redirige vers le thread plutôt que la liste
+      // Correction : On ne passe plus le token manuellement, Axios utilise les cookies
+      await updateThread(id, { title, content, tags: tagsArray });
+      navigate(`/forum/${id}`); 
     } catch (err: any) {
-      setError(err.message || 'Failed to update thread');
+      setError(err.message || 'Impossible de modifier le sujet');
     } finally {
       setUpdating(false);
     }
   }
 
-  if (loading) return <div className="new-thread-container">Chargement...</div>;
+  if (loading || authLoading) return <div className="new-thread-container">Chargement...</div>;
 
   return (
     <div className="new-thread-container">
@@ -93,7 +101,6 @@ export default function ThreadEditPage() {
         <div className="form-group">
           <label htmlFor="tags">Tags (séparés par des virgules)</label>
           <input
-            aria-label='Tags'
             id="tags"
             type="text"
             className="tags-input-field"
@@ -105,7 +112,7 @@ export default function ThreadEditPage() {
 
         <div className="form-actions">
           <button 
-            aria-label='Mise à jour en cours...'
+            aria-label={updating ? 'Mise à jour en cours...' : 'Sauvegarder les modifications'}
             type="submit" 
             className="btn btn-primary btn-lg" 
             disabled={updating}

@@ -1,171 +1,100 @@
-import { useEffect, useState, FormEvent } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getThread, getReplies, createReply } from '../api/forum';
-import { ForumThread, Reply } from '../types/forum';
-import { getAuthToken, getCurrentUser } from '../api/auth';
-import '../styles/ThreadDetailPage.css';
+import { FormEvent, useState, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { createThread } from '../api/forum';
+import '../styles/ThreadNewPage.css';
 
-export default function ThreadDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [thread, setThread] = useState<ForumThread | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function ThreadNewPage() {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [tags, setTags] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [replies, setReplies] = useState<Reply[]>([]);
-  const [replyContent, setReplyContent] = useState('');
-  const [replyError, setReplyError] = useState<string | null>(null);
-  const [replyLoading, setReplyLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   
-  const isAuthenticated = !!getAuthToken();
-  const currentUser = getCurrentUser();
-  
-  const canEditOrDelete = !!thread && !!currentUser &&
-    (currentUser.role === 'admin' || 
-     (thread.authorId && (thread.authorId as any).toString?.() === currentUser.id));
+  const navigate = useNavigate();
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-  useEffect(() => {
-    if (!id) return;
-    const loadData = async () => {
-      try {
-        const [threadData, repliesData] = await Promise.all([
-          getThread(id),
-          getReplies(id)
-        ]);
-        setThread(threadData);
-        setReplies(repliesData);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, [id]);
-
-  async function handleSubmitReply(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!id || !replyContent.trim()) {
-      setReplyError('Vous devez écrire quelque chose pour répondre.');
+    if (!title.trim() || !content.trim()) {
+      setError("Le titre et le contenu sont obligatoires.");
       return;
     }
 
-    setReplyError(null);
-    setReplyLoading(true);
-    try {
-      const newReply = await createReply(id, replyContent);
-      setReplies((prev) => [...prev, newReply]);
-      setReplyContent('');
-    } catch (err: any) {
-      setReplyError(err.message || 'Erreur lors de l\'envoi');
-    } finally {
-      setReplyLoading(false);
-    }
-  }
-
-  async function handleDeleteThread() {
-    if (!id || !window.confirm('Supprimer définitivement ce sujet ?')) return;
+    setError(null);
+    setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/forum/threads/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${getAuthToken()}` },
-      });
-      if (!res.ok) throw new Error('Erreur lors de la suppression');
+      const tagsArray = tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+        
+      await createThread({ title, content, tags: tagsArray });
       navigate('/forum');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Impossible de créer le sujet');
+    } finally {
+      setLoading(false);
     }
   }
 
-  if (loading) return <div className="thread-detail-container loading">Chargement de la discussion...</div>;
-  if (error || !thread) return <div className="thread-detail-container error">⚠️ {error || 'Thread introuvable'}</div>;
-
   return (
-    <div className="thread-detail-container">
-      <nav className="thread-nav">
-        <Link to="/forum" className="back-link">← Retour au Forum</Link>
-        {canEditOrDelete && (
-          <div className="admin-actions">
-            <Link to={`/forum/${thread._id}/edit`} className="btn btn-secondary btn-sm">Modifier</Link>
-            <button aria-label="Supprimer le sujet" onClick={handleDeleteThread} className="btn btn-danger btn-sm">Supprimer</button>
-          </div>
-        )}
-      </nav>
+    <div className="new-thread-container">
+      <div className="form-header">
+        <Link to="/forum" className="back-link">← Annuler</Link>
+        <h1>Démarrer une discussion</h1>
+        <p>Partagez vos problématiques DevOps avec la communauté.</p>
+      </div>
 
-      <article className="main-thread-post">
-        <header className="thread-header">
-          <h1>{thread.title}</h1>
-          <div className="thread-meta">
-            <span className="author-badge">{thread.authorPseudo?.charAt(0).toUpperCase()}</span>
-            <div className="meta-text">
-              <strong>{thread.authorPseudo || 'Anonyme'}</strong>
-              <span>Posté le {new Date(thread.createdAt).toLocaleString()}</span>
-              {thread.editedAt && <span className="edited-tag">(Modifié)</span>}
-            </div>
-          </div>
-        </header>
+      <form className="new-thread-form" onSubmit={handleSubmit}>
+        {error && <div className="error-banner">⚠️ {error}</div>}
 
-        {thread.tags && (
-          <div className="thread-tags">
-            {thread.tags.map(tag => <span key={tag} className="tag-pill">{tag}</span>)}
-          </div>
-        )}
-      </article>
-
-      <section className="replies-section">
-        <div className="replies-header">
-          <h2>Réponses ({replies.length})</h2>
+        <div className="form-group">
+          <label htmlFor="title">Titre du sujet</label>
+          <input
+            id="title"
+            type="text"
+            placeholder="Ex: Erreur 403 sur S3 avec Terraform et OIDC"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            className="title-input-field"
+          />
         </div>
 
-        <div className="replies-list">
-          {replies.length === 0 ? (
-            <p className="no-replies">Soyez le premier à répondre à cette discussion !</p>
-          ) : (
-            replies.map((reply) => (
-              <div key={reply._id} className="reply-item">
-                <div className="reply-sidebar">
-                  <div className="reply-avatar">{reply.authorPseudo?.charAt(0).toUpperCase()}</div>
-                </div>
-                <div className="reply-body">
-                  <div className="reply-meta">
-                    <strong>{reply.authorPseudo}</strong>
-                    <span>{new Date(reply.createdAt).toLocaleString()}</span>
-                  </div>
-                  <div className="reply-content">
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+        <div className="form-group">
+          <label htmlFor="content">Description du problème</label>
+          <div className="editor-wrapper">
+            <textarea
+              id="content"
+              ref={textAreaRef}
+              placeholder="Décris ton contexte, ta stack, tes logs ou ton code..."
+              value={content}
+              rows={12}
+              onChange={(e) => setContent(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
-        {isAuthenticated ? (
-          <div className="reply-form-wrapper">
-            <h3>Ajouter une réponse</h3>
-            <form onSubmit={handleSubmitReply}>
-              <textarea
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
-                placeholder="Partagez votre avis ou demandez une précision..."
-                rows={5}
-              />
-              {replyError && <p className="error-msg">{replyError}</p>}
-              <div className="form-footer">
-                <p className="hint">Supporte le Markdown (code blocks, gras, etc.)</p>
-                <button aria-label="Soumettre" type="submit" className="btn btn-primary" disabled={replyLoading}>
-                  {replyLoading ? 'Envoi...' : 'Répondre'}
-                </button>
-              </div>
-            </form>
-          </div>
-        ) : (
-          <div className="login-prompt">
-            <p><Link to="/login">Connectez-vous</Link> pour participer à la discussion.</p>
-          </div>
-        )}
-      </section>
+        <div className="form-group">
+          <label htmlFor="tags">Tags (séparés par des virgules)</label>
+          <input
+            id="tags"
+            type="text"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="kubernetes, aws, cicd"
+            className="tags-input-field"
+          />
+        </div>
+
+        <div className="form-actions">
+          <button aria-label='Création en cours...' type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+            {loading ? 'Création en cours...' : 'Publier le sujet'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
