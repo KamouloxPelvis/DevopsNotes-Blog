@@ -81,10 +81,10 @@ export default function HomePage() {
           {!isAuthenticated && (
             <div className="auth-group">
               <button aria-label='Se connecter' className="btn btn-light landing-btn" onClick={() => navigate('/login')}>
-                👤 Sign In
+                👤 Connexion
               </button>
               <button aria-label="S'inscrire" className="btn btn-outline-primary landing-btn signup-btn" onClick={() => navigate('/signup')}>
-                Sign Up
+                S'inscrire
               </button>
             </div>
           )}

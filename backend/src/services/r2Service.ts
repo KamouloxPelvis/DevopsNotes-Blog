@@ -10,7 +10,7 @@ const r2Client = new S3Client({
   },
 });
 
-export const uploadToR2 = async (file: any) => {
+export const uploadToR2 = async (file: any, folder: string = 'articles') => {
   // 1. Transformation de l'image
   // On génère un buffer optimisé (WebP, 1600px max, qualité 80)
   const optimizedBuffer = await sharp(file.buffer)
@@ -24,7 +24,7 @@ export const uploadToR2 = async (file: any) => {
 
   // 2. On change l'extension du nom de fichier en .webp
   const fileNameWithoutExt = file.originalname.split('.').slice(0, -1).join('.');
-  const fileKey = `articles/${Date.now()}-${fileNameWithoutExt}.webp`;
+  const fileKey = `${folder}/${Date.now()}-${fileNameWithoutExt}.webp`;
 
   // Exemple avec AWS SDK (utilisé pour R2)
   const command = new PutObjectCommand({
@@ -38,6 +38,6 @@ export const uploadToR2 = async (file: any) => {
   await r2Client.send(command);
   
   const publicUrl = "https://resources.devopsnotes.org";
-  return `${publicUrl}/${fileKey}`;
+  return fileKey ;
 };
 

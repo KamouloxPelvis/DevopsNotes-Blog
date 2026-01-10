@@ -7,6 +7,12 @@ export interface JwtUserPayload {
   role: string;
   email: string;
   pseudo: string;
+  avatarUrl?: string;
+  birthday?: string;    
+  location?: {           
+    city?: string;
+    country?: string;
+  };
 }
 
 // 2. Extension du type Request d'Express pour inclure l'utilisateur

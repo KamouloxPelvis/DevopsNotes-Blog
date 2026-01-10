@@ -1,22 +1,29 @@
-import { Router } from 'express';
-import { Message } from '../models/Message';
+import express from 'express';
+import { Message } from '../models/Message'; 
 
-const router = Router();
+const chatRouter = express.Router();
 
-// GET /api/chat/messages?room=general
-router.get('/messages', async (req, res) => {
-  const room = (req.query.room as string) || 'general';
-
+chatRouter.get('/messages', async (req, res) => {
   try {
-    const messages = await Message.find({ room })
-      .sort({ at: 1 })
-      .limit(200); // limite d'historique
+    const { room } = req.query;
+    const messages = await Message.find({ room: room as string })
+      .populate('author', 'pseudo avatarUrl')
+      .sort({ at: 1 });
 
-    res.json(messages);
+    // On formate pour le frontend
+    const formatted = messages.map((m: any) => ({
+      room: m.room,
+      text: m.text,
+      fromPseudo: m.author?.pseudo || 'Anonyme',
+      fromAvatar: m.author?.avatarUrl || '',
+      at: m.at,
+    }));
+
+    res.json(formatted);
   } catch (err) {
-    console.error('Error fetching messages:', err);
-    res.status(500).json({ message: 'Error fetching messages' });
+    console.error("Erreur historique chat:", err);
+    res.status(500).json({ message: "Erreur serveur" });
   }
 });
 
-export default router;
+export default chatRouter;

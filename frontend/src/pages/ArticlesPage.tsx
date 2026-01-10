@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import api from '../api/axios'; 
 import { getArticles } from '../api/articles';
 import { Article } from '../types/articles';
@@ -22,8 +22,7 @@ export function ArticlesPage() {
   const [likedArticles, setLikedArticles] = useState<Set<string>>(new Set());
   const [isLiking, setIsLiking] = useState<string | null>(null);
   
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
 
   const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
@@ -55,11 +54,6 @@ export function ArticlesPage() {
     } finally {
       setIsLiking(null);
     }
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/articles');    
   };
 
   useEffect(() => {
@@ -135,20 +129,16 @@ export function ArticlesPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <div className="articles-actions-v2">
-            <Link to="/forum" className="btn btn-secondary">Forum</Link>
-            {user ? (
-              <>
+            <div className="articles-actions-v2">
+              <Link to="/forum" className="btn btn-secondary">Forum</Link>
+              {user && (
                 <Link to="/chat" className="btn btn-secondary">Chat</Link>
-                <button aria-label='Se déconnecter' className="btn btn-secondary" onClick={handleLogout}>Logout</button>
-                {isAdmin && <Link to="/articles/new" className="btn btn-primary">+ Nouvel article</Link>}
-              </>
-            ) : (
-              <>
-                <Link to="/login" className="btn btn-secondary">Sign in</Link>
-                <Link to="/signup" className="btn btn-primary">Sign up</Link>
-              </>
-            )}
+              )}
+
+              {/* Conservation du bouton Nouvel article pour l'admin si connecté */}
+              {user && isAdmin && (
+                <Link to="/articles/new" className="btn btn-primary">+ Nouvel article</Link>
+              )}
           </div>
         </div>
       </div>

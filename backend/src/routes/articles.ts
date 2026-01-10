@@ -145,6 +145,9 @@ router.put('/:slug', requireAdmin, upload.single('image'), async (req: Request, 
     if (req.file) {
       // Cas 1 : Nouveau fichier envoyé dans le formulaire
       const uploadedUrl = await uploadToR2(req.file);
+      
+      console.log(`✅ Image article uploadée dans R2: ${uploadedUrl}`);
+
       article.imageUrl = `${uploadedUrl}?v=${Date.now()}`;
     } else if (bodyImageUrl !== undefined) {
       // Cas 2 : On reçoit une URL (venant de l'upload préalable ou l'URL existante)

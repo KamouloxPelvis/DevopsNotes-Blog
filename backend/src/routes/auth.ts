@@ -26,8 +26,22 @@ const COOKIE_OPTIONS = {
 };
 
 // ---------- CHECK SESSION ----------
-authRouter.get('/me', requireAuth, (req, res) => {
-  return res.json({ user: req.user });
+authRouter.get('/me', requireAuth, async (req, res) => {
+  try {
+    // On récupère l'ID en toute sécurité
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Utilisateur non trouvé dans le token" });
+    }
+
+    // CRUCIAL : On interroge la DB pour avoir les infos fraîches (location, birthday)
+    const user = await User.findById(userId).select('-password');
+    
+    return res.json({ user });
+  } catch (err) {
+    return res.status(500).json({ message: "Erreur lors de la récupération du profil" });
+  }
 });
 
 // ---------- SIGNUP (Version R2) ----------
@@ -102,7 +116,9 @@ authRouter.post('/login', async (req, res) => {
       role: user.role,
       email: user.email,
       pseudo: user.pseudo,
-      avatarUrl: user.avatarUrl
+      avatarUrl: user.avatarUrl,
+      birthday: user.birthday,
+      location: user.location
     };
 
     const token = jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn as any });
@@ -172,19 +188,25 @@ authRouter.post('/reset-password', async (req, res) => {
 
 // Route de mise à jour du profil
 authRouter.put('/update-profile', requireAuth, upload.single('avatar'), async (req, res) => {
+  console.log('--- DEBUG UPDATE PROFILE ---');
+  console.log('Body:', req.body);   // Doit afficher city, country, pseudo...
+  console.log('File:', req.file);   // Doit afficher les infos de l'image si présente
   try {
     const userId = req.user?.id;
-    const { city, country, birthday } = req.body;
+    const { pseudo, city, country, birthday } = req.body;
     
     const updateData: any = {
+      pseudo: pseudo,
       'location.city': city,
       'location.country': country,
       birthday: birthday ? new Date(birthday) : undefined
     };
 
-    // Si un nouvel avatar est uploadé
+    
     if (req.file) {
-      updateData.avatarUrl = await uploadToR2(req.file);
+      updateData.avatarUrl = await uploadToR2(req.file, 'avatars');
+
+      console.log(`✅ Avatar uploadé dans R2: ${updateData.avatarUrl}`);
     }
 
     const updatedUser = await User.findByIdAndUpdate(

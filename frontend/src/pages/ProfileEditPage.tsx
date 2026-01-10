@@ -34,16 +34,25 @@ export default function ProfileEditPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (currentUser) {
-      setPseudo(currentUser.pseudo || '');
-      setCity(currentUser.location?.city || '');
-      setCountry(currentUser.location?.country || '');
-      if (currentUser.birthday) {
-        setBirthday(new Date(currentUser.birthday).toISOString().split('T')[0]);
-      }
-      setImagePreview(currentUser.avatarUrl || null);
+  if (currentUser) {
+    setPseudo(currentUser.pseudo || '');
+    setCity(currentUser.location?.city || '');
+    setCountry(currentUser.location?.country || '');
+    if (currentUser.birthday) {
+      setBirthday(new Date(currentUser.birthday).toISOString().split('T')[0]);
     }
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+    
+    if (currentUser.avatarUrl) {
+      const R2_URL = 'https://resources.devopsnotes.org';
+      const fullUrl = currentUser.avatarUrl.startsWith('http') 
+        ? currentUser.avatarUrl 
+        : `${R2_URL}/${currentUser.avatarUrl}`;
+      setImagePreview(fullUrl);
+    } else {
+      setImagePreview(`https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.pseudo)}&background=2563eb&color=fff`);
+    }
+  }
+}, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const calculateAge = (date: string) => {
     if (!date) return null;
@@ -79,7 +88,7 @@ export default function ProfileEditPage() {
     <div className="profile-edit-container">
       <div className="profile-edit-card">
         <header className="edit-header">
-          <button type="button" onClick={() => navigate('/profile')} className="back-btn">←</button>
+          <button type="button" onClick={() => navigate('/profile')} className="back-btn" aria-label="Retour">←</button>
           <h1>Modifier mon Profil</h1>
         </header>
 
@@ -98,34 +107,34 @@ export default function ProfileEditPage() {
                 id="avatar-upload"
                 type="file" 
                 accept="image/*" 
-                style={{ display: 'none' }}
                 onChange={(e) => {
                   const file = e.target.files?.[0] || null;
                   setImageFile(file);
                   if (file) setImagePreview(URL.createObjectURL(file));
-                }} 
+                }}
+                style={{ display: 'none' }}
               />
             </div>
           </div>
 
           <div className="form-grid">
-            <div className="input-group-full">
+            <div className="input-group full">
               <label>Pseudo</label>
-              <input value={pseudo} onChange={(e) => setPseudo(e.target.value)} required />
+              <input value={pseudo} onChange={(e) => setPseudo(e.target.value)} required placeholder="Ton pseudo" />
             </div>
 
-            <div className="input-group">
-              <label>Date de naissance {birthday ? `(${calculateAge(birthday)} ans)` : ''}</label>
+            <div className="input-group full">
+              <label>Date de naissance {birthday ? <span className="age-info">({calculateAge(birthday)} ans)</span> : <span className="optional-label">(Optionnel)</span>}</label>
               <input type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} />
             </div>
 
             <div className="input-group">
-              <label>Ville</label>
-              <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ex: Paris" />
+              <label>Ville / Région <span className="optional-label">(Optionnel)</span></label>
+              <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ex: Plouguernével" />
             </div>
 
-            <div className="input-group-full">
-              <label>Pays</label>
+            <div className="input-group">
+              <label>Pays <span className="optional-label">(Optionnel)</span></label>
               <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Ex: France" />
             </div>
           </div>

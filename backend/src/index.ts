@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+import * as cookie from 'cookie';
 import jwt from 'jsonwebtoken';
 import { createServer } from 'http'; // Requis pour Socket.io
 import { Server } from 'socket.io';
@@ -91,49 +92,68 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/forum', forumRoutes);
 
-// --- LOGIQUE SOCKET.IO AVEC AUTHENTIFICATION ---
+// --- LOGIQUE SOCKET.IO ---
+
 io.on('connection', (socket) => {
-  // 1. Récupération de l'utilisateur via le token passé dans "auth"
-  const token = socket.handshake.auth.token;
+  // 1. RÉCUPÉRATION DU TOKEN DEPUIS LES COOKIES
+  // Le frontend utilise des cookies HTTP-Only pour le token
+  const cookies = cookie.parse(socket.handshake.headers.cookie || '');
+  const token = cookies.token; 
   
   let userData: any = null;
 
-    try {
-      if (token) {
-        // Décodage du token pour obtenir les infos utilisateur
-        userData = jwt.verify(token, process.env.JWT_SECRET || 'votre_cle_secrete');
-        console.log(`📱 ${userData.pseudo} s'est connecté au chat`);
-      }
-    } catch (err) {
-      console.log('⚠️ Connexion socket sans token valide (Anonyme)');
+  try {
+    if (token) {
+      userData = jwt.verify(token, process.env.JWT_SECRET || 'votre_cle_secrete');
     }
+  } catch (err) {
+    console.log('⚠️ Token invalide ou expiré');
+  }
 
-    // 2. Rejoindre un salon
   socket.on('chat:join', (room) => {
     socket.join(room);
-    console.log(`👤 ${userData?.pseudo || 'Anonyme'} a rejoint le salon: ${room}`);
   });
 
   socket.on('chat:message', async (data) => {
     try {
-      const messageData = {
-        // On utilise la room envoyée par le front, sinon on ne pourra pas la retrouver
-        room: data.room, 
-        text: data.text,
-        fromId: userData?.id || 'anonymous',
-        fromPseudo: userData?.pseudo || 'Anonyme',
-        at: new Date()
-      };
+      // 2. SÉCURITÉ : On bloque si l'utilisateur n'est pas authentifié
+      if (!userData || !userData.id) {
+        console.log('🚫 Message refusé : utilisateur non connecté');
+        return;
+      }
 
-      const savedMessage = await Message.create(messageData);
-      // On émet à la room exacte (ex: "General" avec majuscule)
-      io.to(data.room).emit('chat:message', savedMessage);
-      
+      // 3. SAUVEGARDE DANS MONGODB (format author)
+      const newMessage = new Message({
+        room: data.room,
+        text: data.text,
+        author: userData.id, 
+        at: new Date()
+      });
+
+      await newMessage.save();
+
+      // 4. POPULATE & BROADCAST
+      const populated = await Message.findById(newMessage._id)
+        .populate('author', 'pseudo avatarUrl');
+
+      if (populated) {
+        
+        const messageToBroadcast = {
+          room: populated.room,
+          text: populated.text,
+          fromPseudo: (populated.author as any).pseudo,
+          fromAvatar: (populated.author as any).avatarUrl,
+          at: populated.at.toISOString()
+        };
+
+        io.to(data.room).emit('chat:message', messageToBroadcast);
+      }
     } catch (err) {
-    console.error('❌ Erreur sauvegarde:', err);
+      console.error('❌ Erreur sauvegarde socket:', err);
     }
   });
-})
+});
+
 // --- CONNEXION MONGODB ET LANCEMENT ---
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI;

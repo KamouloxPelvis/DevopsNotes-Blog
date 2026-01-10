@@ -14,12 +14,6 @@
     flex-wrap: wrap;
 }
 
-.header-title h1 {
-    font-size: 2rem;
-    margin: 0;
-    color: #1a202c;
-}
-
 .subtitle {
     color: #718096;
     margin: 0.5rem 0 0 0;

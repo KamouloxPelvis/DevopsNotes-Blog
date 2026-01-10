@@ -1,26 +1,21 @@
-// frontend/src/api/chatSocket.ts
 import { io, Socket } from 'socket.io-client';
-import { getAuthToken } from './auth';
 
 let socket: Socket | null = null;
+
 const SOCKET_URL = process.env.NODE_ENV === 'production'
-  ? 'https://www.devopsnotes.org'
-  : (process.env.REACT_APP_SOCKET_URL ?? 'http://localhost:5000');
+  ? 'https://devopsnotes.org'
+  : 'http://localhost:5000';
 
-
-export function getChatSocket(): Socket {
+export const getChatSocket = () => {
   if (!socket) {
-    const token = getAuthToken();
+    // Utilise la variable SOCKET_URL dynamique
     socket = io(SOCKET_URL, {
-      auth: { token },
-    });
-
-    socket.on('connect_error', (err: Error) => {
-      console.error('Socket connect error:', err.message);
+      withCredentials: true, // IMPORTANT pour envoyer le cookie de session
+      transports: ['websocket', 'polling'] 
     });
   }
   return socket;
-}
+};
 
 export function disconnectChatSocket() {
   if (socket) {
