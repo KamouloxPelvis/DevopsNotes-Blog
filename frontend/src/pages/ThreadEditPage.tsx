@@ -1,14 +1,14 @@
-import { FormEvent, useEffect, useState, useRef } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { updateThread, getThread } from '../api/forum';
+import TiptapEditor from '../components/Editor'; 
 import '../styles/ThreadNewPage.css';
 
 export default function ThreadEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -18,14 +18,11 @@ export default function ThreadEditPage() {
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/login');
-    }
+    if (!authLoading && !user) navigate('/login');
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (!id) return;
-    
     getThread(id)
       .then((data) => {
         setTitle(data.title);
@@ -44,12 +41,7 @@ export default function ThreadEditPage() {
     setUpdating(true);
 
     try {
-      const tagsArray = tags
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean);
-
-      // Axios gère automatiquement les cookies de session
+      const tagsArray = tags.split(',').map((t) => t.trim()).filter(Boolean);
       await updateThread(id, { title, content, tags: tagsArray });
       navigate(`/forum/${id}`); 
     } catch (err: any) {
@@ -84,16 +76,9 @@ export default function ThreadEditPage() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="content">Description</label>
-          <div className="editor-wrapper">
-            <textarea
-              id="content"
-              ref={textAreaRef}
-              value={content}
-              rows={12}
-              onChange={(e) => setContent(e.target.value)}
-              required
-            />
+          <label>Description</label>
+          <div className="editor-wrapper forum-rich-editor">
+            <TiptapEditor value={content} onChange={setContent} />
           </div>
         </div>
 
@@ -105,17 +90,11 @@ export default function ThreadEditPage() {
             className="tags-input-field"
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-            placeholder="devops, kubernetes..."
           />
         </div>
 
         <div className="form-actions">
-          <button 
-            aria-label={updating ? 'Mise à jour en cours...' : 'Sauvegarder les modifications'}
-            type="submit" 
-            className="btn btn-primary btn-lg" 
-            disabled={updating}
-          >
+          <button type="submit" className="btn btn-primary btn-lg" disabled={updating}>
             {updating ? 'Mise à jour...' : 'Sauvegarder les modifications'}
           </button>
         </div>

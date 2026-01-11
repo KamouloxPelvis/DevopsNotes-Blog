@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getThread, getReplies, createReply, deleteThread } from '../api/forum';
 import { ForumThread, Reply } from '../types/forum';
 import { useAuth } from '../context/AuthContext';
+import TiptapEditor from '../components/Editor'; // Import de l'éditeur riche
 import '../styles/ThreadDetailPage.css';
 
 export default function ThreadDetailPage() {
@@ -14,7 +15,7 @@ export default function ThreadDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
-  const [replyContent, setReplyContent] = useState('');
+  const [replyContent, setReplyContent] = useState(''); // HTML venant de Tiptap
   const [replyError, setReplyError] = useState<string | null>(null);
   const [replyLoading, setReplyLoading] = useState(false);
   
@@ -45,7 +46,8 @@ export default function ThreadDetailPage() {
 
   async function handleSubmitReply(e: FormEvent) {
     e.preventDefault();
-    if (!id || !replyContent.trim()) {
+    // Validation pour vérifier que le contenu n'est pas juste des balises vides
+    if (!id || !replyContent.replace(/<[^>]*>/g, '').trim()) {
       setReplyError('Vous devez écrire quelque chose pour répondre.');
       return;
     }
@@ -55,7 +57,7 @@ export default function ThreadDetailPage() {
     try {
       const newReply = await createReply(id, replyContent);
       setReplies((prev) => [...prev, newReply]);
-      setReplyContent('');
+      setReplyContent(''); // Réinitialise l'éditeur
     } catch (err: any) {
       setReplyError(err.response?.data?.message || err.message || 'Erreur lors de l\'envoi');
     } finally {
@@ -65,9 +67,7 @@ export default function ThreadDetailPage() {
 
   async function handleDeleteThread() {
     if (!id || !window.confirm('Supprimer définitivement ce sujet ?')) return;
-
     try {
-      // Correction : Utilisation d'Axios pour la suppression sécurisée
       await deleteThread(id);
       navigate('/forum');
     } catch (err: any) {
@@ -103,9 +103,11 @@ export default function ThreadDetailPage() {
           </div>
         </header>
 
-        <div className="thread-content-body">
-            {thread.content}
-        </div>
+        {/* AFFICHAGE DU HTML POUR LE POST PRINCIPAL */}
+        <div 
+          className="thread-content-body rich-text-content"
+          dangerouslySetInnerHTML={{ __html: thread.content }}
+        />
 
         {thread.tags && (
           <div className="thread-tags">
@@ -121,7 +123,7 @@ export default function ThreadDetailPage() {
 
         <div className="replies-list">
           {replies.length === 0 ? (
-            <p className="no-replies">Soyez le premier à répondre à cette discussion !</p>
+            <p className="no-replies">Soyez le premier à répondre !</p>
           ) : (
             replies.map((reply) => (
               <div key={reply._id} className="reply-item">
@@ -133,9 +135,11 @@ export default function ThreadDetailPage() {
                     <strong>{reply.authorPseudo}</strong>
                     <span>{new Date(reply.createdAt).toLocaleString()}</span>
                   </div>
-                  <div className="reply-content">
-                    {reply.content}
-                  </div>
+                  {/* AFFICHAGE DU HTML POUR LES REPONSES */}
+                  <div 
+                    className="reply-content rich-text-content"
+                    dangerouslySetInnerHTML={{ __html: reply.content }}
+                  />
                 </div>
               </div>
             ))
@@ -146,16 +150,15 @@ export default function ThreadDetailPage() {
           <div className="reply-form-wrapper">
             <h3>Ajouter une réponse</h3>
             <form onSubmit={handleSubmitReply}>
-              <textarea
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
-                placeholder="Partagez votre avis ou demandez une précision..."
-                rows={5}
-              />
+              {/* UTILISATION DE TIPTAP POUR LA REPONSE */}
+              <div className="forum-rich-editor">
+                <TiptapEditor value={replyContent} onChange={setReplyContent} />
+              </div>
+              
               {replyError && <p className="error-msg">{replyError}</p>}
               <div className="form-footer">
-                <p className="hint">Partagez votre expertise avec la communauté.</p>
-                <button aria-label="Répondre" type="submit" className="btn btn-primary" disabled={replyLoading}>
+                <p className="hint">Partagez votre expertise (code, images, etc.)</p>
+                <button type="submit" className="btn btn-primary" disabled={replyLoading}>
                   {replyLoading ? 'Envoi...' : 'Répondre'}
                 </button>
               </div>
@@ -163,7 +166,7 @@ export default function ThreadDetailPage() {
           </div>
         ) : (
           <div className="login-prompt">
-            <p><Link to="/login">Connectez-vous</Link> pour participer à la discussion.</p>
+            <p><Link to="/login">Connectez-vous</Link> pour participer.</p>
           </div>
         )}
       </section>

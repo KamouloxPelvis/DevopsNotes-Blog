@@ -1,21 +1,22 @@
-import { FormEvent, useState, useRef } from 'react';
+import { FormEvent, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createThread } from '../api/forum';
+import TiptapEditor from '../components/Editor'; // Import de l'éditeur riche
 import '../styles/ThreadNewPage.css';
 
 export default function ThreadNewPage() {
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(''); // Stockera le HTML de Tiptap
   const [tags, setTags] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
+    // On vérifie que le contenu n'est pas vide (Tiptap peut envoyer <p></p>)
+    if (!title.trim() || !content.replace(/<[^>]*>/g, '').trim()) {
       setError("Le titre et le contenu sont obligatoires.");
       return;
     }
@@ -24,16 +25,11 @@ export default function ThreadNewPage() {
     setLoading(true);
 
     try {
-      const tagsArray = tags
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean);
+      const tagsArray = tags.split(',').map((t) => t.trim()).filter(Boolean);
         
       await createThread({ title, content, tags: tagsArray });
       navigate('/forum');
     } catch (err: any) {
-      // Gestion robuste des erreurs Axios
-      // Si le backend renvoie un message précis (ex: 401 Unauthorized), on l'affiche
       const errorMessage = err.response?.data?.message || err.message || 'Impossible de créer le sujet';
       setError(errorMessage);
     } finally {
@@ -46,7 +42,7 @@ export default function ThreadNewPage() {
       <div className="form-header">
         <Link to="/forum" className="back-link">← Annuler</Link>
         <h1>Démarrer une discussion</h1>
-        <p>Partagez vos problématiques DevOps avec la communauté.</p>
+        <p>Utilisez la barre d'outils pour formater votre code ou vos logs.</p>
       </div>
 
       <form className="new-thread-form" onSubmit={handleSubmit}>
@@ -66,17 +62,10 @@ export default function ThreadNewPage() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="content">Description du problème</label>
-          <div className="editor-wrapper">
-            <textarea
-              id="content"
-              ref={textAreaRef}
-              placeholder="Décris ton contexte, ta stack, tes logs ou ton code..."
-              value={content}
-              rows={12}
-              onChange={(e) => setContent(e.target.value)}
-              required
-            />
+          <label>Description du problème</label>
+          <div className="editor-wrapper forum-rich-editor">
+            {/* Remplacement du textarea par Tiptap */}
+            <TiptapEditor value={content} onChange={setContent} />
           </div>
         </div>
 
@@ -93,12 +82,7 @@ export default function ThreadNewPage() {
         </div>
 
         <div className="form-actions">
-          <button 
-            aria-label='Publier le sujet' 
-            type="submit" 
-            className="btn btn-primary btn-lg" 
-            disabled={loading}
-          >
+          <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
             {loading ? 'Création en cours...' : 'Publier le sujet'}
           </button>
         </div>
