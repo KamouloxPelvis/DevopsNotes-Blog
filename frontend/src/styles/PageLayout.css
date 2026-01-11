@@ -33,7 +33,8 @@
   margin: 0 auto;
   padding: 1rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .user-status {
@@ -104,4 +105,29 @@
   background: var(--primary);
   color: #ffffff;
   transform: translateY(-1px);
+}
+
+.main-nav-links {
+  display: flex;
+  gap: 25px;
+  margin-left: 60px; /* Espace par rapport au logo flottant */
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+}
+
+.theme-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--border-color);
+  margin: 0 8px;
 }

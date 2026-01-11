@@ -43,6 +43,11 @@ export function PageLayout({ children }: Props) {
 
       {/* 2. Barre de Navigation Supérieure */}
       <div className="top-nav-bar">
+        <nav className="main-nav-links">
+          <Link to="/articles" className="nav-link">Articles</Link>
+          <Link to="/forum" className="nav-link">Forum</Link>
+          <Link to="/chat" className="nav-link">Chat</Link>
+        </nav>
         <div className="user-status">
           {user ? (
             <>

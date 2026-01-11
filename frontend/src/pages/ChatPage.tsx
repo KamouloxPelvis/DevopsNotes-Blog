@@ -66,7 +66,7 @@ const ChatPage: React.FC = () => {
     setShowEmojiPicker(false);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  /*const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -85,7 +85,7 @@ const ChatPage: React.FC = () => {
     } catch (err) {
       console.error("Upload failed", err);
     }
-  };
+  };*/
 
   const handleMentionClick = () => {
     setInputValue(prev => prev + '@');
@@ -165,13 +165,13 @@ const ChatPage: React.FC = () => {
           )}
 
           <div className="chat-input-area">
-            <input 
+            {/*<input 
               type="file" 
               ref={fileInputRef} 
-              style={{ display: 'none' }} 
+             {style={{ display: 'none' }} 
               onChange={handleFileUpload} 
               accept="image/*"
-            />
+            />*/}
             <input 
               type="text" 
               placeholder={`Envoyer un message dans #${activeRoom}`}

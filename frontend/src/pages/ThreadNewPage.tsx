@@ -37,6 +37,14 @@ export default function ThreadNewPage() {
     }
   }
 
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const commonEmojis = ['😊', '😂', '🚀', '🔥', '💻', '👍', '🙌', '🤔', '✅', '❌'];
+
+  const addEmoji = (emoji: string) => {
+    setContent(prev => prev + emoji); // Tiptap gère bien l'ajout de texte brut à la suite du HTML
+    setShowEmojiPicker(false);
+  };
+
   return (
     <div className="new-thread-container">
       <div className="form-header">
@@ -64,10 +72,27 @@ export default function ThreadNewPage() {
         <div className="form-group">
           <label>Description du problème</label>
           <div className="editor-wrapper forum-rich-editor">
-            {/* Remplacement du textarea par Tiptap */}
             <TiptapEditor value={content} onChange={setContent} />
+            <div className="forum-emoji-container">
+            <button 
+              type="button" 
+              className="action-btn" 
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              style={{ padding: '10px', fontSize: '1.2rem' }}
+            >
+              😊
+            </button>
+
+            {showEmojiPicker && (
+              <div className="forum-emoji-picker">
+                {commonEmojis.map(emoji => (
+                  <span key={emoji} onClick={() => addEmoji(emoji)}>{emoji}</span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
         <div className="form-group">
           <label htmlFor="tags">Tags (séparés par des virgules)</label>

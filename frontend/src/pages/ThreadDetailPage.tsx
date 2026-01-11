@@ -44,6 +44,12 @@ export default function ThreadDetailPage() {
     loadData();
   }, [id]);
 
+const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+const addEmoji = (emoji: string) => {
+  setReplyContent(prev => prev + emoji);
+  setShowEmojiPicker(false);
+};
+
   async function handleSubmitReply(e: FormEvent) {
     e.preventDefault();
     // Validation pour vérifier que le contenu n'est pas juste des balises vides
@@ -153,8 +159,24 @@ export default function ThreadDetailPage() {
               {/* UTILISATION DE TIPTAP POUR LA REPONSE */}
               <div className="forum-rich-editor">
                 <TiptapEditor value={replyContent} onChange={setReplyContent} />
+                <div className="forum-emoji-container">
+              <button 
+                type="button" 
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="action-btn"
+              >
+                😊
+              </button>
+              {showEmojiPicker && (
+                <div className="forum-emoji-picker">
+                  {['😊', '😂', '🚀', '🔥', '💻', '👍'].map(emoji => (
+                    <span key={emoji} onClick={() => addEmoji(emoji)}>{emoji}</span>
+                  ))}
+                </div>
+                )}
               </div>
-              
+            </div>
+            
               {replyError && <p className="error-msg">{replyError}</p>}
               <div className="form-footer">
                 <p className="hint">Partagez votre expertise (code, images, etc.)</p>

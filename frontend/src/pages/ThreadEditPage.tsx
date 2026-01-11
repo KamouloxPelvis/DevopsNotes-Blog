@@ -33,6 +33,14 @@ export default function ThreadEditPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const commonEmojis = ['😊', '😂', '🚀', '🔥', '💻', '👍', '🙌', '🤔', '✅', '❌'];
+
+  const addEmoji = (emoji: string) => {
+    setContent(prev => prev + emoji); // Tiptap gère bien l'ajout de texte brut à la suite du HTML
+    setShowEmojiPicker(false);
+  };
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!id) return;
@@ -79,8 +87,26 @@ export default function ThreadEditPage() {
           <label>Description</label>
           <div className="editor-wrapper forum-rich-editor">
             <TiptapEditor value={content} onChange={setContent} />
+            <div className="forum-emoji-container">
+            <button 
+              type="button" 
+              className="action-btn" 
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              style={{ padding: '10px', fontSize: '1.2rem' }}
+            >
+              😊
+            </button>
+
+            {showEmojiPicker && (
+              <div className="forum-emoji-picker">
+                {commonEmojis.map(emoji => (
+                  <span key={emoji} onClick={() => addEmoji(emoji)}>{emoji}</span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
         <div className="form-group">
           <label htmlFor="tags">Tags (séparés par des virgules)</label>
