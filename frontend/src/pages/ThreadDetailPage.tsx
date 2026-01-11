@@ -1,14 +1,14 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getThread, getReplies, createReply } from '../api/forum';
+import { getThread, getReplies, createReply, deleteThread } from '../api/forum';
 import { ForumThread, Reply } from '../types/forum';
-import { useAuth } from '../context/AuthContext'; // Correction : Utilisation du contexte global
+import { useAuth } from '../context/AuthContext';
 import '../styles/ThreadDetailPage.css';
 
 export default function ThreadDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth(); // Récupération de l'utilisateur et de l'état de session
+  const { user } = useAuth();
   
   const [thread, setThread] = useState<ForumThread | null>(null);
   const [loading, setLoading] = useState(true);
@@ -18,15 +18,11 @@ export default function ThreadDetailPage() {
   const [replyError, setReplyError] = useState<string | null>(null);
   const [replyLoading, setReplyLoading] = useState(false);
   
-  // Synchronisation avec le système de cookies HTTP-Only via le Contexte
   const isAuthenticated = !!user;
-  const currentUser = user;
   
-  const canEditOrDelete = !!thread && !!currentUser &&
-    (currentUser.role === 'admin' || 
-     (thread.authorId && (thread.authorId as any).toString?.() === currentUser.id));
-
-  const API_URL = process.env.REACT_APP_API_URL || 'https://www.devopsnotes.org/api';
+  const canEditOrDelete = !!thread && !!user &&
+    (user.role === 'admin' || 
+     (thread.authorId && (thread.authorId as any).toString() === user.id));
 
   useEffect(() => {
     if (!id) return;
@@ -39,7 +35,7 @@ export default function ThreadDetailPage() {
         setThread(threadData);
         setReplies(repliesData);
       } catch (err: any) {
-        setError(err.message || 'Failed to load data');
+        setError(err.response?.data?.message || err.message || 'Failed to load data');
       } finally {
         setLoading(false);
       }
@@ -57,12 +53,11 @@ export default function ThreadDetailPage() {
     setReplyError(null);
     setReplyLoading(true);
     try {
-      // createReply utilisera l'instance axios configurée avec withCredentials
       const newReply = await createReply(id, replyContent);
       setReplies((prev) => [...prev, newReply]);
       setReplyContent('');
     } catch (err: any) {
-      setReplyError(err.message || 'Erreur lors de l\'envoi');
+      setReplyError(err.response?.data?.message || err.message || 'Erreur lors de l\'envoi');
     } finally {
       setReplyLoading(false);
     }
@@ -72,16 +67,11 @@ export default function ThreadDetailPage() {
     if (!id || !window.confirm('Supprimer définitivement ce sujet ?')) return;
 
     try {
-      const res = await fetch(`${API_URL}/forum/threads/${id}`, {
-        method: 'DELETE',
-        // Note: fetch nécessite aussi credentials: 'include' pour les cookies
-        // mais l'idéal serait d'utiliser ton instance 'api' d'Axios ici aussi
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!res.ok) throw new Error('Erreur lors de la suppression');
+      // Correction : Utilisation d'Axios pour la suppression sécurisée
+      await deleteThread(id);
       navigate('/forum');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     }
   }
 
@@ -144,7 +134,6 @@ export default function ThreadDetailPage() {
                     <span>{new Date(reply.createdAt).toLocaleString()}</span>
                   </div>
                   <div className="reply-content">
-                    {/* Correction : Affichage effectif du contenu */}
                     {reply.content}
                   </div>
                 </div>
@@ -165,8 +154,8 @@ export default function ThreadDetailPage() {
               />
               {replyError && <p className="error-msg">{replyError}</p>}
               <div className="form-footer">
-                <p className="hint">Supporte le Markdown (code blocks, gras, etc.)</p>
-                <button aria-label="Soumettre" type="submit" className="btn btn-primary" disabled={replyLoading}>
+                <p className="hint">Partagez votre expertise avec la communauté.</p>
+                <button aria-label="Répondre" type="submit" className="btn btn-primary" disabled={replyLoading}>
                   {replyLoading ? 'Envoi...' : 'Répondre'}
                 </button>
               </div>
@@ -174,7 +163,6 @@ export default function ThreadDetailPage() {
           </div>
         ) : (
           <div className="login-prompt">
-            {/* Si non connecté, on affiche le lien de login */}
             <p><Link to="/login">Connectez-vous</Link> pour participer à la discussion.</p>
           </div>
         )}

@@ -16,7 +16,7 @@ export default function ThreadsPage() {
         const data = await getThreads();
         setThreads(data);
       } catch (err: any) {
-        setError(err.message || 'Failed to load threads');
+        setError(err.response?.data?.message || err.message || 'Failed to load threads');
       } finally {
         setLoading(false);
       }
@@ -93,7 +93,6 @@ export default function ThreadsPage() {
                     )}
                   </div>
                   
-                  {/* On peut imaginer ajouter thread.replyCount plus tard */}
                   <div className="thread-stats-side">
                     <div className="stat-box">
                       <span className="stat-value">{thread.comments?.length || 0}</span>

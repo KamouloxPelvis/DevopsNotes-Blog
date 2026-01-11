@@ -39,7 +39,7 @@
 .user-status {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 0.9rem;
   background: var(--card-bg); /* S'adapte au mode dark */
   color: var(--text-main);
@@ -90,4 +90,18 @@
 .btn-sm {
   padding: 4px 10px;
   font-size: 0.8rem;
+}
+
+/* Bouton S'inscrire (style contour) */
+.btn-outline-primary {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary);
+  color: #ffffff;
+  transform: translateY(-1px);
 }

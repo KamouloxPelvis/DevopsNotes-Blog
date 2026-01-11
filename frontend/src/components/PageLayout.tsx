@@ -56,6 +56,7 @@ export function PageLayout({ children }: Props) {
             <>
               <span className="user-greeting">Mode visiteur</span>
               <Link to="/login" className="btn btn-sm btn-primary">Connexion</Link>
+              <Link to="/signup" className="btn btn-sm btn-outline-primary">S'inscrire</Link>
             </>
           )}
           

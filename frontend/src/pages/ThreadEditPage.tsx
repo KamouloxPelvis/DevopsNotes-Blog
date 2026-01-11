@@ -1,13 +1,13 @@
 import { FormEvent, useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Correction : Import du contexte
+import { useAuth } from '../context/AuthContext';
 import { updateThread, getThread } from '../api/forum';
 import '../styles/ThreadNewPage.css';
 
 export default function ThreadEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth(); // Utilisation du contexte global
+  const { user, loading: authLoading } = useAuth();
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [title, setTitle] = useState('');
@@ -17,7 +17,6 @@ export default function ThreadEditPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  // Sécurité : redirection si non connecté ou si ce n'est pas l'auteur (optionnel ici, géré par le backend)
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/login');
@@ -33,7 +32,7 @@ export default function ThreadEditPage() {
         setContent(data.content);
         setTags(data.tags?.join(', ') || '');
       })
-      .catch((err: any) => setError(err.message))
+      .catch((err: any) => setError(err.response?.data?.message || err.message))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -50,11 +49,11 @@ export default function ThreadEditPage() {
         .map((t) => t.trim())
         .filter(Boolean);
 
-      // Correction : On ne passe plus le token manuellement, Axios utilise les cookies
+      // Axios gère automatiquement les cookies de session
       await updateThread(id, { title, content, tags: tagsArray });
       navigate(`/forum/${id}`); 
     } catch (err: any) {
-      setError(err.message || 'Impossible de modifier le sujet');
+      setError(err.response?.data?.message || err.message || 'Impossible de modifier le sujet');
     } finally {
       setUpdating(false);
     }

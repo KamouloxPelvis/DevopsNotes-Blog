@@ -1,82 +1,48 @@
-// frontend/src/api/forum.ts
+import api from './axios'; // Instance configurée avec withCredentials: true
 import { ForumThread, Reply } from '../types/forum';
-import { getAuthToken } from './auth';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// --- RECUPERATION (GET) ---
 
-async function fetchJSON<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
-  const res = await fetch(input, init);
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`HTTP ${res.status}: ${text}`);
-  }
-  return res.json() as Promise<T>;
+export async function getThreads(): Promise<ForumThread[]> {
+  const response = await api.get<ForumThread[]>('/forum/threads');
+  return response.data;
 }
 
-// Fetch des posts
-export function getThreads(): Promise<ForumThread[]> {
-  return fetchJSON<ForumThread[]>(`${API_URL}/forum/threads`);
+export async function getThread(id: string): Promise<ForumThread> {
+  const response = await api.get<ForumThread>(`/forum/threads/${id}`);
+  return response.data;
 }
 
-// Fetch d'un post
-export function getThread(id: string): Promise<ForumThread> {
-  return fetchJSON<ForumThread>(`${API_URL}/forum/threads/${id}`);
+export async function getReplies(threadId: string): Promise<Reply[]> {
+  const response = await api.get<Reply[]>(`/forum/threads/${threadId}/replies`);
+  return response.data;
 }
 
-// Création du post
-export function createThread(payload: {
+// --- ECRITURE (POST / PUT / DELETE) ---
+
+export async function createThread(payload: {
   title: string;
   content: string;
   tags?: string[];
 }): Promise<ForumThread> {
-  const token = getAuthToken();
-  return fetchJSON<ForumThread>(`${API_URL}/forum/threads`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
+  // Axios envoie automatiquement le cookie 'token' grâce à withCredentials: true
+  const response = await api.post<ForumThread>('/forum/threads', payload);
+  return response.data;
 }
 
-// ✅ FIX : Modification du post
 export async function updateThread(
   id: string, 
-  thread: { title: string; content: string; tags: string[] }, 
-  token?: string
-) {
-  const res = await fetch(`${API_URL}/forum/threads/${id}`, {  // ✅ /forum/threads/
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(thread),
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to update thread');
-  }
-
-  return res.json();
+  payload: { title: string; content: string; tags: string[] }
+): Promise<ForumThread> {
+  const response = await api.put<ForumThread>(`/forum/threads/${id}`, payload);
+  return response.data;
 }
 
-// Affichage des réponses
-export function getReplies(threadId: string): Promise<Reply[]> {
-  return fetchJSON<Reply[]>(`${API_URL}/forum/threads/${threadId}/replies`);
+export async function deleteThread(id: string): Promise<void> {
+  await api.delete(`/forum/threads/${id}`);
 }
 
-// Création des réponses
-export function createReply(threadId: string, content: string): Promise<Reply> {
-  const token = getAuthToken();
-  return fetchJSON<Reply>(`${API_URL}/forum/threads/${threadId}/replies`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({ content }),
-  });
+export async function createReply(threadId: string, content: string): Promise<Reply> {
+  const response = await api.post<Reply>(`/forum/threads/${threadId}/replies`, { content });
+  return response.data;
 }

@@ -32,7 +32,10 @@ export default function ThreadNewPage() {
       await createThread({ title, content, tags: tagsArray });
       navigate('/forum');
     } catch (err: any) {
-      setError(err.message || 'Impossible de créer le sujet');
+      // Gestion robuste des erreurs Axios
+      // Si le backend renvoie un message précis (ex: 401 Unauthorized), on l'affiche
+      const errorMessage = err.response?.data?.message || err.message || 'Impossible de créer le sujet';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -90,7 +93,12 @@ export default function ThreadNewPage() {
         </div>
 
         <div className="form-actions">
-          <button aria-label='Création en cours...' type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+          <button 
+            aria-label='Publier le sujet' 
+            type="submit" 
+            className="btn btn-primary btn-lg" 
+            disabled={loading}
+          >
             {loading ? 'Création en cours...' : 'Publier le sujet'}
           </button>
         </div>
