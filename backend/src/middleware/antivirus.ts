@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import ClamScan from 'clamscan';
+import { Readable } from 'stream';
 
 export const antivirusScan = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.file) return next();
 
   try {
-    const scanner = await new ClamScan().init({
+    const clamscan = await new ClamScan().init({
       clamdscan: {
         host: process.env.CLAMAV_HOST || 'clamav',
         port: 3310,
@@ -13,17 +14,20 @@ export const antivirusScan = async (req: Request, res: Response, next: NextFunct
       }
     });
 
-    const { is_infected, viruses } = await scanner.scan_stream(req.file.buffer);
+    const stream = Readable.from(req.file.buffer);
+
+    // On utilise (clamscan as any) pour éviter l'erreur TypeScript "Property does not exist"
+    const { is_infected, viruses } = await (clamscan as any).scanStream(stream);
 
     if (is_infected) {
       console.error(`🚨 Malware détecté dans ${req.file.originalname}: ${viruses.join(', ')}`);
       return res.status(403).json({ message: "Fichier dangereux détecté et bloqué." });
     }
 
-    next(); // Si tout est OK, on passe à la suite (l'upload R2)
+    next(); 
   } catch (error) {
-    console.error("Erreur scanner ClamAV:", error);
-    // En cas d'erreur du scanner, on bloque par sécurité (Fail-safe)
+    console.error("Erreur scanner ClamAV détaillée:", error);
+    // En cas d'erreur de communication, on bloque pour la sécurité
     res.status(500).json({ message: "Erreur lors de l'analyse de sécurité." });
   }
 };
