@@ -89,36 +89,36 @@ export default function EditArticle() {
   }
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      let finalImageUrl = imageUrl;
-      
-      // Si l'utilisateur n'a pas cliqué sur "Valider" mais a choisi un fichier
-      if (imageFile) {
-        const formData = new FormData();
-        formData.append('file', imageFile);
-        const uploadRes = await api.post('/upload', formData);
-        finalImageUrl = uploadRes.data.imageUrl;
-      }
-
-      // Le backend mis à jour (via le fix précédent) acceptera maintenant ce champ imageUrl
-      await api.put(`/articles/${currentSlug}`, {
-        title,
-        content,
-        imageUrl: finalImageUrl, 
-        tags,
-        status
-      });
-
-      showToast({ type: 'success', message: 'Article mis à jour !' });
-      navigate(`/articles/${currentSlug}`);
-    } catch (err) {
-      showToast({ type: 'error', message: "Erreur de sauvegarde" });
-    } finally {
-      setSubmitting(false);
+  e.preventDefault();
+  setSubmitting(true);
+  try {
+    let finalImageUrl = imageUrl;
+    
+    // Gestion de l'upload si un fichier est présent
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append('file', imageFile);
+      const uploadRes = await api.post('/upload', formData);
+      finalImageUrl = uploadRes.data.imageUrl;
     }
+
+    // Appel POST pour la création
+    const res = await api.post('/articles', {
+      title,
+      content,
+      imageUrl: finalImageUrl,
+      tags,
+      status
+    });
+
+    showToast({ type: 'success', message: 'Article créé avec succès !' });
+    navigate(`/articles/${res.data.slug}`); // Redirection vers le nouveau slug
+  } catch (err) {
+    showToast({ type: 'error', message: "Erreur lors de la création" });
+  } finally {
+    setSubmitting(false);
   }
+}
 
   const handleTagsChange = (value: string) => {
     setRawTags(value);
