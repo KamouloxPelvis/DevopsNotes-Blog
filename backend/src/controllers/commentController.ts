@@ -6,7 +6,7 @@ export const getCommentsBySlug = async (req: Request, res: Response) => {
     const { slug } = req.params;
     // On récupère les commentaires et on "populate" l'auteur pour avoir son nom/photo
     const comments = await Comment.find({ articleSlug: slug })
-      .populate('author', 'username avatar') 
+      .populate('author', 'pseudo avatarUrl') 
       .sort({ createdAt: -1 });
     res.json(comments);
   } catch (error) {

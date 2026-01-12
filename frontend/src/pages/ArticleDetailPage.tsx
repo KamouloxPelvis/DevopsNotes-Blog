@@ -13,7 +13,7 @@ interface Comment {
   _id: string;
   content: string;
   author: {
-    username: string;
+    pseudo: string;
     avatar?: string;
   };
   createdAt: string;
@@ -178,7 +178,7 @@ export default function ArticleDetail() {
             {comments.map((c) => (
               <div key={c._id} className="comment-card">
                 <div className="comment-header">
-                  <span className="comment-author">{c.author?.username}</span>
+                  <span className="comment-author">{c.author?.pseudo ? c.author.pseudo : "Anonymous"}</span>
                   <span className="comment-date">{new Date(c.createdAt).toLocaleDateString()}</span>
                 </div>
                 <p className="comment-text">{c.content}</p>
