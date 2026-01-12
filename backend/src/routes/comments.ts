@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCommentsBySlug, addComment } from '../controllers/commentController';
+import { getCommentsBySlug, addComment, deleteComment } from '../controllers/commentController';
 import { requireAuth } from '../middleware/auth'; // Ton middleware actuel
 
 const router = express.Router();
@@ -9,5 +9,7 @@ router.get('/:slug', getCommentsBySlug);
 
 // POST /api/comments (nécessite d'être connecté)
 router.post('/', requireAuth, addComment);
+
+router.delete('/:id', requireAuth, deleteComment);
 
 export default router;

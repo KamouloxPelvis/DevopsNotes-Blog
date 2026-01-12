@@ -27,6 +27,40 @@
   gap: 0.75rem;
 }
 
+/* Intégration du bouton supprimer dans le header du commentaire */
+.comment-meta-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-delete-comment {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0; /* Caché par défaut */
+  border-radius: 6px;
+}
+
+/* On affiche le bouton au survol de la carte (comme tes boutons de copie de code) */
+.comment-card:hover .btn-delete-comment {
+  opacity: 0.6;
+}
+
+.btn-delete-comment:hover {
+  opacity: 1 !important;
+  color: #ef4444; /* Rouge alerte pour la suppression */
+  background: rgba(239, 68, 68, 0.1);
+}
+
+
 /* ============================================================
    CONTENEUR DE L'ARTICLE
    ============================================================ */
@@ -339,5 +373,11 @@
   .comments-section, 
   .related-articles-footer {
     padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .btn-delete-comment {
+    opacity: 0.7;
   }
 }

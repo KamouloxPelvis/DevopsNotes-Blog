@@ -82,41 +82,55 @@ export default function ArticleDetail() {
     }
   }, [article?.content, loadingArticle]);
 
-  async function handlePostComment(e: React.FormEvent) {
-    e.preventDefault();
-    if (!commentBody.trim() || !slug) return;
-    setIsSubmitting(true);
-    try {
-      const res = await api.post('/comments', { articleSlug: slug, content: commentBody });
-      setComments((prev) => [res.data, ...prev]);
-      setCommentBody('');
-    } catch (err: any) {
-      alert("Erreur lors de l'envoi du commentaire");
-    } finally {
-      setIsSubmitting(false);
-    }
+// Suprresion de l'article
+async function handleDelete() {
+  if (!slug || !window.confirm('Supprimer cet article ?')) return;
+  try {
+    await api.delete(`/articles/${slug}`);
+    navigate('/articles');
+  } catch (err) {
+    alert("Erreur lors de la suppression");
   }
+}
 
-  async function handleDelete() {
-    if (!slug || !window.confirm('Supprimer cet article ?')) return;
-    try {
-      await api.delete(`/articles/${slug}`);
-      navigate('/articles');
-    } catch (err) {
-      alert("Erreur lors de la suppression");
-    }
+if (loadingArticle) return <div className="loading">Chargement de l'article...</div>;
+if (error) return <div className="error-msg">⚠️ {error}</div>;
+if (!article) return <p>Article introuvable.</p>;
+
+//Création de commentaire
+async function handlePostComment(e: React.FormEvent) {
+  e.preventDefault();
+  if (!commentBody.trim() || !slug) return;
+  setIsSubmitting(true);
+  try {
+    const res = await api.post('/comments', { articleSlug: slug, content: commentBody });
+    setComments((prev) => [res.data, ...prev]);
+    setCommentBody('');
+  } catch (err: any) {
+    alert("Erreur lors de l'envoi du commentaire");
+  } finally {
+    setIsSubmitting(false);
   }
+}
 
-  if (loadingArticle) return <div className="loading">Chargement de l'article...</div>;
-  if (error) return <div className="error-msg">⚠️ {error}</div>;
-  if (!article) return <p>Article introuvable.</p>;
-
-  // --- CORRECTION ICI : Gestion uniforme du slash ---
-  const fullImageUrl = article.imageUrl 
+// Gestion de l'URL complète de l'image
+const fullImageUrl = article.imageUrl 
     ? (article.imageUrl.startsWith('http') 
         ? article.imageUrl 
         : `${R2_PUBLIC_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`)
     : null;
+
+// Fonction de suppression de commentaire
+async function handleDeleteComment(commentId: string) {
+  if (!window.confirm("Supprimer ce commentaire ?")) return;
+  try {
+    await api.delete(`/comments/${commentId}`);
+    // Mise à jour de l'état local pour faire disparaître le commentaire
+    setComments((prev) => prev.filter(c => c._id !== commentId));
+  } catch (err) {
+    alert("Impossible de supprimer le commentaire");
+  }
+}
 
   return (
     <div className="article-detail-page">
@@ -178,8 +192,24 @@ export default function ArticleDetail() {
             {comments.map((c) => (
               <div key={c._id} className="comment-card">
                 <div className="comment-header">
-                  <span className="comment-author">{c.author?.pseudo ? c.author.pseudo : "Anonymous"}</span>
-                  <span className="comment-date">{new Date(c.createdAt).toLocaleDateString()}</span>
+                  <span className="comment-author">{c.author?.pseudo || "Anonymous"}</span>
+                  
+                  <div className="comment-meta-right">
+                    <span className="comment-date">
+                      {new Date(c.createdAt).toLocaleDateString('fr-FR')}
+                    </span>
+                    
+                    {/* Vérification Admin ou Auteur du commentaire */}
+                    {(isAdmin || (user && (c.author as any)?._id === user.id)) && (
+                      <button 
+                        onClick={() => handleDeleteComment(c._id)}
+                        className="btn-delete-comment"
+                        title="Supprimer mon commentaire"
+                      >
+                        <span role="img" aria-label="Supprimer">🗑️</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <p className="comment-text">{c.content}</p>
               </div>

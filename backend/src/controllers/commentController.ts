@@ -37,3 +37,35 @@ export const addComment = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Impossible de poster le commentaire" });
   }
 };
+
+export const deleteComment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const comment = await Comment.findById(id);
+
+    if (!comment) {
+      return res.status(404).json({ message: "Commentaire introuvable" });
+    }
+
+    // On récupère l'utilisateur depuis la requête (injecté par requireAuth)
+    const currentUser = req.user;
+
+    if (!currentUser) {
+      return res.status(401).json({ message: "Utilisateur non identifié" });
+    }
+
+    // Vérification : Auteur du commentaire OU Admin
+    // On utilise .toString() car comment.author est un ObjectId
+    const isAuthor = comment.author.toString() === currentUser.id;
+    const isAdmin = currentUser.role === 'admin';
+
+    if (!isAuthor && !isAdmin) {
+      return res.status(403).json({ message: "Action non autorisée" });
+    }
+
+    await Comment.findByIdAndDelete(id);
+    res.json({ message: "Commentaire supprimé avec succès" });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la suppression" });
+  }
+};
