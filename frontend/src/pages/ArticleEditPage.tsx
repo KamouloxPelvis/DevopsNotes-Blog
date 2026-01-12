@@ -127,7 +127,7 @@ useEffect(() => {
           <div className="final-actions">
             <select value={status} onChange={(e) => setStatus(e.target.value as any)}>
               <option value="draft">Brouillon</option>
-              <option value="published">Publier</option>
+              <option value="published">Modifier</option>
             </select>
             <button onClick={handleSubmit} className="btn-publish" disabled={submitting || uploading}>
               {submitting ? 'Sauvegarde...' : 'Mettre à jour'}
