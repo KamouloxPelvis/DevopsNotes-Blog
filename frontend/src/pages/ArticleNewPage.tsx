@@ -23,19 +23,25 @@ export default function EditArticle() {
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const [loading, setLoading] = useState(true);
 
-  const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
+  const R2_PUBLIC_URL = process.env.REACT_APP_R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
   // Fonction utilitaire pour générer l'URL correcte (évite les erreurs de slash)
-  const getFullImageUrl = (path: string) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    // Si le chemin ne commence pas par /, on l'ajoute
-    const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    return `${R2_PUBLIC_URL}${cleanPath}`;
-  };
-
+  
   useEffect(() => {
-    if (!currentSlug) return;
+    // Si on est en mode "création" (pas de slug), on arrête le chargement immédiatement
+    if (!currentSlug) {
+      setLoading(false);
+      return;
+    }
+
+    const getFullImageUrl = (path: string) => {
+      if (!path) return null;
+      if (path.startsWith('http')) return path;
+      // Si le chemin ne commence pas par /, on l'ajoute
+      const cleanPath = path.startsWith('/') ? path : `/${path}`;
+      return `${R2_PUBLIC_URL}${cleanPath}`;
+    };
+
     const fetchArticle = async () => {
       try {
         const res = await api.get(`/articles/${currentSlug}`);
@@ -45,7 +51,6 @@ export default function EditArticle() {
         setStatus(data.status);
         setImageUrl(data.imageUrl || '');
         
-        // CORRECTION ICI : Utilisation de la fonction helper
         if (data.imageUrl) {
           setImagePreview(getFullImageUrl(data.imageUrl));
         }
@@ -55,12 +60,12 @@ export default function EditArticle() {
       } catch (err) {
         showToast({ type: 'error', message: "Erreur de chargement" });
       } finally {
-        setLoading(false);
+        setLoading(false); // S'exécute après le fetch en mode édition
       }
     };
-    fetchArticle();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSlug, showToast, R2_PUBLIC_URL]);
+
+  fetchArticle();
+}, [currentSlug, showToast, R2_PUBLIC_URL]);
 
   async function handleManualUpload() {
     if (!imageFile || uploading) return;

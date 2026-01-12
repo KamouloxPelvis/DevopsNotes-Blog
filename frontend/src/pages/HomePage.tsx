@@ -5,8 +5,6 @@ import '../styles/HomePage.css';
 export default function HomePage() {
   const navigate = useNavigate();
   const [lang, setLang] = useState<'FR' | 'EN'>('FR');
-  
-  const isAuthenticated = !!localStorage.getItem('devopsnotes_token');
 
   // Contenu textuel pour faciliter la maintenance
   const content = {

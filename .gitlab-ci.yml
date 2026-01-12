@@ -37,6 +37,8 @@ deploy_production:
         echo 'REACT_APP_API_URL=https://www.devopsnotes.org/api' > ./frontend/.env &&
         echo 'NODE_ENV=production' >> ./frontend/.env &&
         echo 'REACT_APP_ROOT=https://www.devopsnotes.org' >> ./frontend/.env &&
+        echo 'REACT_APP_R2_PUBLIC_URL=${R2_PUBLIC_URL}' >> ./frontend/.env &&
+
         
         # --- RELANCE DE DOCKER ---
         docker compose down &&
