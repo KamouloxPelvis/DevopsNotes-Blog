@@ -23,31 +23,40 @@ export default function EditArticle() {
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const [loading, setLoading] = useState(true);
 
-  const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
+  const R2_PUBLIC_URL = process.env.REACT_APP_R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
   useEffect(() => {
-    if (!currentSlug) return;
-    const fetchArticle = async () => {
-      try {
-        const res = await api.get(`/articles/${currentSlug}`);
-        const data = res.data;
-        setTitle(data.title);
-        setContent(data.content);
-        setStatus(data.status);
-        setImageUrl(data.imageUrl || '');
-        if (data.imageUrl) {
-          setImagePreview(data.imageUrl.startsWith('http') ? data.imageUrl : `${R2_PUBLIC_URL}${data.imageUrl}`);
-        }
-        setTags(data.tags || []);
-        setRawTags((data.tags || []).join(', '));
-      } catch (err) {
-        showToast({ type: 'error', message: "Erreur de chargement" });
-      } finally {
-        setLoading(false);
+  // Sécurité : si pas de slug, on arrête le chargement pour éviter le blocage
+  if (!currentSlug) {
+    setLoading(false);
+    return;
+  }
+
+  const fetchArticle = async () => {
+    try {
+      const res = await api.get(`/articles/${currentSlug}`);
+      const data = res.data;
+      setTitle(data.title);
+      setContent(data.content);
+      setStatus(data.status);
+      setImageUrl(data.imageUrl || '');
+      
+      if (data.imageUrl) {
+        // Logique de prévisualisation avec la nouvelle constante
+        setImagePreview(data.imageUrl.startsWith('http') ? data.imageUrl : `${R2_PUBLIC_URL}${data.imageUrl}`);
       }
-    };
-    fetchArticle();
-  }, [currentSlug, showToast, R2_PUBLIC_URL]);
+      
+      setTags(data.tags || []);
+      setRawTags((data.tags || []).join(', '));
+    } catch (err) {
+      showToast({ type: 'error', message: "Erreur de chargement de l'article" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchArticle();
+}, [currentSlug, showToast, R2_PUBLIC_URL]);
 
   async function handleManualUpload() {
   if (!imageFile || uploading) return;
