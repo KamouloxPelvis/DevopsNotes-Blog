@@ -1,6 +1,6 @@
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, ChevronDown, Home, BookOpen, MessageSquare, MessageCircle } from 'lucide-react'; // Ajout d'icônes
 import { useAuth } from '../context/AuthContext';
 import CookieBanner from './CookieBanner';
 import devopsLogo from '../styles/logo_devopsnotes.webp';
@@ -14,14 +14,18 @@ type Props = {
 export function PageLayout({ children }: Props) {
   const { user, logout } = useAuth();
   const [isDark, setIsDark] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Initialisation du thème au chargement
+  // Fermer le menu si on clique ailleurs
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      setIsDark(true);
-      document.body.setAttribute('data-theme', 'dark');
-    }
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const toggleTheme = () => {
@@ -34,20 +38,40 @@ export function PageLayout({ children }: Props) {
   return (
     <div className="layout-wrapper">
       <CookieBanner />
-      {/* 1. Petit Logo Flottant (Fixed) */}
-      <Link to="/homepage" className="floating-home-btn">
-        <img src={devopsFav} 
-             alt="Home" 
-             fetchpriority="high" />
-      </Link>
 
-      {/* 2. Barre de Navigation Supérieure */}
+      {/* 1. Menu Déroulant Flottant */}
+      <div className="floating-menu-container" ref={menuRef}>
+        <button 
+          className={`floating-menu-trigger ${menuOpen ? 'active' : ''}`}
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Menu de navigation"
+        >
+          <img src={devopsFav} alt="Menu" />
+          <ChevronDown size={16} className={`chevron ${menuOpen ? 'rotate' : ''}`} />
+        </button>
+
+        {menuOpen && (
+          <div className="dropdown-menu shadow-lg">
+            <Link to="/homepage" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+              <Home size={18} /> <span>Accueil</span>
+            </Link>
+            <div className="dropdown-divider" />
+            <Link to="/articles" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+              <BookOpen size={18} /> <span>Articles</span>
+            </Link>
+            <Link to="/forum" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+              <MessageSquare size={18} /> <span>Forum</span>
+            </Link>
+            <Link to="/chat" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+              <MessageCircle size={18} /> <span>Chat</span>
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* 2. Barre de Navigation Supérieure (simplifiée) */}
       <div className="top-nav-bar">
-        <nav className="main-nav-links">
-          <Link to="/articles" className="nav-link">Articles</Link>
-          <Link to="/forum" className="nav-link">Forum</Link>
-          <Link to="/chat" className="nav-link">Chat</Link>
-        </nav>
+        <div className="nav-spacer" /> {/* Remplace main-nav-links qui a bougé */}
         <div className="user-status">
           {user ? (
             <>
@@ -55,7 +79,7 @@ export function PageLayout({ children }: Props) {
                 Bonjour, <strong>{user.pseudo ?? user.email}</strong>
               </span>
               <Link to="/profile" className="btn btn-sm btn-secondary">Profil</Link>
-              <button arial-label='se déconnecter' onClick={logout} className="btn btn-sm btn-secondary">Se déconnecter</button>
+              <button onClick={logout} className="btn btn-sm btn-secondary">Se déconnecter</button>
             </>
           ) : (
             <>
@@ -65,39 +89,23 @@ export function PageLayout({ children }: Props) {
             </>
           )}
           
-          {/* Séparateur visuel */}
-          <div style={{ width: '1px', height: '20px', background: 'var(--toolbar-separator)', margin: '0 8px' }} />
+          <div className="separator" />
           
-          {/* Bouton Toggle Theme intégré dans la barre utilisateur */}
           <button
             aria-label='Changer le thème'
             onClick={toggleTheme} 
-            className="btn-theme-toggle"
-            style={{ 
-                background: 'transparent', 
-                border: 'none', 
-                cursor: 'pointer',
-                color: 'var(--primary)',
-                display: 'flex',
-                alignItems: 'center'
-            }}
+            className="btn-theme-toggle-classic"
           >
-            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </div>
       </div>
 
-      {/* 3. Conteneur Principal Centré */}
       <div className="main-container">
-        {/* En-tête avec le gros logo */}
         <header className="main-header">
-          <img src={devopsLogo} 
-               alt="DevOpsNotes Logo" 
-               className="header-logo-img"
-               fetchpriority="high" />
+          <img src={devopsLogo} alt="DevOpsNotes Logo" className="header-logo-img" />
         </header>
 
-        {/* Zone de contenu dynamique */}
         <main className="content-area">
           {children}
         </main>

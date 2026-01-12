@@ -78,16 +78,7 @@ export default function HomePage() {
             {t.repo}
           </a>
           
-          {!isAuthenticated && (
-            <div className="auth-group">
-              <button aria-label='Se connecter' className="btn btn-light landing-btn" onClick={() => navigate('/login')}>
-                👤 Connexion
-              </button>
-              <button aria-label="S'inscrire" className="btn btn-outline-primary landing-btn signup-btn" onClick={() => navigate('/signup')}>
-                S'inscrire
-              </button>
-            </div>
-          )}
+          {/* Bloc d'authentification supprimé pour éviter les doublons avec le PageLayout */}
         </div>
       </div>
 
@@ -104,5 +95,4 @@ export default function HomePage() {
         </div>
       </div>
     </div>
-  )
-}
+  )};
