@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../api/axios'; 
 import { useToast } from '../context/ToastContext';
@@ -24,24 +24,21 @@ export default function EditArticle() {
   const [loading, setLoading] = useState(true);
 
   const R2_PUBLIC_URL = process.env.REACT_APP_R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
-
-  // Fonction utilitaire pour générer l'URL correcte (évite les erreurs de slash)
+  
+  // 1. On mémorise la fonction avec useCallback
+  const getFullImageUrl = useCallback((path: string) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${R2_PUBLIC_URL}${cleanPath}`;
+  }, [R2_PUBLIC_URL]); // Elle ne changera que si R2_PUBLIC_URL change
   
   useEffect(() => {
-    // Si on est en mode "création" (pas de slug), on arrête le chargement immédiatement
     if (!currentSlug) {
-      setLoading(false);
-      return;
-    }
-
-    const getFullImageUrl = (path: string) => {
-      if (!path) return null;
-      if (path.startsWith('http')) return path;
-      // Si le chemin ne commence pas par /, on l'ajoute
-      const cleanPath = path.startsWith('/') ? path : `/${path}`;
-      return `${R2_PUBLIC_URL}${cleanPath}`;
+      setLoading(false);  
+      return
     };
-
+  
     const fetchArticle = async () => {
       try {
         const res = await api.get(`/articles/${currentSlug}`);
@@ -50,99 +47,99 @@ export default function EditArticle() {
         setContent(data.content);
         setStatus(data.status);
         setImageUrl(data.imageUrl || '');
-        
         if (data.imageUrl) {
+          // 2. On utilise la fonction mémorisée
           setImagePreview(getFullImageUrl(data.imageUrl));
         }
-        
         setTags(data.tags || []);
         setRawTags((data.tags || []).join(', '));
       } catch (err) {
         showToast({ type: 'error', message: "Erreur de chargement" });
       } finally {
-        setLoading(false); // S'exécute après le fetch en mode édition
+        setLoading(false);
       }
     };
-
-  fetchArticle();
-}, [currentSlug, showToast, R2_PUBLIC_URL]);
-
+  
+    fetchArticle();
+  }, [currentSlug, showToast, getFullImageUrl]);
+  
+  // On utilise le champ 'file' pour correspondre à ton routes/upload.ts
   async function handleManualUpload() {
     if (!imageFile || uploading) return;
     try {
       setUploading(true);
       const formData = new FormData();
-      formData.append('file', imageFile);
+      formData.append('file', imageFile); // 'file' match avec upload.single('file')
+      formData.append('folder', 'articles');
       
       const res = await api.post('/upload', formData);
-      const newImageUrl = res.data.imageUrl; // R2 renvoie maintenant une URL absolue normalement
+      const newImageKey = res.data.imageUrl; // Ton service R2 renvoie la Key (fileKey)
       
-      setImageUrl(newImageUrl); 
-      setImagePreview(newImageUrl); // Pas besoin de traiter si c'est déjà absolu
+      setImageUrl(newImageKey); 
+      setImagePreview(getFullImageUrl(newImageKey));
       setImageFile(null);
-      showToast({ type: 'success', message: 'Image envoyée sur R2 !' });
+      showToast({ type: 'success', message: 'Image validée et stockée sur R2 !' });
     } catch (err) {
-      showToast({ type: 'error', message: "Échec de l'upload." });
+      showToast({ type: 'error', message: "Échec de l'upload. Vérifiez le format (WebP/JPG/PNG)." });
     } finally {
       setUploading(false);
     }
   }
 
   async function handleSubmit(e: FormEvent) {
-  e.preventDefault();
-  setSubmitting(true);
-  try {
-    let finalImageUrl = imageUrl;
-    
-    // Gestion de l'upload si un fichier est présent
-    if (imageFile) {
-      const formData = new FormData();
-      formData.append('file', imageFile);
-      const uploadRes = await api.post('/upload', formData);
-      finalImageUrl = uploadRes.data.imageUrl;
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      // Pour le submit, on reste sur du JSON si l'image est déjà uploadée via handleManualUpload
+      // OU on peut passer en FormData si on veut supporter l'upload direct au submit.
+      // Ici, on utilise la Key déjà stockée dans imageUrl.
+      
+      const articleData = {
+        title,
+        content,
+        imageUrl, // La Key R2
+        tags,
+        status
+      };
+
+      if (currentSlug) {
+        await api.put(`/articles/${currentSlug}`, articleData);
+        showToast({ type: 'success', message: 'Article mis à jour !' });
+      } else {
+        const res = await api.post('/articles', articleData);
+        showToast({ type: 'success', message: 'Article créé !' });
+        navigate(`/articles/${res.data.slug}`);
+      }
+    } catch (err: any) {
+      showToast({ type: 'error', message: "Erreur lors de l'enregistrement" });
+    } finally {
+      setSubmitting(false);
     }
-
-    // Appel POST pour la création
-    const res = await api.post('/articles', {
-      title,
-      content,
-      imageUrl: finalImageUrl,
-      tags,
-      status
-    });
-
-    showToast({ type: 'success', message: 'Article créé avec succès !' });
-    navigate(`/articles/${res.data.slug}`); // Redirection vers le nouveau slug
-  } catch (err) {
-    showToast({ type: 'error', message: "Erreur lors de la création" });
-  } finally {
-    setSubmitting(false);
   }
-}
 
   const handleTagsChange = (value: string) => {
     setRawTags(value);
     setTags(value.split(',').map(t => t.trim().toLowerCase()).filter(t => t.length > 0));
   };
 
-  if (loading) return <div className="loading">Chargement de l'éditeur...</div>;
+  if (loading) return <div className="loading">Chargement...</div>;
 
   return (
     <div className="new-article-v2">
       <header className="editor-header">
         <div className="header-container">
-          <Link to={`/articles/${currentSlug}`} className="back-link">← Annuler</Link>
+          <Link to={currentSlug ? `/articles/${currentSlug}` : "/articles"} className="back-link">← Annuler</Link>
           <div className="view-switcher">
-            <button aria-label="Mode Édition" type="button" onClick={() => setViewMode('edit')} className={viewMode === 'edit' ? 'active' : ''}>Édition</button>
-            <button aria-label="Mode Aperçu" type="button" onClick={() => setViewMode('preview')} className={viewMode === 'preview' ? 'active' : ''}>Aperçu</button>
+            <button type="button" onClick={() => setViewMode('edit')} className={viewMode === 'edit' ? 'active' : ''}>Édition</button>
+            <button type="button" onClick={() => setViewMode('preview')} className={viewMode === 'preview' ? 'active' : ''}>Aperçu</button>
           </div>
           <div className="final-actions">
             <select value={status} onChange={(e) => setStatus(e.target.value as any)}>
               <option value="draft">Brouillon</option>
               <option value="published">Publier</option>
             </select>
-            <button aria-label="Mettre à jour" onClick={handleSubmit} className="btn-publish" disabled={submitting || uploading}>
-              {submitting ? 'Enregistrement...' : 'Mettre à jour'}
+            <button onClick={handleSubmit} className="btn-publish" disabled={submitting || uploading}>
+              {submitting ? 'Enregistrement...' : 'Enregistrer'}
             </button>
           </div>
         </div>
@@ -160,18 +157,21 @@ export default function EditArticle() {
                     setImageFile(file);
                     if (file) setImagePreview(URL.createObjectURL(file));
                   }} />
-                  <button aria-label='Uploader une image' type="button" onClick={handleManualUpload} disabled={!imageFile || uploading}>Valider</button>
+                  {imageFile && (
+                    <button type="button" onClick={handleManualUpload} className="btn-validate-upload" disabled={uploading}>
+                      {uploading ? 'Upload...' : 'Uploader sur R2'}
+                    </button>
+                  )}
                 </div>
                 {imagePreview && <img src={imagePreview} className="mini-preview" alt="preview" />}
               </div>
               <div className="tag-box">
                 <label>Tags</label>
-                <input aria-label="Tags" value={rawTags} onChange={(e) => handleTagsChange(e.target.value)} />
+                <input value={rawTags} onChange={(e) => handleTagsChange(e.target.value)} placeholder="tag1, tag2..." />
               </div>
             </section>
 
             <input className="main-title-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre de l'article" />
-            
             <TiptapEditor value={content} onChange={setContent} />
           </div>
         ) : (

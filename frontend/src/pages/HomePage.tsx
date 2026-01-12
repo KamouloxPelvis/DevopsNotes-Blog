@@ -67,7 +67,7 @@ export default function HomePage() {
 
           {/* Bouton GitLab avec lien externe */}
           <a 
-            href="https://gitlab.com/votre-username/votre-repo" 
+            href="https://gitlab.com/portfolio-kamal-guidadou/DevOps-DevSecOps/projet-demo-devops-v1" 
             target="_blank" 
             rel="noopener noreferrer"
             className="btn btn-outline-dark landing-btn gitlab-btn"

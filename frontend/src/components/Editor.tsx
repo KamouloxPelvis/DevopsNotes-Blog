@@ -8,6 +8,7 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import Image from '@tiptap/extension-image';  
 import ResizeImage from 'tiptap-extension-resize-image';
+import { useToast } from '../context/ToastContext';
 import styles from '../styles/Editor.module.css';
 
 interface EditorProps {
@@ -17,28 +18,30 @@ interface EditorProps {
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showToast } = useToast();
 
   if (!editor) return null;
 
   // Gestion de l'upload d'image vers Cloudflare R2 via API
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
   const formData = new FormData();
-  formData.append('file', file); // 'file' doit matcher le backend
+  formData.append('file', file);
 
   try {
-    // Appel à /api/upload
     const res = await api.post('/upload', formData);
+    const fileKey = res.data.imageUrl; // Récupère la clé
     
-    // Si r2Service renvoie bien l'URL publique Cloudflare
-    const r2Url = res.data.imageUrl; 
+    // On reconstruit l'URL complète pour l'affichage dans l'éditeur
+    const publicUrl = "https://resources.devopsnotes.org";
+    const fullUrl = `${publicUrl}/${fileKey}`;
     
-    console.log("Image insérée depuis R2 :", r2Url);
-    editor?.chain().focus().setImage({ src: r2Url }).run();
+    console.log("Image insérée :", fullUrl);
+    editor?.chain().focus().setImage({ src: fullUrl }).run();
   } catch (err) {
-    console.error("Erreur de transfert vers R2");
+    showToast({ type: 'error', message: "Erreur de transfert vers R2" });
   }
 };
 
