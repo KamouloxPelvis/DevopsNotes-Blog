@@ -3,6 +3,7 @@ import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN, // Sentry > Projects > TonProjetNode > Settings > Client Keys
+  environment: process.env.NODE_ENV || "development",
   integrations: [
     nodeProfilingIntegration(),
   ],

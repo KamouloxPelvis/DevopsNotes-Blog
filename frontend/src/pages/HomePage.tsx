@@ -87,9 +87,6 @@ export default function HomePage() {
             <img src="/logos/gitlab.png" alt="GitLab" style={{ width: '20px', marginRight: '8px' }} />
             {t.repo}
           </a>
-          <button onClick={() => { throw new Error("Test Sentry Kamal " + new Date().getTime()); }}>
-            Casser l'app pour Sentry
-          </button>
         </div>
       </div>
 
