@@ -9,8 +9,8 @@ services:
       - "5000:5000"
     env_file:
       - ./backend/.env
-    # On ajoute les variables R2 injectées par GitLab CI
     environment:
+      - SENTRY_DSN=${SENTRY_DSN}
       - CLAMAV_HOST=clamav
       - CLAMAV_PORT=3310
       - R2_ACCOUNT_ID=${R2_ACCOUNT_ID}
@@ -38,6 +38,7 @@ services:
       # On passe l'URL de l'API au build si nécessaire
       args:
         - REACT_APP_API_URL=https://www.devopsnotes.org/api
+        - SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
     container_name: devopsnotes-frontend
     restart: always
     ports:
