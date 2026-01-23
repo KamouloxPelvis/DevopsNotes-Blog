@@ -76,3 +76,21 @@ export const getCommentsCount = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
+
+// 5. Compter le nombre de vues des articles
+export const incrementViews = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const article = await Article.findOneAndUpdate(
+      { slug },
+      { $inc: { views: 1 } }, // Incrémente de 1
+      { new: true }
+    );
+
+    if (!article) return res.status(404).json({ message: "Article non trouvé" });
+    
+    res.json({ views: article.views });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de l'incrémentation des vues" });
+  }
+};

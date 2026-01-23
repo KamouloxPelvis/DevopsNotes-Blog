@@ -72,3 +72,10 @@ export async function createArticle(
 
   return data as Article;
 }
+
+// Appeler pour incrémenter le compteur de vues d'un article
+export async function incrementArticleViews(slug: string): Promise<void> {
+  await fetch(`${API_URL}/articles/${encodeURIComponent(slug)}/view`, {
+    method: 'POST',
+  });
+}

@@ -3,7 +3,7 @@ import multer from 'multer'; // Import direct pour remplacer l'ancien utils
 import { requireAdmin, requireAuth } from '../middleware/auth';
 import { Article } from '../models/Article';
 import { generateSlug } from '../utils/slug';
-import { getCommentsCount } from '../controllers/articleController';
+import { getCommentsCount, incrementViews } from '../controllers/articleController';
 import { antivirusScan } from '../middleware/antivirus';
 import { processImage } from '../middleware/imageProcessor';
 import { uploadToR2 } from '../services/r2Service';
@@ -182,6 +182,10 @@ router.delete('/:slug', requireAdmin, async (req: Request, res: Response) => {
   }
 });
 
+// 7. Incrémenter les vues d'un article
 router.get('/:slug/comments/count', getCommentsCount);
+
+// 8. Route pour incrémenter les vues
+router.post('/:slug/view', incrementViews);
 
 export default router;

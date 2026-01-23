@@ -8,8 +8,8 @@ type RelatedArticlesProps = {
 };
 
 export function RelatedArticles({ currentArticle, allArticles }: RelatedArticlesProps) {
-  // On définit la racine du serveur pour les images (http://localhost:5000)
-  const API_ROOT = process.env.REACT_APP_ROOT ?? 'http://localhost:5000';
+
+  const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
   const currentTags = currentArticle.tags || [];
   if (currentTags.length === 0) return null;
@@ -38,7 +38,7 @@ export function RelatedArticles({ currentArticle, allArticles }: RelatedArticles
                 <img 
                   src={article.imageUrl.startsWith('http') 
                     ? article.imageUrl 
-                    : `${API_ROOT}${article.imageUrl}`} 
+                    : `${R2_PUBLIC_URL}${article.imageUrl}`} 
                   alt={article.title} 
                 />
               ) : (

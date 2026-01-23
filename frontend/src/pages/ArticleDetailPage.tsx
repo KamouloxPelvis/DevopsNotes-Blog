@@ -82,6 +82,17 @@ export default function ArticleDetail() {
     }
   }, [article?.content, loadingArticle]);
 
+  // 3. Incrémenter les vues au chargement réussi de l'article
+useEffect(() => {
+  if (article && !loadingArticle) {
+    // On appelle la nouvelle route POST /articles/:slug/view
+    api.post(`/articles/${article.slug}/view`)
+      .catch((err) => console.error("Erreur increment vues:", err));
+  }
+  // On ne déclenche que si l'ID de l'article change pour éviter les boucles
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [article?._id, loadingArticle]);
+
 // Suprresion de l'article
 async function handleDelete() {
   if (!slug || !window.confirm('Supprimer cet article ?')) return;
