@@ -1,3 +1,4 @@
+import "./instrument.ts";
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -10,7 +11,6 @@ import jwt from 'jsonwebtoken';
 import { createServer } from 'http'; // Requis pour Socket.io
 import { Server } from 'socket.io';
 import * as Sentry from "@sentry/node";
-import "./instruments";
 
 // Import des routes
 import authRoutes from './routes/auth';

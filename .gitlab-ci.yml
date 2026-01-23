@@ -25,6 +25,7 @@ deploy_production:
         echo 'JWT_SECRET=${JWT_SECRET}' >> ./backend/.env &&
         echo 'JWT_EXPIRES=1h' >> ./backend/.env &&
         echo 'RESEND_API_KEY=${RESEND_API_KEY}' >> ./backend/.env &&
+        echo "SENTRY_DSN=${SENTRY_DSN}" >> ./backend/.env
         
         # Configuration Cloudflare R2
         echo 'R2_ACCOUNT_ID=${R2_ACCOUNT_ID}' >> ./backend/.env &&
