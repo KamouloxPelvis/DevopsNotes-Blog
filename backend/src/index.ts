@@ -1,9 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import "./instrument";
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import * as cookie from 'cookie';
@@ -24,7 +26,6 @@ import seoRoutes from './routes/seo';
 // Import du modèle Message (nécessaire pour la logique de sauvegarde)
 import { Message } from './models/Message';
 
-dotenv.config();
 
 const app = express();
 const httpServer = createServer(app); // On crée le serveur HTTP
