@@ -95,7 +95,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/forum', forumRoutes);
 app.use('/api/seo', seoRoutes);
 
-// --- Monitoring erreurs avec Sentry ---
+// --- MONITORING DES ERREURS AVEC SENTRY ---
 Sentry.setupExpressErrorHandler(app);
 
 app.get("/api/debug-sentry", (req, res) => {
@@ -103,7 +103,6 @@ app.get("/api/debug-sentry", (req, res) => {
 });
 
 // --- LOGIQUE SOCKET.IO ---
-
 io.on('connection', (socket) => {
   // 1. RÉCUPÉRATION DU TOKEN DEPUIS LES COOKIES
   // Le frontend utilise des cookies HTTP-Only pour le token
