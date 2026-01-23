@@ -98,7 +98,7 @@ export default function HomePage() {
           <img src="/logos/mongodb.webp" alt="MongoDB" title="MongoDB + Mongoose" />
           <img src="/logos/docker.webp" alt="Docker" title="Docker Containerization" />
           <img src="/logos/gitlab.webp" alt="GitLab" title="GitLab CI/CD Pipelines" />
-          <img src="/logos/cloudflare.webp" alt="Cloudflare" title="CDN, R2 & Security" />
+          <img src="/logos/cf.webp" alt="Cloudflare" title="CDN, R2 & Security" />
         </div>
       </div>
     </div>
