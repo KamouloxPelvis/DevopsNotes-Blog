@@ -38,8 +38,11 @@ export function RelatedArticles({ currentArticle, allArticles }: RelatedArticles
                 <img 
                   src={article.imageUrl.startsWith('http') 
                     ? article.imageUrl 
-                    : `${R2_PUBLIC_URL}${article.imageUrl}`} 
-                  alt={article.title} 
+                    : `${R2_PUBLIC_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`} 
+                  alt={article.title}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=DevOps';
+                  }}
                 />
               ) : (
                 <div className="img-placeholder">DevOps</div>
