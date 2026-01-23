@@ -9,6 +9,8 @@
     "@editorjs/image": "^2.10.3",
     "@editorjs/list": "^2.0.9",
     "@heroicons/react": "^2.2.0",
+    "@sentry/cli": "^2.58.4",
+    "@sentry/react": "^10.36.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -45,9 +47,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run sentry:sourcemaps",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org devopsnotes --project javascript-react ./build && sentry-cli sourcemaps upload --org devopsnotes --project javascript-react ./build"
   },
   "eslintConfig": {
     "extends": [
