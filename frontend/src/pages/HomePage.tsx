@@ -11,8 +11,17 @@ export default function HomePage() {
     FR: {
       title: "Portfolio Technique & Hub DevSecOps",
       subtitle: "Architecture Cloud | Automatisation CI/CD | Sécurité Kubernetes",
-      description1: "est une plateforme full-stack conçue pour démontrer une expertise end-to-end dans le cycle de vie logiciel (SDLC). Plus qu'une simple vitrine, c'est un laboratoire vivant intégrant les meilleures pratiques de sécurité et d'automatisation.",
-      description2: "L'infrastructure repose sur une stack React/Node.js/MongoDB, entièrement conteneurisée. Actuellement en transition vers un cluster k3s (Lightweight Kubernetes) pour une orchestration optimisée sur VPS Kamatera. La sécurité est au cœur du projet : gestion DNS/WAF via Cloudflare et intégration de scans de vulnérabilités dans mes pipelines.",
+      description1: "est une plateforme full-stack conçue pour démontrer une expertise end-to-end dans le cycle de vie logiciel (SDLC). Plus qu'une simple vitrine, c'est un laboratoire vivant qui a pour vocation d'intégrer les meilleures pratiques d'architecteur sécurisée et d'automatisation.",
+      description2: (
+              <>
+                <strong>Points clés :</strong><br />
+                • <strong>Architecture Stateless :</strong> Découplage total des médias via Cloudflare R2 (S3-compatible) et base de données managée MongoDB Atlas.<br />
+                • <strong>Pipeline CI/CD Robuste :</strong> Automatisation complète du build et du déploiement sur VPS via GitLab CI/CD et Docker.<br />
+                • <strong>Performance & Sécurité :</strong> Score Lighthouse avoisinant les 100/100, protection par Cloudflare (SSL Full Strict) et gestion d'emails transactionnels avec Resend.<br />
+                • <strong>Stack Technique :</strong> Node.js (TypeScript), React, Nginx, Docker Compose.<br /><br />
+                Un projet conçu pour illustrer les meilleures pratiques DevOps et DevSecOps, de la conteneurisation à l'optimisation des performances CDN, avec des technos légère mais puissantes et robustes pour une application micro-services.
+              </>
+            ),      
       explore: "Explorer le Portfolio",
       repo: "Repo Projet GitLab",
       powered: "Powered by"
@@ -21,7 +30,16 @@ export default function HomePage() {
       title: "Technical Portfolio & DevSecOps Hub",
       subtitle: "Cloud Architecture | CI/CD Automation | Kubernetes Security",
       description1: "is a full-stack platform built to demonstrate end-to-end expertise in the Software Development Life Cycle (SDLC). More than a portfolio, it's a living lab integrating security and automation best practices.",
-      description2: "The infrastructure runs on a containerized React/Node.js/MongoDB stack. Currently migrating to a k3s (Lightweight Kubernetes) cluster for optimized orchestration on Kamatera VPS. Security is core: DNS/WAF management via Cloudflare and vulnerability scanning integrated into CI/CD pipelines.",
+      description2: (
+              <>
+                <strong>Key Highlights:</strong><br />
+                • <strong>Stateless Architecture:</strong> Total media decoupling via Cloudflare R2 (S3-compatible) and MongoDB Atlas managed database.<br />
+                • <strong>Robust CI/CD Pipeline:</strong> Full build and deployment automation on VPS via GitLab CI/CD and Docker.<br />
+                • <strong>Performance & Security:</strong> Lighthouse scores near 100/100, Cloudflare protection (SSL Full Strict), and transactional email management with Resend.<br />
+                • <strong>Tech Stack:</strong> Node.js (TypeScript), React, Nginx, Docker Compose.<br /><br />
+                A project designed to showcase DevOps and DevSecOps best practices, from containerization to CDN performance optimization with lightweight yet powerful and robust technologies for a microservices application..
+              </>
+            ),      
       explore: "Explore Portfolio",
       repo: "GitLab Project Repo",
       powered: "Powered by"
@@ -88,8 +106,6 @@ export default function HomePage() {
           <img src="/logos/mongodb.webp" alt="MongoDB" title="MongoDB + Mongoose" />
           <img src="/logos/docker.webp" alt="Docker" title="Docker Containerization" />
           <img src="/logos/gitlab.webp" alt="GitLab" title="GitLab CI/CD Pipelines" />
-          <img src="/logos/kubernetes.webp" alt="Kubernetes" title="k3s Orchestration" />
-          <img src="/logos/terraform.webp" alt="Terraform" title="Infrastructure as Code" />
         </div>
       </div>
     </div>
