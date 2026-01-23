@@ -118,6 +118,7 @@ io.on('connection', (socket) => {
     }
   } catch (err) {
     console.log('⚠️ Token invalide ou expiré');
+    Sentry.captureException(err);
   }
 
   socket.on('chat:join', (room) => {
@@ -160,6 +161,7 @@ io.on('connection', (socket) => {
       }
     } catch (err) {
       console.error('❌ Erreur sauvegarde socket:', err);
+      Sentry.captureException(err);
     }
   });
 });
@@ -183,4 +185,5 @@ mongoose
   })
   .catch((err) => {
     console.error('❌ Erreur de connexion MongoDB Atlas :', err.message);
+    Sentry.captureException(err);
   });

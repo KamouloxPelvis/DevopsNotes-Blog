@@ -10,5 +10,3 @@ Sentry.init({
   tracesSampleRate: 1.0,
   profilesSampleRate: 1.0,
 });
-
-console.log("Sentry DSN chargé :", process.env.SENTRY_DSN ? "OUI" : "NON");
