@@ -98,6 +98,10 @@ app.use('/api/seo', seoRoutes);
 // --- Monitoring erreurs avec Sentry ---
 Sentry.setupExpressErrorHandler(app);
 
+app.get("/api/debug-sentry", (req, res) => {
+  throw new Error("Test Sentry Kamal - " + new Date().toISOString());
+});
+
 // --- LOGIQUE SOCKET.IO ---
 
 io.on('connection', (socket) => {
