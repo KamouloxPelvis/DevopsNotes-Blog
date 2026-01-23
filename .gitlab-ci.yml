@@ -12,7 +12,8 @@
     script:
       - |
         ssh -A -o StrictHostKeyChecking=no kamal@113.30.191.17 "
-          export SENTRY_AUTH_TOKEN='${SENTRY_AUTH_TOKEN}' &&
+          export SENTRY_AUTH_TOKEN="${SENTRY_AUTH_TOKEN}" &&
+          echo "La longueur du token est : ${#SENTRY_AUTH_TOKEN}" &&
           cd projet-demo-devops-v1 &&
           git pull origin main &&
           
