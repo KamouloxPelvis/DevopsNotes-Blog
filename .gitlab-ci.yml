@@ -10,10 +10,10 @@
       - chmod 700 ~/.ssh
       - ssh-keyscan -H 113.30.191.17 >> ~/.ssh/known_hosts || echo "Keyscan failed"
     script:
+      - echo "Vérification GitLab -> Longueur du token = ${#SENTRY_AUTH_TOKEN}"
       - |
         ssh -A -o StrictHostKeyChecking=no kamal@113.30.191.17 "
           export SENTRY_AUTH_TOKEN="${SENTRY_AUTH_TOKEN}" &&
-          echo "La longueur du token est : ${#SENTRY_AUTH_TOKEN}" &&
           cd projet-demo-devops-v1 &&
           git pull origin main &&
           
