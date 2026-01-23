@@ -17,6 +17,7 @@ import uploadRoutes from './routes/upload';
 import chatRoutes from './routes/chat';
 import forumRoutes from './routes/forum';
 import commentRoutes from './routes/comments';
+import seoRoutes from './routes/seo';
 
 // Import du modèle Message (nécessaire pour la logique de sauvegarde)
 import { Message } from './models/Message';
@@ -90,6 +91,7 @@ app.use('/api/articles', articleRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/forum', forumRoutes);
+app.use('/api/seo', seoRoutes);
 
 // --- LOGIQUE SOCKET.IO ---
 

@@ -9,7 +9,7 @@ export default function HomePage() {
   const content = {
     FR: {
       title: "Portfolio Technique & Hub DevSecOps",
-      subtitle: "Architecture Cloud | Automatisation CI/CD | Sécurité Kubernetes",
+      subtitle: "Architecture Cloud | Automatisation CI/CD | Sécurité Cloud-native",
       description1: "est une plateforme full-stack conçue pour démontrer une expertise end-to-end dans le cycle de vie logiciel (SDLC). Plus qu'une simple vitrine, c'est un laboratoire vivant qui a pour vocation d'intégrer les meilleures pratiques d'architecture sécurisée et d'automatisation.",
       description2: (
         <>
@@ -28,7 +28,7 @@ export default function HomePage() {
     },
     EN: {
       title: "Technical Portfolio & DevSecOps Hub",
-      subtitle: "Cloud Architecture | CI/CD Automation | Kubernetes Security",
+      subtitle: "Cloud Architecture | CI/CD Automation | Cloud-native Security",
       description1: "is a full-stack platform built to demonstrate end-to-end expertise in the Software Development Life Cycle (SDLC). More than a portfolio, it's a living lab integrating security and automation best practices.",
       description2: (
         <>
