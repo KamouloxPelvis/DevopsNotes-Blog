@@ -52,18 +52,20 @@ Réseau & Sécurité :
 
 📈 DevOps : Automatisation & Qualité
 
-Pipeline CI/CD (GitLab)
+- Pipeline CI/CD (GitLab)
 Le projet intègre un pipeline complet défini dans .gitlab-ci.yml :
 
   - Build : Vérification de la compilation TypeScript.
   - Deploy : Déploiement automatique par SSH sur le VPS, mise à jour des images Docker et redémarrage des services sans interruption de service (Zero-downtime-like).
 
-Web Performance & CDN
+- Web Performance & CDN
 L'utilisation d'un domaine personnalisé pour R2 (resources.devopsnotes.org) permet :
 
   - Une réduction drastique de la charge serveur (CPU/RAM).
   - Une mise en cache agressive au niveau du Edge (serveurs Cloudflare au plus proche de l'utilisateur).
   - Un gain de performance mesuré par Lighthouse (SEO-friendly).
+
+- Observabilité au Build : Injection de SENTRY_AUTH_TOKEN lors de l'étape de construction Docker pour garantir la traçabilité des versions déployées.
 
 🚀 Installation & Lancement (Local)
 
@@ -96,7 +98,12 @@ API : http://localhost:5000/api
 
 Projet maintenu par Kamal Guidadou.
 
-MAJ du 23 janvier 2026 : Enregistrement DNS / SEO avec Google Search Console et Umami
---------------------------------------------------------------------------------------
+### 📊 Observabilité & Télémétrie (MAJ DU 23 JANVIER 2026)
+Pour garantir la fiabilité et la performance en production, le projet intègre une stack de monitoring moderne :
 
-Optimisation du SEO technique via l'implémentation d'un sitemap XML dynamique (Node.js/MongoDB) et déploiement d'une solution d'analytics respectueuse de la vie privée (Umami), augmentant la visibilité et le monitoring du trafic.
+- **Error Tracking (Sentry)** : 
+  - Monitoring Full-Stack : Capture automatique des exceptions Backend (Express) et erreurs Runtime Frontend (React).
+  - **Gestion des Source Maps** : Pipeline CI/CD automatisé pour l'injection et l'upload des artifacts de débogage vers Sentry, permettant une lecture du code source original (TSX) sur les erreurs minifiées.
+  - **Performance Monitoring** : Suivi des transactions et profiling des ressources pour identifier les goulots d'étranglement.
+- **Analytics Privacy-First (Umami)** : Suivi du trafic et de l'engagement utilisateur sans cookies, conforme RGPD et auto-hébergé pour une maîtrise totale des données.
+- **SEO & Indexation** : Génération dynamique de sitemaps XML via API pour assurer une visibilité maximale sur les moteurs de recherche.
