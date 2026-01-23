@@ -96,4 +96,7 @@ API : http://localhost:5000/api
 
 Projet maintenu par Kamal Guidadou.
 
-MAJ : 9 janvier 2026
+MAJ du 23 janvier 2026 : Enregistrement DNS / SEO avec Google Search Console et Umami
+--------------------------------------------------------------------------------------
+
+Optimisation du SEO technique via l'implémentation d'un sitemap XML dynamique (Node.js/MongoDB) et déploiement d'une solution d'analytics respectueuse de la vie privée (Umami), augmentant la visibilité et le monitoring du trafic.

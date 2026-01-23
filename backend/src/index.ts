@@ -9,6 +9,8 @@ import * as cookie from 'cookie';
 import jwt from 'jsonwebtoken';
 import { createServer } from 'http'; // Requis pour Socket.io
 import { Server } from 'socket.io';
+import * as Sentry from "@sentry/node";
+import "./instruments";
 
 // Import des routes
 import authRoutes from './routes/auth';
@@ -92,6 +94,9 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/forum', forumRoutes);
 app.use('/api/seo', seoRoutes);
+
+// --- Monitoring erreurs avec Sentry ---
+Sentry.setupExpressErrorHandler(app);
 
 // --- LOGIQUE SOCKET.IO ---
 

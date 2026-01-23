@@ -4,8 +4,8 @@ dotenv.config();
 import mongoose from 'mongoose';
 import fs from 'fs';
 import path from 'path';
-import { Article } from './src/models/Article';
-import { uploadToR2 } from './src/services/r2Service';
+import { Article } from './models/Article';
+import { uploadToR2 } from './services/r2Service';
 
 async function migrate() {
   if (!process.env.MONGODB_URI) {
