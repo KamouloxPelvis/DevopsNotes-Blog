@@ -42,5 +42,5 @@ deploy_production:
         
         # --- RELANCE DE DOCKER ---
         docker compose down &&
-        docker compose up -d --build --force-recreate --remove-orphans
+        SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN docker compose up -d --build --force-recreate --remove-orphans
       "
