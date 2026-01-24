@@ -306,11 +306,19 @@
 
     .chat-sidebar.open { left: 0; }
 
-    .chat-main-header h2 { margin-left: 100px; font-size: 1rem; }
+    .chat-main-header h2 { 
+        margin-left: 100px; 
+        font-size: 1rem;
+        padding-left: 70px; 
+    }
     
     .message-row { max-width: 95%; }
 
     .chat-input-area input {
         font-size: 16px; /* Empêche le zoom auto sur iOS */
+    }
+
+    .chat-input-wrapper {
+        padding: 10px; /* Gain d'espace sur petit écran */
     }
 }

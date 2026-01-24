@@ -3,13 +3,28 @@
   flex-wrap: wrap;
 }
 
-@media (min-width: 768px) {
+/* Correction : On sort les actions du sélecteur de grille */
+@media (max-width: 600px) {
   .articles-header-v2 {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
+  
+  .articles-search-wrapper, 
+  .articles-search { 
+    max-width: 100%; 
+    width: 100%; 
+  }
+
+  .articles-actions-v2 { 
+    width: 100%; 
+    display: flex;
+    justify-content: space-between; 
+    margin-top: 1rem;
+  }
+
+  .admin-new-btn .full-text { display: none; }
+  .admin-new-btn .mobile-icon { display: inline; font-weight: bold; font-size: 1.2rem; }
 }
 
 .articles-title-v2 {
