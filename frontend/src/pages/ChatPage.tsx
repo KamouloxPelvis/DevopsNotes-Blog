@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { getChatSocket } from '../api/chatSocket';
+import { useAuth } from '../context/AuthContext';
 import '../styles/ChatPage.css';
 
 const ChatPage: React.FC = () => {
@@ -11,6 +12,7 @@ const ChatPage: React.FC = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   
   const socket = getChatSocket();
+  const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -126,7 +128,7 @@ const ChatPage: React.FC = () => {
       <main className="chat-main">
         <header className="chat-main-header">
           <h2>#{activeRoom}</h2>
-          <span className="message-time-full">Connecté en tant que Greg_Devops</span>
+          <span className="message-time-full">Connecté en tant que {user?.pseudo || 'Invité'}</span>
         </header>
 
         <div className="chat-messages-container">
