@@ -72,11 +72,11 @@
 }
 
 .chat-main-header {
-    padding: 15px 25px;
-    border-bottom: 1px solid var(--toolbar-separator);
     display: flex;
     justify-content: space-between;
+    padding: 15px 25px;
     align-items: center;
+    border-bottom: 1px solid var(--toolbar-separator);
     color: var(--text-main);
 }
 
@@ -282,6 +282,22 @@
     border-radius: 20px;
     font-size: 0.8rem;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 480px) {
+    /* On réduit la taille du texte et on masque le préfixe pour gagner de la place */
+    .chat-main-header .message-time-full {
+        font-size: 0.65rem;
+        max-width: 120px;
+        text-align: right;
+        line-height: 1.2;
+    }
+    
+    /* Optionnel : cacher "Connecté en tant que" et ne laisser que le pseudo */
+    .chat-main-header h2 {
+        font-size: 0.9rem;
+        margin-left: 60px; /* Espace pour le bouton mobile flottant */
+    }
 }
 
 @media (max-width: 768px) {
