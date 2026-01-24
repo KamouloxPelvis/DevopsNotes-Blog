@@ -39,7 +39,7 @@ export function PageLayout({ children }: Props) {
     <div className="layout-wrapper">
       <CookieBanner />
 
-      {/* 1. Menu Déroulant Flottant */}
+      {/* 1. Menu Déroulant Flottant (Indépendant en fixed) */}
       <div className="floating-menu-container" ref={menuRef}>
         <button 
           className={`floating-menu-trigger ${menuOpen ? 'active' : ''}`}
@@ -69,42 +69,44 @@ export function PageLayout({ children }: Props) {
         )}
       </div>
 
-      {/* 2. Barre de Navigation Supérieure (simplifiée) */}
+      {/* 2. Barre de Navigation Supérieure (Centrée horizontalement) */}
       <div className="top-nav-bar">
-        <div className="nav-spacer" /> {/* Remplace main-nav-links qui a bougé */}
+        <div className="nav-spacer" /> 
         <div className="user-status">
-        {user ? (
-          <>
-            <span className="user-greeting">
-              <span className="welcome-text">Bonjour, </span>
-              <strong>{user.pseudo ?? user.email}</strong>
-            </span>
-            <div className="user-actions">
-              <Link to="/profile" className="btn btn-sm btn-secondary">Profil</Link>
-              <button onClick={logout} className="btn btn-sm btn-secondary">Se déconnecter</button>
-            </div>
-          </>
-        ) : (
-          <>
-            <span className="user-greeting">Mode visiteur</span>
-            <div className="user-actions">
-              <Link to="/login" className="btn btn-sm btn-primary">Connexion</Link>
-              <Link to="/signup" className="btn btn-sm btn-outline-primary">S'inscrire</Link>
-            </div>
-          </>
-        )}
-        
-        <div className="separator" />
-        
-        <button
-          aria-label='Changer le thème'
-          onClick={toggleTheme} 
-          className="btn-theme-toggle-classic"
-        >
-          {isDark ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
+          {user ? (
+            <>
+              <span className="user-greeting">
+                <span className="welcome-text">Bonjour, </span>
+                <strong>{user.pseudo ?? user.email}</strong>
+              </span>
+              <div className="user-actions">
+                <Link to="/profile" className="btn btn-sm btn-secondary">Profil</Link>
+                <button onClick={logout} className="btn btn-sm btn-secondary">Se déconnecter</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="user-greeting">Mode visiteur</span>
+              <div className="user-actions">
+                <Link to="/login" className="btn btn-sm btn-primary">Connexion</Link>
+                <Link to="/signup" className="btn btn-sm btn-outline-primary">S'inscrire</Link>
+              </div>
+            </>
+          )}
+          
+          <div className="separator" />
+          
+          <button
+            aria-label='Changer le thème'
+            onClick={toggleTheme} 
+            className="btn-theme-toggle-classic"
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+        </div>
       </div>
 
+      {/* 3. Conteneur Principal (Indépendant de la barre du haut) */}
       <div className="main-container">
         <header className="main-header">
           <img src={devopsLogo} alt="DevOpsNotes Logo" className="header-logo-img" />
@@ -115,6 +117,5 @@ export function PageLayout({ children }: Props) {
         </main>
       </div>
     </div>
-  </div>
-  );
-}
+  )
+};
