@@ -300,6 +300,17 @@
 
 /* Responsiveness */
 
+@media (min-width: 650px) {
+  .articles-grid-v2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pagination-v2 {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
 @media (max-width: 600px) {
   .articles-header-v2 {
     flex-direction: column;
@@ -321,8 +332,9 @@
 
   .admin-new-btn .full-text { display: none; }
   .admin-new-btn .mobile-icon { display: inline; font-weight: bold; font-size: 1.2rem; }
+  
   .articles-grid-v2 {
-    grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur tablette/desktop */
+    grid-template-columns: 1fr  ; /* 2 colonnes sur tablette/desktop */
   }
 
   .pagination-v2 {
