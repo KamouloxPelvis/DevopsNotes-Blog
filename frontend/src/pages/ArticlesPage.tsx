@@ -121,7 +121,7 @@ export function ArticlesPage() {
     <div className="articles-content">
       <div className="articles-header-v2">
         <h1 className="articles-title-v2">Articles</h1>
-        <div className="articles-actions-v2">
+        <div className="articles-search-wrapper">
           <input
             type="text"
             className="articles-search"
@@ -129,17 +129,18 @@ export function ArticlesPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-            <div className="articles-actions-v2">
-              <Link to="/forum" className="btn btn-secondary">Forum</Link>
-              {user && (
-                <Link to="/chat" className="btn btn-secondary">Chat</Link>
-              )}
-
-              {/* Conservation du bouton Nouvel article pour l'admin si connecté */}
-              {user && isAdmin && (
-                <Link to="/articles/new" className="btn btn-primary">+ Nouvel article</Link>
-              )}
+        </div>
+        <div className="articles-actions-v2">
+          <div className="nav-buttons">
+            <Link to="/forum" className="btn btn-secondary">Forum</Link>
+            {user && <Link to="/chat" className="btn btn-secondary">Chat</Link>}
           </div>
+          {user && isAdmin && (
+            <Link to="/articles/new" className="btn btn-primary admin-new-btn">
+              <span className="full-text">+ Nouvel article</span>
+              <span className="mobile-icon">+</span>
+            </Link>
+          )}
         </div>
       </div>
 

@@ -14,6 +14,8 @@ const ChatPage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   // --- CONFIGURATION R2 (Frontend uniquement) ---
   const R2_PUBLIC_URL = "https://resources.devopsnotes.org";
 
@@ -94,17 +96,28 @@ const ChatPage: React.FC = () => {
     inputElement?.focus();
   };
 
+  const handleRoomChange = (room: string) => {
+  setActiveRoom(room);
+  setIsSidebarOpen(false); // Ferme la sidebar sur mobile après sélection
+};
+
   return (
     <div className="chat-page-wrapper">
-      <aside className="chat-sidebar">
-        <button className="back-btn" onClick={() => window.history.back()}>← Retour</button>
-        <h3>Salons</h3>
-        {rooms.map(room => (
-          <button 
-            key={room}
-            className={`room-item ${activeRoom === room ? 'active' : ''}`}
-            onClick={() => setActiveRoom(room)}
-          >
+
+      {/* Bouton Toggle Mobile (uniquement visible sur mobile) */}
+      <button className="mobile-room-toggle" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+        {isSidebarOpen ? '✕ Fermer' : '# Salons'}
+      </button>
+
+      <aside className={`chat-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+      <button className="back-btn" onClick={() => window.history.back()}>← Retour</button>
+      <h3>Salons</h3>
+      {rooms.map(room => (
+        <button 
+          key={room}
+          className={`room-item ${activeRoom === room ? 'active' : ''}`}
+          onClick={() => handleRoomChange(room)} // Utilise la nouvelle fonction
+        >
             # {room}
           </button>
         ))}

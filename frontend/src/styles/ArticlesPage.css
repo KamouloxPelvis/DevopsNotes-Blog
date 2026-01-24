@@ -1,11 +1,6 @@
 /* ===== HEADER & RECHERCHE ===== */
 .articles-header-v2 {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 @media (min-width: 768px) {
@@ -26,10 +21,9 @@
 }
 
 .articles-actions-v2 {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.5rem;
-  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: fit-content;
 }
 
 
@@ -45,6 +39,8 @@
   max-width: 200px;
   padding: 0.5rem 0.75rem;
 }
+
+.admin-new-btn .mobile-icon { display: none; }
 
 /* ===== FILTRES (TAGS) ===== */
 .articles-filters-v2 {
@@ -96,10 +92,12 @@
   gap: 1.5rem;
 }
 
-@media (min-width: 650px) {
-  .articles-grid-v2 {
-    grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur tablette/desktop */
-  }
+@media (max-width: 600px) {
+  .articles-search { max-width: 100%; width: 100%; }
+  .articles-actions-v2 { width: 100%; justify-content: space-between; }
+  /* On cache le texte long du bouton admin sur petit mobile */
+  .admin-new-btn .full-text { display: none; }
+  .admin-new-btn .mobile-icon { display: inline; font-weight: bold; font-size: 1.2rem; }
 }
 
 /* ===== CARTE ARTICLE (CARD) ===== */
