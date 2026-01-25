@@ -4,7 +4,7 @@ import { Thread } from '../models/Thread';
 
 export const getSitemap = async (req: Request, res: Response) => {
   try {
-    const baseUrl = 'https://www.devopsnotes.org';
+    const baseUrl = 'https://blog.devopsnotes.org';
 
     // On récupère les données nécessaires
     const [articles, threads] = await Promise.all([

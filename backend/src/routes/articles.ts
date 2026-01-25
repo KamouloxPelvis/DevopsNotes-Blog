@@ -7,6 +7,7 @@ import { getCommentsCount, incrementViews } from '../controllers/articleControll
 import { antivirusScan } from '../middleware/antivirus';
 import { processImage } from '../middleware/imageProcessor';
 import { uploadToR2 } from '../services/r2Service';
+import { notifyGoogleIndexing } from '../services/googleIndexingService';
 
 const router = Router();
 
@@ -97,6 +98,8 @@ router.post('/', requireAdmin, upload.single('image'), antivirusScan, processIma
       author: req.user?.id
     });
 
+    notifyGoogleIndexing(`https://blog.devopsnotes.org/articles/${article.slug}`);
+
     return res.status(201).json(article);
   } catch (err) {
     console.error("Erreur création article:", err);
@@ -163,6 +166,9 @@ router.put('/:slug', requireAdmin, upload.single('image'), antivirusScan, proces
     if (status) article.status = status;
 
     await article.save();
+
+    notifyGoogleIndexing(`https://blog.devopsnotes.org/articles/${article.slug}`);
+
     return res.json(article);
   } catch (err) {
     console.error("Erreur update article:", err);
