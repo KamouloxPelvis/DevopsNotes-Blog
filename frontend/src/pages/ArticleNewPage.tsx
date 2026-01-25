@@ -1,6 +1,5 @@
 import { FormEvent, useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { notifyGoogleIndexing } from '../services/googleIndexingService';
 import api from '../api/axios'; 
 import { useToast } from '../context/ToastContext';
 import TiptapEditor from '../components/Editor';
