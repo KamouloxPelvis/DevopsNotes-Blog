@@ -5,7 +5,8 @@ WORKDIR /app
 
 # Installation des dépendances (optimisé pour le cache Docker)
 COPY package*.json ./
-RUN npm install
+
+RUN npm install --legacy-peer-deps
 
 # Copie du code source
 COPY . .
