@@ -1,6 +1,6 @@
   variables:
     TARGET_DIR: "blog-devopsnotes"
-    SERVER_IP: "113.30.191.17"
+    SERVER_IP: 113.30.191.17
   deploy_production:
     stage: deploy
     tags:
@@ -15,7 +15,7 @@
     script:
       - echo "Vérification GitLab -> Longueur du token = ${#SENTRY_AUTH_TOKEN}"
       - |
-        ssh -A -o StrictHostKeyChecking=no kamal@SERVER_IP "
+        ssh -A -o StrictHostKeyChecking=no kamal@$SERVER_IP "
           export SENTRY_AUTH_TOKEN="${SENTRY_AUTH_TOKEN}" &&
           cd $TARGET_DIR &&
           git pull origin main &&
