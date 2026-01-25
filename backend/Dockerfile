@@ -3,26 +3,24 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# --- OPTIMISATION RAM POUR LE THINKPAD ---
-# Empêche Node de dépasser la RAM disponible pendant la compilation
-ENV NODE_OPTIONS="--max-old-space-size=1536"
-
 # Installer les dépendances
 COPY package*.json tsconfig.json ./
-RUN npm install
+# On ajoute le flag ici aussi par sécurité pour l'analyse des types lors de l'install
+RUN NODE_OPTIONS="--max-old-space-size=1536" npm install
 
 # Copier le code source
 COPY src ./src
 
-# Build TypeScript -> dist/
-RUN npm run build
+# --- CORRECTION ICI ---
+# On force l'allocation de RAM directement dans la commande de build
+RUN NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # Étape 2 : image d'exécution
 FROM node:20-alpine
 
 WORKDIR /app
 
-# On installe uniquement les dépendances de prod pour alléger l'image
+# On installe uniquement les dépendances de prod
 COPY package*.json ./
 RUN npm install --only=production
 
@@ -31,5 +29,5 @@ COPY --from=build /app/dist ./dist
 ENV PORT=5000
 EXPOSE 5000
 
-# Limite la RAM aussi à l'exécution pour laisser respirer ton Ubuntu
+# Excellente idée de limiter la RAM à l'exécution pour ton Ubuntu !
 CMD ["node", "--max-old-space-size=1024", "dist/index.js"]
