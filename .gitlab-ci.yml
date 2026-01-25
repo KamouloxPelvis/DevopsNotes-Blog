@@ -27,12 +27,18 @@
           echo 'REACT_APP_API_URL=https://blog.devopsnotes.org/api' >> ./backend/.env &&
           echo 'ADMIN_EMAIL=${ADMIN_EMAIL}' >> ./backend/.env &&
           echo 'ADMIN_PASSWORD=${ADMIN_PASSWORD}' >> ./backend/.env &&
+
+          # --- Configuration JWT ---
           echo 'JWT_SECRET=${JWT_SECRET}' >> ./backend/.env &&
           echo 'JWT_EXPIRES=1h' >> ./backend/.env &&
+
+          # --- Configuration Resend ---
           echo 'RESEND_API_KEY=${RESEND_API_KEY}' >> ./backend/.env &&
+
+          # --- Configuration Sentry ---
           echo "SENTRY_DSN='${SENTRY_DSN}'" >> ./backend/.env
           
-          # Configuration Cloudflare R2
+          # --- Configuration Cloudflare R2 ---
           echo 'R2_ACCOUNT_ID=${R2_ACCOUNT_ID}' >> ./backend/.env &&
           echo 'R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}' >> ./backend/.env &&
           echo 'R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}' >> ./backend/.env &&
@@ -45,7 +51,9 @@
           echo 'REACT_APP_ROOT=https://blog.devopsnotes.org' >> ./frontend/.env &&
           echo 'REACT_APP_R2_PUBLIC_URL=${R2_PUBLIC_URL}' >> ./frontend/.env &&
 
-          
+          # --- GOOGLE CLOUD ---
+          echo "GOOGLE_INDEXING_KEY='$GOOGLE_INDEXING_KEY'" >> .env
+
           # --- RELANCE DE DOCKER ---
           docker compose down &&
           docker compose build --no-cache &&

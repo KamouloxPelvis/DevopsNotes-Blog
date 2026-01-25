@@ -93,7 +93,7 @@ export default function HomePage() {
       <div className="landing-powered">
         <p className="landing-powered-title">{t.powered}</p>
         <div className="landing-tech-grid">
-          <img src="/logos/react.webp" alt="React" title="React 18 + TypeScript" />
+          <img src="/logos/react.webp" alt="React" title="React 19 + TypeScript" />
           <img src="/logos/node.webp" alt="Node.js" title="Node.js 20 + Express" />
           <img src="/logos/mongodb.webp" alt="MongoDB" title="MongoDB + Mongoose" />
           <img src="/logos/docker.webp" alt="Docker" title="Docker Containerization" />

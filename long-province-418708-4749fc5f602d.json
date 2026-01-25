@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "long-province-418708",
+  "private_key_id": "4749fc5f602d85d40b9e475b7f00b5a8cb07b22f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCpyK7ywhdIVh43\nvqrD0eIh4RVEqhIgH0FkwkDQ86jEfGlxzbBwOWoHdFww6J/b1Hs2RGJ0ynqQIGfy\nrTo6bzdTRa+k9+wZnnix6G0eDYTBEmL3Xpm2O0Ll4zoTCQ2OnjC/iOpmaWvWbr8b\n+WwInY9uuyrANM6wgzeY5O2bIqXbq0ZEfaFJha8JlwPvLSU+P5XGdUCxL+Q9uiCQ\nBY+cCtxzqX9zhbISJHDPdgN31SWlDuH+9knqRYD3piDzSFiE8OhhKsA67chXa9rd\nhqG5huoNJsJNy5R9g56PulCweqKfn4N8xmfnfE4KzZm+1mi1YjM1FvzcoNtD8B0s\noO5RKtsPAgMBAAECggEAFxOHL8iQmIzX65S3KglfVmJ83QnOj94fqb27SIstj5Mn\nU8f0qLQtBJlcpGshuyO8oWoXBa+1i9xTtIi15tZR6zgIAQCPbwX6epfQKOsGdaV1\nnRCXDM0uMQe6z3aGCLHYh1fpIAVJGmqQABHdDKi5o3+99kTXKOeUyWuoHdNOPrZm\nMXlb4XbmBWp3cgmTg7rE7oS3298xWJ9lhA2WxBVs/9rlGMgCWAdCrXueMYD3qI6/\nWRR70HrMdFi80wLC1HJYs3iF6g/Efj38wZp6tQw9mCPuTBZFng94ikxfYlirVSJ4\noZ9/yhKU2rNvTud9G29IW6NoC83kFjFVVO3A99KzVQKBgQDq5bl2T519PbkQ6Gra\nbk+d+X2zZuSayqeyqfBHE5WCJ6ky6xu6sySjhpy/k2wFJzM2o5KzbGGUWTzqAY2f\nzjC3CfX1qqIecLv1gNL4Z0DwK7LpwFKuF+bfoII4+FkmGAbK/QzINTn1A8tHQlhy\n4gFGyyi3XaJY/nFe2Upx6fn/PQKBgQC5CXNbDHNWu3xS+WTxnAK+rAbfr0jLbkBH\nmrlr8y2hTg8hTZhG5KLsWGceswueAxk/RX59ynqNNnfH4u0JAckOAqIBgwM1gSoK\nTfdDTv+d7ldz5734ZJM65V0lvO3HQkRyqI+Fwa6KewJSa0hf4Ls+jfLSSVMJLH5l\n21i7ChGoOwKBgFw3vfzturWNgtdZd4GzpvwtE6VX8s22W+nvf45X6O1FJs7/sE42\nwF6WnXk0pkbLofaEdzaLiS+VbS2tWG1xpHxno7FDwQvUVGZIogq1drATZ9UPFSaV\n6aTHvfghv9YNvrT4bYk4JD3FtIuQR2sqwTeK0LxUPUVU9ys2gVyBcA09AoGBAKBK\n7JByP7Rh5Dho7aZT9RjCI45A5Xm9P5gIFBrM5bl3yqmZ85FuXSkLCAHTLvwqSQPD\nqulDr1iHV8pj7d1Am7A0Xa2blfsSsp2MnufDFrL0lvPETJBSaCy8Jy4a9Y0I/gyp\nsvM3LoGuP/uwDllocCyngTPj6zfmQHTySHJ3LYajAoGBAJPIAgV6Ja9Koww+sW23\nfMCr+x9WBE4FAoov2lTYTi0sKyt+wn7wWmCFUDVK0N+qaiWLOElE7L91i+NgB0JY\n4SFCwc36K5q3Xm4Ekk0zdCl3E8br6gV3v86/uHhYLpJTGs918e/dX0VF4KcWEbHB\n7GhTgH/InPiSUB/PucPOcHtm\n-----END PRIVATE KEY-----\n",
+  "client_email": "devopsnotes-blog-indexer@long-province-418708.iam.gserviceaccount.com",
+  "client_id": "105899096126970473619",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/devopsnotes-blog-indexer%40long-province-418708.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

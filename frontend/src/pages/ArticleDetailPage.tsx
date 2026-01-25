@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext'; 
 import { RelatedArticles } from '../components/RelatedArticles';
@@ -34,6 +35,7 @@ export default function ArticleDetail() {
 
   const isAdmin = user?.role === 'admin';
   const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
+  
 
   useEffect(() => {
     if (!slug) return;
@@ -104,9 +106,6 @@ async function handleDelete() {
   }
 }
 
-if (loadingArticle) return <div className="loading">Chargement de l'article...</div>;
-if (error) return <div className="error-msg">⚠️ {error}</div>;
-if (!article) return <p>Article introuvable.</p>;
 
 //Création de commentaire
 async function handlePostComment(e: React.FormEvent) {
@@ -124,12 +123,11 @@ async function handlePostComment(e: React.FormEvent) {
   }
 }
 
+if (loadingArticle) return <div className="loading">Chargement de l'article...</div>;
+if (error) return <div className="error-msg">⚠️ {error}</div>;
+if (!article) return <p>Article introuvable.</p>;
+
 // Gestion de l'URL complète de l'image
-const fullImageUrl = article.imageUrl 
-    ? (article.imageUrl.startsWith('http') 
-        ? article.imageUrl 
-        : `${R2_PUBLIC_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`)
-    : null;
 
 // Fonction de suppression de commentaire
 async function handleDeleteComment(commentId: string) {
@@ -143,8 +141,27 @@ async function handleDeleteComment(commentId: string) {
   }
 }
 
+const fullImageUrl = article.imageUrl 
+    ? (article.imageUrl.startsWith('http') 
+        ? article.imageUrl 
+        : `${R2_PUBLIC_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`)
+    : null;
+
   return (
     <div className="article-detail-page">
+      
+      <Helmet>
+        <title>{article.title} | DevOpsNotes</title>
+        <link rel="canonical" href={`https://blog.devopsnotes.org/articles/${article.slug}`} />
+        <meta name="description" content={article.excerpt || `Découvrez l'article : ${article.title} sur DevOpsNotes`} />
+        
+        {/* Open Graph pour de jolis partages sur LinkedIn/Twitter */}
+        <meta property="og:title" content={article.title} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://blog.devopsnotes.org/articles/${article.slug}`} />
+        {fullImageUrl && <meta property="og:image" content={fullImageUrl} />}
+      </Helmet>
+
       <header className="detail-nav">
         <Link to="/articles" className="btn btn-secondary btn-sm">← Retour aux articles</Link>
         {isAdmin && (

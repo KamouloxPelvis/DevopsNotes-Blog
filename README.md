@@ -67,6 +67,25 @@ L'utilisation d'un domaine personnalisé pour R2 (resources.devopsnotes.org) per
 
 - Observabilité au Build : Injection de SENTRY_AUTH_TOKEN lors de l'étape de construction Docker pour garantir la traçabilité des versions déployées.
 
+## 🚀 SEO & Visibility : Améliorations du SEO (25 janvier 26à)
+
+Pour garantir une visibilité maximale et une indexation en temps réel, le projet intègre une stratégie SEO avancée :
+
+### 1. Indexation Automatisée (Real-time)
+
+* **Google Indexing API** : Intégration d'un service backend (`googleIndexingService.ts`) qui notifie Google instantanément via un compte de service dès qu'un article est créé ou modifié. Cela réduit le temps d'indexation de plusieurs jours à quelques minutes.
+* **Architecture asynchrone** : Les notifications sont envoyées en arrière-plan pour ne pas impacter la performance de l'interface d'administration.
+
+### 2. Structure & Métadonnées
+* **Sitemap Dynamique** : Génération automatisée d'un `sitemap.xml` propre au sous-domaine `blog.devopsnotes.org`.
+* **Gestion du Head (React 19)** : Utilisation de `react-helmet-async` pour l'injection dynamique :
+    * Des **balises canoniques** pour éviter le "duplicate content" entre le domaine racine et le sous-domaine.
+    * Des balises **Open Graph** pour optimiser l'affichage lors des partages sur LinkedIn, Twitter, etc.
+    * Des titres et descriptions uniques par article pour améliorer le taux de clic (CTR).
+
+### 3. Sécurité & DevOps
+* **Secret Management** : La clé privée du compte de service Google est injectée de manière sécurisée via les variables CI/CD de GitLab, évitant toute exposition dans le code source.
+
 🚀 Installation & Lancement (Local)
 
 1. Clonage du projet :
