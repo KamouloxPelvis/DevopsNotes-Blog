@@ -157,12 +157,15 @@
 }
 
 .landing-tech-grid {
-  width: 860px;
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Permet le passage à la ligne */
   justify-content: center;
-  gap: 2rem;
+  align-items: center;
+  gap: 1.5rem; /* On réduit un peu le gap pour le mobile */
+  width: 100%; /* S'assure que la grille prend toute la largeur dispo */
+  max-width: 1200px; /* Optionnel : pour éviter que ce soit trop large sur écran géant */
+  margin: 0 auto;
+  padding: 1rem;
 }
 
 .landing-tech-grid img {
@@ -172,6 +175,7 @@
   opacity: 0.8;
   transition: all 0.25s ease;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1));
+  flex-shrink: 0
 }
 
 .landing-tech-grid img[alt="Google Cloud"],
@@ -225,5 +229,13 @@
 
   .landing-btn {
     width: 100%;
+  }
+
+  .landing-tech-grid {
+    gap: 1rem; /* Moins d'espace entre les logos sur mobile */
+  }
+  
+  .landing-tech-grid img {
+    height: 35px; /* On réduit légèrement la taille sur petit écran */
   }
 }

@@ -144,7 +144,12 @@
 }
 
 .message-author { font-weight: bold; }
-.message-time-full { font-size: 0.7rem; font-weight: normal; color: #94a3b8; }
+
+.message-time-full { 
+    font-size: 0.7rem;
+    font-weight: normal; 
+    color: #94a3b8; 
+}
 
 .message-text {
     background: var(--bg-color);
@@ -284,6 +289,16 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
+/* Petits écrans */
+@media (max-width: 368px) {
+    .message-time-full { 
+    font-size: 0.7rem;
+    font-weight: normal; 
+    color: #94a3b8; 
+    }
+}
+
+/* Smartphones */
 @media (max-width: 480px) {
     /* On réduit la taille du texte et on masque le préfixe pour gagner de la place */
     .chat-main-header .message-time-full {
@@ -300,6 +315,7 @@
     }
 }
 
+/* Grands smartphones et tablettes */
 @media (max-width: 768px) {
     .chat-page-wrapper {
         height: calc(100vh - 80px);
