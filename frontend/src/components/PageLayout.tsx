@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Sun, Moon, ChevronDown, Home, BookOpen, MessageSquare, MessageCircle } from 'lucide-react'; // Ajout d'icônes
 import { useAuth } from '../context/AuthContext';
 import CookieBanner from './CookieBanner';
-import devopsLogo from '../styles/cloud_devopsnotes.png';
+import devopsLogo from '../styles/logo_devopsnotes.png';
 import devopsMenuIco from '../styles/ico_devopsnotes.png';
 import '../styles/PageLayout.css';
 
