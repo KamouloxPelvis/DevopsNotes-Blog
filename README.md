@@ -4,7 +4,9 @@ DevOpsNotes est une application Full-Stack moderne conçue pour démontrer la mi
 
 Ce projet dépasse le simple cadre d'un blog pour explorer des problématiques réelles de production : Stockage S3-compatible, Pipeline CI/CD, Optimisation Web (Lighthouse) et Sécurité SSL/TLS.
 
-            -------------------------------------------------------------------------------
+![Interface site](frontend/public/rd_screenshots/articles_ui.png)
+
+![Interface : Technos utilisées](frontend/public/rd_screenshots/technos.png)
 
 🛠️ Stack Technique
 
@@ -13,15 +15,29 @@ Frontend & Performance
 - UI/UX : Design responsive, gestion dynamique des états de connexion.
 - Optimisation : Score Lighthouse de 100/100 en performance grâce au déchargement des médias vers un CDN.
 
+![Interface site](frontend/public/rd_screenshots/responsive.png)
+
 Backend & API
 - Runtime : Node.js / Express avec TypeScript.
 - Auth : Authentification JWT, gestion des rôles (Admin/Membre), validation d'email via Resend.
 - Base de données : MongoDB Atlas (DaaS).
 
+![API emails Resend](frontend/public/rd_screenshots/resend.png)
+
 Infrastructure & DevOps (Le cœur du projet)
-- Conteneurisation : Docker & Docker Compose (Builds multi-stage optimisés).
+- Conteneurisation : Docker & Docker Compose (Builds multi-stage optimisés) vers VPS via :
 - CI/CD : Pipeline GitLab CI automatisé avec déploiement continu sur VPS (Kamatera).
 - Stockage Cloud (Object Storage) : Migration des uploads locaux vers Cloudflare R2 (S3-Compatible) avec Custom Domain.
+
+
+![SSH Ubuntu (VPS)](frontend/public/rd_screenshots/ubuntu_ssh.png)
+
+
+![Variables CI-CD](frontend/public/rd_screenshots/vps_kamatera.png)
+
+
+![Pipelines Gitlab](frontend/public/rd_screenshots/pipelines.png)
+
 
 Réseau & Sécurité :
 - Reverse Proxy Nginx.
@@ -43,6 +59,10 @@ Réseau & Sécurité :
   - Utilise Resend pour les emails transactionnels (vérification de compte).
   - Communique avec Cloudflare R2 pour uploader/servir les médias.
 
+
+![Cloudflare R2 Stockage](frontend/public/rd_screenshots/r2_storage.png)
+
+
 🔧 Fonctionnalités Avancées
 
 - Système de Forum & Interaction : Création de fils de discussion, réponses, et profils membres avec avatars.
@@ -52,7 +72,7 @@ Réseau & Sécurité :
 
 📈 DevOps : Automatisation & Qualité
 
-- Pipeline CI/CD (GitLab)
+  - Pipeline CI/CD (GitLab)
 Le projet intègre un pipeline complet défini dans .gitlab-ci.yml :
 
   - Build : Vérification de la compilation TypeScript.
@@ -65,26 +85,15 @@ L'utilisation d'un domaine personnalisé pour R2 (resources.devopsnotes.org) per
   - Une mise en cache agressive au niveau du Edge (serveurs Cloudflare au plus proche de l'utilisateur).
   - Un gain de performance mesuré par Lighthouse (SEO-friendly).
 
+
+![Performances sur Lighthouse](frontend/public/rd_screenshots/lighthouse.png)
+
+
 - Observabilité au Build : Injection de SENTRY_AUTH_TOKEN lors de l'étape de construction Docker pour garantir la traçabilité des versions déployées.
 
-## 🚀 SEO & Visibility : Améliorations du SEO (25 janvier 26à)
 
-Pour garantir une visibilité maximale et une indexation en temps réel, le projet intègre une stratégie SEO avancée :
+![Variables CI-CD](frontend/public/rd_screenshots/ci-cd_variables.png)
 
-### 1. Indexation Automatisée (Real-time)
-
-* **Google Indexing API** : Intégration d'un service backend (`googleIndexingService.ts`) qui notifie Google instantanément via un compte de service dès qu'un article est créé ou modifié. Cela réduit le temps d'indexation de plusieurs jours à quelques minutes.
-* **Architecture asynchrone** : Les notifications sont envoyées en arrière-plan pour ne pas impacter la performance de l'interface d'administration.
-
-### 2. Structure & Métadonnées
-* **Sitemap Dynamique** : Génération automatisée d'un `sitemap.xml` propre au sous-domaine `blog.devopsnotes.org`.
-* **Gestion du Head (React 19)** : Utilisation de `react-helmet-async` pour l'injection dynamique :
-    * Des **balises canoniques** pour éviter le "duplicate content" entre le domaine racine et le sous-domaine.
-    * Des balises **Open Graph** pour optimiser l'affichage lors des partages sur LinkedIn, Twitter, etc.
-    * Des titres et descriptions uniques par article pour améliorer le taux de clic (CTR).
-
-### 3. Sécurité & DevOps
-* **Secret Management** : La clé privée du compte de service Google est injectée de manière sécurisée via les variables CI/CD de GitLab, évitant toute exposition dans le code source.
 
 🚀 Installation & Lancement (Local)
 
@@ -115,8 +124,6 @@ API : http://localhost:5000/api
 - Mise en œuvre de bonnes pratiques de sécurité (Secrets, TLS, filtrage CORS).
 - Optimisation des ressources système et des performances frontend.
 
-Projet maintenu par Kamal Guidadou.
-
 ### 📊 Observabilité & Télémétrie (MAJ DU 23 JANVIER 2026)
 Pour garantir la fiabilité et la performance en production, le projet intègre une stack de monitoring moderne :
 
@@ -124,5 +131,41 @@ Pour garantir la fiabilité et la performance en production, le projet intègre 
   - Monitoring Full-Stack : Capture automatique des exceptions Backend (Express) et erreurs Runtime Frontend (React).
   - **Gestion des Source Maps** : Pipeline CI/CD automatisé pour l'injection et l'upload des artifacts de débogage vers Sentry, permettant une lecture du code source original (TSX) sur les erreurs minifiées.
   - **Performance Monitoring** : Suivi des transactions et profiling des ressources pour identifier les goulots d'étranglement.
+
+
+![Transactions vues par Sentry, 0 erreurs](frontend/public/rd_screenshots/sentry.png)
+
+
 - **Analytics Privacy-First (Umami)** : Suivi du trafic et de l'engagement utilisateur sans cookies, conforme RGPD et auto-hébergé pour une maîtrise totale des données.
+
+
+![Retour données de trafic par Umami](frontend/public/rd_screenshots/umami.png)
+
+
 - **SEO & Indexation** : Génération dynamique de sitemaps XML via API pour assurer une visibilité maximale sur les moteurs de recherche.
+
+## 🚀 SEO & Visibility : Améliorations du SEO (25 janvier 2026)
+
+Pour garantir une visibilité maximale et une indexation en temps réel, le projet intègre une stratégie SEO avancée :
+
+### 1. Indexation Automatisée (Real-time)
+
+* **Google Indexing API** : Intégration d'un service backend (`googleIndexingService.ts`) qui notifie Google instantanément via un compte de service dès qu'un article est créé ou modifié. Cela réduit le temps d'indexation de plusieurs jours à quelques minutes.
+
+
+![Google Cloud : Indexing API](frontend/public/rd_screenshots/gcloud_indexing_api.png)
+
+
+* **Architecture asynchrone** : Les notifications sont envoyées en arrière-plan pour ne pas impacter la performance de l'interface d'administration.
+
+### 2. Structure & Métadonnées
+* **Sitemap Dynamique** : Génération automatisée d'un `sitemap.xml` propre au sous-domaine `blog.devopsnotes.org`.
+* **Gestion du Head (React 19)** : Utilisation de `react-helmet-async` pour l'injection dynamique :
+    * Des **balises canoniques** pour éviter le "duplicate content" entre le domaine racine et le sous-domaine.
+    * Des balises **Open Graph** pour optimiser l'affichage lors des partages sur LinkedIn, Twitter, etc.
+    * Des titres et descriptions uniques par article pour améliorer le taux de clic (CTR).
+
+### 3. Sécurité & DevOps
+* **Secret Management** : La clé privée du compte de service Google est injectée de manière sécurisée via les variables CI/CD de GitLab, évitant toute exposition dans le code source.
+
+Projet créé et maintenu par Kamal Guidadou.
