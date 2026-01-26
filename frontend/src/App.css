@@ -1,21 +1,21 @@
 /* ===== VARIABLES & THEME ===== */
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
+  --primary: #8B5CF6;
+  --primary-hover: #6345ab;
   --secondary: #64748b;
   --bg-color: #f1f5f9;      /* Fond clair */
   --card-bg: #ffffff;
   --text-main: #0f172a;
   --text-muted: #64748b;
   --danger: #ef4444;
-  --success: #10b981;
+  --success: #18d778;
   --radius: 8px;
   --toolbar-separator: #e2e8f0;
 }
 
 /* Version Dark Mode */
 [data-theme='dark'] {
-  --primary: #3b82f6;
+  --primary: #8B5CF6;
   --bg-color: #0f172a;    
   --card-bg: #1e293b;     
   --text-main: #f8fafc;    /* Un blanc cassé plus éclatant */
