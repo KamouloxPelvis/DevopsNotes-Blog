@@ -198,7 +198,7 @@ header.top-nav-bar {
 /* Style du logo/texte de DevopsNotes*/
 .brand-icon {
   display: block;
-  width: 56px;
+  width: 32px;
   height: auto; /* Garde les proportions du nuage */
   margin-left: 24px;
   object-fit: contain;
@@ -221,7 +221,6 @@ header.top-nav-bar {
   font-size: 1.25rem;
   color: var(--text-main);
   white-space: nowrap;
-  margin-left: -16px;
 }
 
 .brand-bold {
