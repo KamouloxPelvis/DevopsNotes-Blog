@@ -120,7 +120,6 @@ export function ArticlesPage() {
   return (
     <div className="articles-content">
       <div className="articles-header-v2">
-        <h1 className="articles-title-v2">Articles</h1>
         <div className="articles-search-wrapper">
           <input
             type="text"
