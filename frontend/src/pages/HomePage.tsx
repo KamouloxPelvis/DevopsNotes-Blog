@@ -99,7 +99,9 @@ export default function HomePage() {
           <img src="/logos/docker.webp" alt="Docker" title="Docker Containerization" />
           <img src="/logos/gitlab.webp" alt="GitLab" title="GitLab CI/CD Pipelines" />
           <img src="/logos/cf.webp" alt="Cloudflare" title="CDN, R2 & Security" />
-          <img src="/logos/nginx.webp" alt="Nginx" title="Reverse-Proxy Nginx" />
+          <img src="/logos/nginx.webp" alt="ginx" title="Reverse-Proxy Nginx" />
+          <img src="/logos/gcloud.webp" alt="Google Cloud" title="Google Cloud" />
+          <img src="/logos/kamatera.webp" alt="Kamatera" title="VPS Kamatera" />
         </div>
       </div>
     </div>

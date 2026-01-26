@@ -1,6 +1,7 @@
   variables:
     TARGET_DIR: "blog-devopsnotes"
     SERVER_IP: 113.30.191.17
+    GIT_STRATEGY: clone
   deploy_production:
     stage: deploy
     tags:

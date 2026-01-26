@@ -221,6 +221,7 @@ header.top-nav-bar {
   font-size: 1.25rem;
   color: var(--text-main);
   white-space: nowrap;
+  margin-left: -16px;
 }
 
 .brand-bold {

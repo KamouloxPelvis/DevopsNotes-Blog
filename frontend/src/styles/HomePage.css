@@ -153,13 +153,16 @@
   width: 100%;
   background: transparent !important;
   padding: 1.5rem 2.5rem;
+  padding-left: 0;
 }
 
 .landing-tech-grid {
+  width: 860px;
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1.75rem;
+  gap: 2rem;
 }
 
 .landing-tech-grid img {
@@ -170,6 +173,16 @@
   transition: all 0.25s ease;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1));
 }
+
+.landing-tech-grid img[alt="Google Cloud"],
+.landing-tech-grid img[alt="Node.js"] {
+  height: 60px;
+}
+
+.landing-tech-grid img[alt="Kamatera"] {
+  height: 75px;
+}
+
 
 .landing-tech-grid img:hover {
   transform: translateY(-5px) scale(1.1);
