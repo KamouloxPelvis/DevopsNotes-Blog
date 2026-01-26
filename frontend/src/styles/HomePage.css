@@ -195,15 +195,15 @@
 }
 
 .beta-notice {
-  margin-top: 1rem;
   font-size: 0.85rem; 
   color: #dc2626; 
   background: rgba(220, 38, 38, 0.05);
-  padding: 8px 12px;
   border-left: 3px solid #dc2626;
   border-radius: 4px;
   display: inline-block;
   opacity: 0.9;
+  padding-bottom: O;
+  margin-bottom: 0;
 }
 
 /* --- Animations & Responsive --- */

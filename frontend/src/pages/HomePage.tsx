@@ -13,11 +13,6 @@ export default function HomePage() {
       description1: "est une plateforme full-stack conçue pour démontrer une expertise end-to-end dans le cycle de vie logiciel (SDLC). Plus qu'une simple vitrine, c'est un laboratoire vivant qui a pour vocation d'intégrer les meilleures pratiques d'architecture sécurisée et d'automatisation.",
       description2: (
         <>
-          <strong>Points clés :</strong><br />
-          • <strong>Architecture Stateless :</strong> Découplage total des médias via Cloudflare R2 (S3-compatible) et base de données managée MongoDB Atlas.<br />
-          • <strong>Pipeline CI/CD Robuste :</strong> Automatisation complète du build et du déploiement sur VPS via GitLab CI/CD et Docker.<br />
-          • <strong>Performance & Sécurité :</strong> Score Lighthouse avoisinant les 100/100, protection par Cloudflare (SSL Full Strict) et gestion d'emails transactionnels avec Resend.<br />
-          • <strong>Stack Technique :</strong> Node.js (TypeScript), React, Nginx, Docker Compose.<br /><br />
           Un projet conçu pour illustrer les meilleures pratiques DevOps et DevSecOps, de la conteneurisation à l'optimisation des performances CDN, avec des technos légères mais puissantes et robustes pour une application micro-services.
         </>
       ),      
@@ -32,11 +27,6 @@ export default function HomePage() {
       description1: "is a full-stack platform built to demonstrate end-to-end expertise in the Software Development Life Cycle (SDLC). More than a portfolio, it's a living lab integrating security and automation best practices.",
       description2: (
         <>
-          <strong>Key Highlights:</strong><br />
-          • <strong>Stateless Architecture:</strong> Total media decoupling via Cloudflare R2 (S3-compatible) and MongoDB Atlas managed database.<br />
-          • <strong>Robust CI/CD Pipeline:</strong> Full build and deployment automation on VPS via GitLab CI/CD and Docker.<br />
-          • <strong>Performance & Security:</strong> Lighthouse scores near 100/100, Cloudflare protection (SSL Full Strict), and transactional email management with Resend.<br />
-          • <strong>Tech Stack:</strong> Node.js (TypeScript), React, Nginx, Docker Compose.<br /><br />
           A project designed to showcase DevOps and DevSecOps best practices, from containerization to CDN performance optimization with lightweight yet powerful and robust technologies for a microservices application.
         </>
       ),
