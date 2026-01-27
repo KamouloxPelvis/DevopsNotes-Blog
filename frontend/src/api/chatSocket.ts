@@ -3,14 +3,15 @@ import { io, Socket } from 'socket.io-client';
 let socket: Socket | null = null;
 
 const SOCKET_URL = process.env.NODE_ENV === 'production'
-  ? 'https://devopsnotes.org'
+  ? 'https://blog.devopsnotes.org'
   : 'http://localhost:5000';
 
 export const getChatSocket = () => {
   if (!socket) {
-    // Utilise la variable SOCKET_URL dynamique
+    console.log("Socket connectée à :", SOCKET_URL)
     socket = io(SOCKET_URL, {
-      withCredentials: true, // IMPORTANT pour envoyer le cookie de session
+      path: '/socket.io/',
+      withCredentials: true,
       transports: ['websocket', 'polling'] 
     });
   }
