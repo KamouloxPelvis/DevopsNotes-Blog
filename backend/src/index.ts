@@ -38,7 +38,8 @@ const io = new Server(httpServer, {
               'https://blog.devopsnotes.org',
               'https://www.devopsnotes.org',
               "https://resources.devopsnotes.org",
-            ], 
+            ],
+    methods: ["GET", "POST"],
     credentials: true
   }
 });
