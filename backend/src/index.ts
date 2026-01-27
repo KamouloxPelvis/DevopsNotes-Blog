@@ -168,6 +168,7 @@ io.on('connection', (socket) => {
 
 // --- CONNEXION MONGODB ET LANCEMENT ---
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || '0.0.0.0';
 const MONGO_URI = process.env.MONGODB_URI;
 
 if (!MONGO_URI) {
@@ -180,7 +181,7 @@ mongoose
   .then(() => {
     console.log('✅ MongoDB Atlas Connecté');
     httpServer.listen(PORT, () => {
-      console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
+      console.log(`🚀 Serveur démarré sur http://${HOST}:${PORT}`);
     });
   })
   .catch((err) => {
