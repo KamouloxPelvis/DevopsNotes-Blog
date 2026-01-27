@@ -35,6 +35,9 @@ export default function ThreadsPage() {
   return (
     <div className="forum-container">
       <header className="forum-header">
+        <Link to="/articles" className="back-link">
+          ← Retour aux articles
+        </Link>
         <div className="header-title">
           <h1>DevOpsNotes Forum</h1>
           <p className="subtitle">Discutez infrastructure, automatisation et cloud</p>

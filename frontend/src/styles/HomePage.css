@@ -33,7 +33,7 @@
 
 .lang-selector button {
   background: rgba(255, 255, 255, 0.8);
-  border: 1px solid #cbd5e1;
+  border: 1px solid #6345ab;
   padding: 6px 14px;
   border-radius: 20px;
   cursor: pointer;
@@ -48,14 +48,14 @@
 
 .lang-selector button:hover {
   background: #fff;
-  border-color: #3b82f6;
+  border-color: #6345ab;
   transform: translateY(-1px);
 }
 
 .lang-selector button.active {
-  background: #3b82f6;
+  background: #8B5CF6;
   color: white;
-  border-color: #2563eb;
+  border-color: #6345ab;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 

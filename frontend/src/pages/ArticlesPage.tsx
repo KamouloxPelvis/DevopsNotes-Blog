@@ -136,7 +136,7 @@ export function ArticlesPage() {
           </div>
           {user && isAdmin && (
             <Link to="/articles/new" className="btn btn-primary admin-new-btn">
-              <span className="full-text">+ Nouvel article</span>
+              <span className="full-text">+  Nouvel article</span>
               <span className="mobile-icon">+</span>
             </Link>
           )}
