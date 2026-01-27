@@ -7,7 +7,7 @@
     margin: 20px 0; 
     background: var(--card-bg); 
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     overflow: hidden;
     border: 1px solid var(--toolbar-separator);
 }
@@ -159,6 +159,7 @@
     border-radius: 15px 15px 15px 2px;
     font-size: 0.9rem;
     word-break: break-word;
+    border: 1px solid var(--toolbar-separator);
 }
 
 .message-row.is-me .message-text {
@@ -240,7 +241,7 @@
     position: absolute;
     bottom: 110px; 
     left: 20px;
-    background: white; /* Ou var(--card-bg) selon ton thème */
+    background: var(--card-bg);
     border: 1px solid var(--toolbar-separator);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -263,6 +264,12 @@
     background-color: rgba(0,0,0,0.05);
     border-radius: 4px;
 }   
+
+.message-time-full { 
+    font-size: 0.7rem;
+    font-weight: normal; 
+    color: var(--text-muted); 
+}
 
 .chat-empty {
     text-align: center;

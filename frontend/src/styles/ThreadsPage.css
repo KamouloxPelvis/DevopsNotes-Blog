@@ -1,5 +1,4 @@
 .forum-container {
-    max-width: 1000px;
     margin: 2rem auto;
     padding: 0 1rem;
 }
@@ -31,12 +30,7 @@
 }
 
 .forum-search-input {
-    padding: 0.6rem 1rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
     width: 250px;
-    transition: all 0.2s;
-    font-size: 0.95rem;
 }
 
 .forum-search-input:focus {
@@ -119,12 +113,13 @@
 }
 
 .tag-pill {
-    background: #edf2f7;
-    color: #4a5568;
+    background: var(--bg-color);
+    color: var(--text-muted);
     padding: 0.2rem 0.6rem;
     border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 500;
+    border: 1px solid var(--toolbar-separator);
 }
 
 /* Side Stats */
@@ -212,4 +207,21 @@
     .thread-stats-side {
         display: none; /* Cache les stats sur mobile pour gagner de la place */
     }
+}
+/* --- ANIMATIONS ET TRANSITIONS FLUIDES ----- */
+
+.skeleton-loader {
+  background: linear-gradient(
+    90deg,
+    #f0f2f5 25%,
+    #e2e8f0 50%,
+    #f0f2f5 75%
+  );
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

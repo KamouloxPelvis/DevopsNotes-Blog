@@ -84,7 +84,7 @@
 
 .landing-description {
   max-width: 800px;
-  margin: 0 auto 30px auto;
+  margin: 0 auto 16px auto;
   line-height: 1.7;
   text-align: left; /* Plus professionnel pour le texte technique */
   color: #334155;
@@ -202,8 +202,7 @@
   border-radius: 4px;
   display: inline-block;
   opacity: 0.9;
-  padding-bottom: O;
-  margin-bottom: 0;
+  padding: 0.1rem 0.5rem 0.1rem 0.5rem;
 }
 
 /* --- Animations & Responsive --- */

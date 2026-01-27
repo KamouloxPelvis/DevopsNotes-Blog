@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ForumThread } from '../types/forum';
 import { getThreads } from '../api/forum';
 import { Link } from 'react-router-dom';
+import NProgress from 'nprogress';
 import '../styles/ThreadsPage.css';
 
 export default function ThreadsPage() {
@@ -11,6 +12,9 @@ export default function ThreadsPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    NProgress.start();
+  setLoading(true);
+
     (async () => {
       try {
         const data = await getThreads();
@@ -18,7 +22,11 @@ export default function ThreadsPage() {
       } catch (err: any) {
         setError(err.response?.data?.message || err.message || 'Failed to load threads');
       } finally {
+        // Ajout d'un délai artificiel de 300ms
+        await new Promise(resolve => setTimeout(resolve, 300));
+
         setLoading(false);
+        NProgress.done();
       }
     })();
   }, []);
@@ -33,11 +41,9 @@ export default function ThreadsPage() {
   });
 
   return (
-    <div className="forum-container">
+    /* Ajout de la classe fade-in-page pour l'animation d'entrée */
+    <div className="forum-container fade-in-page">
       <header className="forum-header">
-        <Link to="/articles" className="back-link">
-          ← Retour aux articles
-        </Link>
         <div className="header-title">
           <h1>DevOpsNotes Forum</h1>
           <p className="subtitle">Discutez infrastructure, automatisation et cloud</p>
@@ -57,9 +63,31 @@ export default function ThreadsPage() {
             + Nouveau sujet
           </Link>
         </div>
+        <Link to="/articles" className="back-link">
+          ← Retour aux articles
+        </Link>
       </header>
 
-      {loading && <div className="forum-state">Chargement des discussions...</div>}
+      {/* Remplacement du texte par les Skeletons */}
+      {loading && (
+        <div className="threads-section">
+          <div className="threads-stats skeleton-loader" style={{ width: '150px', height: '20px', marginBottom: '1.5rem' }}></div>
+          <div className="thread-list">
+            {[1, 2, 3, 4].map((n) => (
+              <div key={n} className="thread-item">
+                <div className="thread-main">
+                  <div className="skeleton-loader" style={{ height: '24px', width: '60%', marginBottom: '10px' }}></div>
+                  <div className="skeleton-loader" style={{ height: '16px', width: '40%' }}></div>
+                </div>
+                <div className="thread-stats-side">
+                   <div className="skeleton-loader" style={{ height: '50px', width: '60px', borderRadius: '8px' }}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {error && <div className="forum-state error-text">⚠️ {error}</div>}
 
       {!loading && !error && (

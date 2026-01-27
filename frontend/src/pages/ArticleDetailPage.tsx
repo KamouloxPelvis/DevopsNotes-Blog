@@ -148,7 +148,7 @@ const fullImageUrl = article.imageUrl
     : null;
 
   return (
-    <div className="article-detail-page">
+    <div className="article-detail-page page-transition">
       
       <Helmet>
         <title>{article.title} | DevOpsNotes</title>

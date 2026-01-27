@@ -8,14 +8,6 @@
   margin-bottom: 2rem;
 }
 
-.articles-title-v2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--text-main);
-  color: #1e293b;
-}
-
 .articles-actions-v2 {  
   display: flex;
   flex-wrap: nowrap;
@@ -30,6 +22,14 @@
   white-space: nowrap; /* Évite que le texte des boutons casse */
 }
 
+a.btn.btn-secondary {
+  height: 38.19px;
+}
+
+[aria-label="chat"] {
+    margin-left: 8px;
+}
+
 .articles-search {
   flex: 1;
   min-width: 120px;
@@ -42,12 +42,9 @@
   display: flex;
   justify-content: flex-start;
   margin-left: 32px;
-  margin: 0 2rem; 
+  margin: 2rem; 
 }
 
-a.btn.btn-secondary {
-  height: 38.19px;
-}
 
 /* ===== FILTRES (TAGS) ===== */
 .articles-filters-v2 {
@@ -119,7 +116,7 @@ a.btn.btn-secondary {
 
 /* Image de la carte */
 .article-image-v2 {
-  height: 160px;
+  height: 200px;
   overflow: hidden;
   background-color: #f1f5f9;
 }
@@ -371,4 +368,17 @@ a.btn.btn-secondary {
     .welcome-text, .user-greeting {
     display: none; /* Cache "Bonjour, 'Member'" pour éviter l'encombrement */
   }
+}
+
+/* --- ANIMATIONS ET TRANSITIONS FLUIDES ----- */
+
+.skeleton-loader {
+  background: linear-gradient(90deg, var(--bg-color) 25%, var(--toolbar-separator) 50%, var(--bg-color) 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

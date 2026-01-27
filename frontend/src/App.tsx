@@ -4,6 +4,7 @@ import { ToastProvider } from './context/ToastContext';
 import { PageLayout } from './components/PageLayout';
 import { RequireAuthRoute } from './components/RequireAuthRoute';
 import { RequireAdminRoute } from './components/RequireAdminRoute';
+import 'nprogress/nprogress.css';
 import './App.css';
 
 // --- Chargement IMMÉDIAT (uniquement la page d'accueil) ---
