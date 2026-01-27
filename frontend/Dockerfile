@@ -16,10 +16,14 @@ COPY . .
 # Cela permet à 'npm run build' d'injecter les variables REACT_APP_
 COPY .env ./
 
-# On déclare l'argument envoyé par docker-compose ou GitLab
 ARG SENTRY_AUTH_TOKEN
-# On le transforme en variable d'env pour que le script npm run build le voie
+ARG SENTRY_ORG="devopsnotes-org"
+ARG SENTRY_PROJECT="devopsnotes-org"
+
 ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
+ENV SENTRY_ORG=$SENTRY_ORG
+ENV SENTRY_PROJECT=$SENTRY_PROJECT
+
 
 # Build de l'application
 RUN NODE_OPTIONS="--max-old-space-size=1536" npm run build
