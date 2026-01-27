@@ -19,15 +19,8 @@
 .articles-actions-v2 .btn {
   padding: 0.5rem 0.8rem;
   font-size: 0.85rem;
-  white-space: nowrap; /* Évite que le texte des boutons casse */
-}
-
-a.btn.btn-secondary {
   height: 38.19px;
-}
-
-[aria-label="chat"] {
-    margin-left: 8px;
+  white-space: nowrap; /* Évite que le texte des boutons casse */
 }
 
 .articles-search {
