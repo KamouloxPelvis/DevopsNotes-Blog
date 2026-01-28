@@ -87,6 +87,7 @@ export default function HomePage() {
           <img src="/logos/node.webp" alt="Node.js" title="Node.js 20 + Express" />
           <img src="/logos/mongodb.webp" alt="MongoDB" title="MongoDB + Mongoose" />
           <img src="/logos/docker.webp" alt="Docker" title="Docker Containerization" />
+          <img src="/logos/kubernetes.webp" alt="Kubernetes" title="Kubernetes k3s Orchestration" />
           <img src="/logos/gitlab.webp" alt="GitLab" title="GitLab CI/CD Pipelines" />
           <img src="/logos/cf.webp" alt="Cloudflare" title="CDN, R2 & Security" />
           <img src="/logos/nginx.webp" alt="ginx" title="Reverse-Proxy Nginx" />
