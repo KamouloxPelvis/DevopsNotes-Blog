@@ -13,7 +13,7 @@ build_images:
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     # Build Backend
-    - docker build --pull -t $REGISTRY_IMAGE/backend:$TAG_LATEST ./backend
+    - docker build --no-cache --pull -t $REGISTRY_IMAGE/backend:$TAG_LATEST ./backend
     - docker push $REGISTRY_IMAGE/backend:$TAG_LATEST
     # Build Frontend sécurisé (BuildKit)
     - echo "$SENTRY_AUTH_TOKEN" > sentry_token.txt
