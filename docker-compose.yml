@@ -35,7 +35,7 @@ services:
       context: ./frontend
       # On passe l'URL de l'API au build si nécessaire
       args:
-        - REACT_APP_API_URL=https://www.devopsnotes.org/api
+        - REACT_APP_API_URL=https://blog.devopsnotes.org/api
         - SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
     container_name: devopsnotes-frontend
     restart: always
