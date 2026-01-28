@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog-devopsnotes-deployment
+  namespace: blog-prod
+  labels:
+    app: blog-devopsnotes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blog-devopsnotes
+  template:
+    metadata:
+      labels:
+        app: blog-devopsnotes
+    spec:
+      imagePullSecrets:
+        - name: gitlab-registry-secret
+      containers:
+      - name: blog-backend
+        # Utilisation de la variable GitLab CI pour l'image backend
+        image: ${CI_REGISTRY_IMAGE}/backend:latest
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - secretRef:
+            # Assure-toi que ce secret a bien été créé dans le namespace blog-prod
+            name: blog-secrets
+      - name: blog-frontend
+        # Utilisation de la variable GitLab CI pour l'image frontend
+        image: ${CI_REGISTRY_IMAGE}/frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
