@@ -84,15 +84,17 @@ export default function HomePage() {
         <p className="landing-powered-title">{t.powered}</p>
         <div className="landing-tech-grid">
           <img src="/logos/react.webp" alt="React" title="React 19 + TypeScript" />
-          <img src="/logos/node.webp" alt="Node.js" title="Node.js 20 + Express" />
-          <img src="/logos/mongodb.webp" alt="MongoDB" title="MongoDB + Mongoose" />
+          <img src="/logos/node.webp" alt="Node.js" title="Node.js 20 + Express Backend" />
+          <img src="/logos/mongodb.webp" alt="MongoDB" title="MongoDB + Mongoose Cloud Database" />
           <img src="/logos/docker.webp" alt="Docker" title="Docker Containerization" />
-          <img src="/logos/kubernetes.webp" alt="Kubernetes" title="Kubernetes k3s Orchestration" />
-          <img src="/logos/gitlab.webp" alt="GitLab" title="GitLab CI/CD Pipelines" />
+          <img src="/logos/kubernetes.webp" alt="Kubernetes" title="Kubernetes / k3s : Orchestration" />
+          <img src="/logos/gitlab.webp" alt="GitLab" title="GitLab Repository and CI/CD Pipelines" />
           <img src="/logos/cf.webp" alt="Cloudflare" title="CDN, R2 & Security" />
+          <img src="/logos/ingress.webp" alt="Ingress" title="Ingress : HTTP traffic manager" />
           <img src="/logos/nginx.webp" alt="ginx" title="Reverse-Proxy Nginx" />
-          <img src="/logos/gcloud.webp" alt="Google Cloud" title="Google Cloud" />
+          <img src="/logos/gcloud.webp" alt="Google Cloud" title="Google Cloud APIs" />
           <img src="/logos/kamatera.webp" alt="Kamatera" title="VPS Kamatera" />
+          <img src="/logos/sentry.webp" alt="Sentry" title="Sentry Telemetry and Monitoring" />
         </div>
       </div>
     </div>
