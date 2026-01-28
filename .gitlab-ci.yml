@@ -28,6 +28,8 @@ deploy_production:
     - deploy_production
   before_script:
     - eval $(ssh-agent -s)
+    # On restreint les droits : SEUL le propriétaire (gitlab-runner) peut lire le fichier
+    - chmod 400 "$CI_CD_SSH_KEY"
     - ssh-add "$CI_CD_SSH_KEY"
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
