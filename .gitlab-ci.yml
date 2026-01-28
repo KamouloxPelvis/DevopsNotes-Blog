@@ -1,67 +1,50 @@
-  variables:
-    TARGET_DIR: "blog-devopsnotes"
-    SERVER_IP: 113.30.191.17
-    GIT_STRATEGY: clone
-  deploy_production:
-    stage: deploy
-    tags:
-      - deploy_production
-    before_script:
-      - eval $(ssh-agent -s)
-      - chmod 600 "$CI_CD_SSH_KEY"
-      - ssh-add "$CI_CD_SSH_KEY"
-      - mkdir -p ~/.ssh
-      - chmod 700 ~/.ssh
-      - ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts || echo "Keyscan failed"
-    script:
-      - echo "Vérification GitLab -> Longueur du token = ${#SENTRY_AUTH_TOKEN}"
-      - |
-        ssh -A -o StrictHostKeyChecking=no kamal@$SERVER_IP "
-          export SENTRY_AUTH_TOKEN='${SENTRY_AUTH_TOKEN}' &&
-          cd $TARGET_DIR &&
-          
-          # Nettoyage des modifs locales pour permettre le pull sans erreur
-          git stash &&
-          git pull origin main &&
-          
-          # --- GÉNÉRATION DU FICHIER .ENV BACKEND ---
-          echo 'MONGODB_URI=${MONGODB_URI}' > ./backend/.env &&
-          echo 'PORT=5000' >> ./backend/.env &&
-          echo 'FRONT_END_URL=https://blog.devopsnotes.org' >> ./backend/.env &&
-          echo 'REACT_APP_API_URL=https://blog.devopsnotes.org/api' >> ./backend/.env &&
-          echo 'ADMIN_EMAIL=${ADMIN_EMAIL}' >> ./backend/.env &&
-          echo 'ADMIN_PASSWORD=${ADMIN_PASSWORD}' >> ./backend/.env &&
-          echo 'JWT_SECRET=${JWT_SECRET}' >> ./backend/.env &&
-          echo 'JWT_EXPIRES=1h' >> ./backend/.env &&
-          echo 'RESEND_API_KEY=${RESEND_API_KEY}' >> ./backend/.env &&
-          echo 'SENTRY_DSN=${SENTRY_DSN}' >> ./backend/.env &&
-          echo 'R2_ACCOUNT_ID=${R2_ACCOUNT_ID}' >> ./backend/.env &&
-          echo 'R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}' >> ./backend/.env &&
-          echo 'R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}' >> ./backend/.env &&
-          echo 'R2_BUCKET_NAME=${R2_BUCKET_NAME}' >> ./backend/.env &&
-          echo 'R2_PUBLIC_URL=${R2_PUBLIC_URL}' >> ./backend/.env &&
+stages:
+  - build
+  - deploy
 
-          # --- GÉNÉRATION DU FICHIER .ENV FRONTEND ---
-          echo 'REACT_APP_API_URL=https://blog.devopsnotes.org/api' > ./frontend/.env &&
-          echo 'NODE_ENV=production' >> ./frontend/.env &&
-          echo 'REACT_APP_ROOT=https://blog.devopsnotes.org' >> ./frontend/.env &&
-          echo 'REACT_APP_R2_PUBLIC_URL=${R2_PUBLIC_URL}' >> ./frontend/.env &&
-          echo 'SENTRY_DSN=${SENTRY_DSN}' >> ./frontend/.env &&
+variables:
+  # Ton chemin de registre détecté sur image_8c06da.png
+  REGISTRY_IMAGE: "registry.gitlab.com/portfolio-kamal-guidadou/devops-devsecops/projet-demo-devops-v1"
+  TAG_LATEST: "latest"
 
-          # --- GOOGLE CLOUD ---
-          echo \"GOOGLE_INDEXING_KEY='${GOOGLE_INDEXING_KEY}'\" >> .env
+# ÉTAPE 1 : Remplir ton registre (Actuellement vide sur GitLab)
+build_images:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $REGISTRY_IMAGE/backend:$TAG_LATEST ./backend
+    - docker build -t $REGISTRY_IMAGE/frontend:$TAG_LATEST ./frontend
+    - docker push $REGISTRY_IMAGE/backend:$TAG_LATEST
+    - docker push $REGISTRY_IMAGE/frontend:$TAG_LATEST
 
-          # --- RELANCE DU BUILD ET DEPLOIEMENT K3S ---
-          # On build les images localement sur le ThinkPad
-          docker compose build --no-cache &&
-          
-          # On applique les manifests K8S (Ingress + Deployment)
-          kubectl apply -f k8s/blog-legacy.yaml &&
-          kubectl apply -f k8s/blog-ingress.yaml &&
-          
-          # Le signal pour que K3s recharge les nouvelles images avec tes modifs UI
-          kubectl rollout restart deployment portfolio-portal-deployment -n portfolio-prod &&
-          
-          # Nettoyage Docker
-          docker system prune -f
-        "
+# ÉTAPE 2 : Déploiement sur le VPS via SSH
+deploy_production:
+  stage: deploy
+  tags:
+    - deploy_production # Ton Runner sur le ThinkPad/VPS [cite: 2026-01-10]
+  before_script:
+    - eval $(ssh-agent -s)
+    # Correction de la syntaxe pour éviter l'erreur VS Code
+    - echo "$CI_CD_SSH_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H 113.30.191.17 >> ~/.ssh/known_hosts
+  script:
+    - |
+      ssh kamal@113.30.191.17 "
+        cd ~/blog-devopsnotes &&
+        export CI_REGISTRY_IMAGE='${REGISTRY_IMAGE}' &&
+        
+        # Application des manifests K8S
+        envsubst < k8s/deployment.yaml | kubectl apply -f - &&
+        kubectl apply -f k8s/blog-devopsnotes.yaml &&
+        kubectl apply -f k8s/blog-ingress.yaml &&
+        
+        # Redémarrage pour charger les nouvelles images du registre
+        kubectl rollout restart deployment blog-devopsnotes-deployment -n blog-prod
+      "
+  only:
+    - main
