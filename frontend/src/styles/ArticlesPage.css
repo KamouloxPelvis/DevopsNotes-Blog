@@ -308,6 +308,7 @@
     flex-direction: row; 
     justify-content: space-between;
     align-items: center;
+    margin: 0 0 18px -24px;
   }
 }
   .btn-sm {
@@ -338,7 +339,7 @@
     width: 100%; 
     display: flex;
     justify-content: space-between; 
-    margin-top: 1rem;
+    margin-top: O;
   }
 
   .admin-new-btn .full-text { display: none; }

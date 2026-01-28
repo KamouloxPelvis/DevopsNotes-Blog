@@ -9,7 +9,7 @@
 .article-detail-page {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 1rem 5rem;
+  padding: 2rem 1rem 2rem;
   animation: fadeIn 0.4s ease-out;
 }
 
@@ -368,18 +368,32 @@
    ============================================================ */
 
 @media (max-width: 768px) {
-  .article-header-meta,
+  .article-detail-title{
+    font-size: 1.3rem;
+    align-items: center;
+  }
+
   .comments-section, 
   .related-articles-footer {
     padding: 1.5rem;
   }
+
   .article-body-content {
-  padding: 1rem;
-  font-size: 0.8rem;
-  line-height: 1.75;
-  color: var(--text-main);
-  word-wrap: break-word;
-}
+    padding: 14px;
+    font-size: 0.8rem;
+    line-height: 1.75;
+    color: var(--text-main);
+    word-wrap: break-word;
+  }
+
+  .article-header-meta {
+    padding: 14px;
+  }
+
+  .article-tags {
+    padding: 8px;
+    margin: 0;
+  }
 }
 
 @media (max-width: 768px) {

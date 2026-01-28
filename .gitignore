@@ -16,6 +16,9 @@ build/
 dist/
 frontend/build/
 
+#legacy docker compose deployment file
+docker-compose.yml
+
 # Logs
 logs
 *.log
