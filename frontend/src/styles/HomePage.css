@@ -178,6 +178,10 @@
   flex-shrink: 0
 }
 
+.landing-tech-grid img[alt="Sentry"] {
+  height: 30px;
+}
+
 .landing-tech-grid img[alt="Google Cloud"],
 .landing-tech-grid img[alt="Node.js"] {
   height: 60px;
