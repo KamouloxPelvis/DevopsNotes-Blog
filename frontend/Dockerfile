@@ -11,11 +11,6 @@ RUN npm install --legacy-peer-deps
 # Copie du code source
 COPY . .
 
-# --- ÉTAPE CRUCIALE ---
-# On copie le fichier .env généré par GitLab dans le dossier de travail
-# Cela permet à 'npm run build' d'injecter les variables REACT_APP_
-COPY .env ./
-
 ARG SENTRY_AUTH_TOKEN
 ARG SENTRY_ORG="devopsnotes-org"
 ARG SENTRY_PROJECT="devopsnotes-org"
