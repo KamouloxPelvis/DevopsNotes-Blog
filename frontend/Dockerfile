@@ -14,7 +14,6 @@ COPY . .
 RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
     export SENTRY_AUTH_TOKEN=$(cat /run/secrets/SENTRY_AUTH_TOKEN) && \
     NODE_OPTIONS="--max-old-space-size=1536" npm run build
-RUN NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # Étape 2 : Serveur de production (Nginx)
 FROM nginx:stable-alpine
