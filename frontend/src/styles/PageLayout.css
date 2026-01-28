@@ -1,3 +1,7 @@
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 /* Fond global de l'application */
 .layout-wrapper {
   min-height: 100vh;
@@ -273,10 +277,6 @@ header.top-nav-bar {
   backdrop-filter: blur(10px);
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 
 .dropdown-item {
   display: flex;
@@ -307,8 +307,15 @@ header.top-nav-bar {
   flex: 1;
 }
 
+/* --- RESPONSIVE - Version très petits mobiles --- */
+@media (max-width: 480px) {
+  .content-area {
+    padding: 7px; /* On redonne un peu d'air au contenu */
+  }
+}
 
-/* --- RESPONSIVE - Version Mobiles Petits Mobiles (480px et moins) --- */
+
+/* --- RESPONSIVE - Version Mobiles et tablettes --- */
 @media (max-width: 710px) {
   .top-nav-bar {
     flex-wrap: wrap; /* Autorise le logo à passer à la ligne */
