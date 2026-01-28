@@ -11,16 +11,9 @@ RUN npm install --legacy-peer-deps
 # Copie du code source
 COPY . .
 
-ARG SENTRY_AUTH_TOKEN
-ARG SENTRY_ORG="devopsnotes-org"
-ARG SENTRY_PROJECT="devopsnotes-org"
-
-ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
-ENV SENTRY_ORG=$SENTRY_ORG
-ENV SENTRY_PROJECT=$SENTRY_PROJECT
-
-
-# Build de l'application
+RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
+    export SENTRY_AUTH_TOKEN=$(cat /run/secrets/SENTRY_AUTH_TOKEN) && \
+    NODE_OPTIONS="--max-old-space-size=1536" npm run build
 RUN NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # Étape 2 : Serveur de production (Nginx)
