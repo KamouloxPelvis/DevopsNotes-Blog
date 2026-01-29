@@ -48,12 +48,20 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: ['http://localhost:3000',
-            'https://devopsnotes.org',
-            'https://blog.devopsnotes.org',
-            'https://www.devopsnotes.org',
-            "https://resources.devopsnotes.org",
-          ],
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:3000',,
+      'https://blog.devopsnotes.org',
+      "https://resources.devopsnotes.org",
+    ];
+    // Autorise les requêtes sans origine (comme les outils serveurs ou mobile) 
+    // ou si l'origine est dans la liste
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -69,16 +77,13 @@ app.use(
           "https://*.cloudflare.com", 
           "https://*.r2.cloudflarestorage.com",
           "https://resources.devopsnotes.org",
-          'https://blog.devopsnotes.org',
-          'https://www.devopsnotes.org', 
+          'https://blog.devopsnotes.org', 
         ],
         connectSrc: [
           "'self'",
           "https://*.cloudflare.com",
           "https://resources.devopsnotes.org",
-          'https://blog.devopsnotes.org',
-          'https://www.devopsnotes.org',
-          'https://devopsnotes.org', 
+          'https://blog.devopsnotes.org', 
           "wss://devopsnotes.org",
           "wss://*.devopsnotes.org",
         ],
