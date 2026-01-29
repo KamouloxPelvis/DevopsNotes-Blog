@@ -69,7 +69,7 @@ export default function HomePage() {
           </button>
 
           <a 
-            href="https://gitlab.com/portfolio-kamal-guidadou/DevOps-DevSecOps/projet-demo-devops-v1" 
+            href="https://gitlab.com/portfolio-kamal-guidadou/" 
             target="_blank" 
             rel="noopener noreferrer"
             className="btn btn-outline-dark landing-btn gitlab-btn"
