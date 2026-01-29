@@ -10,7 +10,7 @@ spec:
     - name: frontend
       protocol: TCP
       port: 80
-      targetPort: 3000
+      targetPort: 80
     - name: backend
       protocol: TCP
       port: 5000
