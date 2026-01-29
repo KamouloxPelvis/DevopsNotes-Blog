@@ -9,4 +9,4 @@ spec:
   ports:
     - protocol: TCP
       port: 80         # Port exposé par le service
-      targetPort: 80   # Port sur lequel Nginx écoute dans le pod
+      targetPort: 80   # Port sur lequel Nginx écoute dans le pod (Ne pas confondre avec le port écouté à l'extérieur, 3000)
