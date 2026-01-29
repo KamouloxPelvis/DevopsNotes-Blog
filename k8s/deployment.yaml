@@ -20,7 +20,7 @@ spec:
       containers:
       - name: blog-backend
         # Utilisation de la variable GitLab CI pour l'image backend
-        image: ${CI_REGISTRY_IMAGE}/backend:latest
+        image: registry.gitlab.com/portfolio-kamal-guidadou/devops-devsecops/projet-demo-devops-v1/backend:latest
         ports:
         - containerPort: 5000
         envFrom:
@@ -29,7 +29,7 @@ spec:
             name: blog-secrets
       - name: blog-frontend
         # Utilisation de la variable GitLab CI pour l'image frontend
-        image: ${CI_REGISTRY_IMAGE}/frontend:latest
+        image: registry.gitlab.com/portfolio-kamal-guidadou/devops-devsecops/projet-demo-devops-v1/frontend:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
