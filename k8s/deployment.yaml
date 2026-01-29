@@ -25,7 +25,7 @@ spec:
         - containerPort: 5000
         envFrom:
         - secretRef:
-            # Assure-toi que ce secret a bien été créé dans le namespace blog-prod
+            # S'assurer que le secret a bien été créé dans le namespace blog-prod
             name: blog-secrets
       - name: blog-frontend
         # Utilisation de la variable GitLab CI pour l'image frontend
