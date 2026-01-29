@@ -17,7 +17,7 @@ build_images:
     - docker push $REGISTRY_IMAGE/backend:$TAG_LATEST
     # Build Frontend sécurisé (BuildKit)
     - echo "$SENTRY_AUTH_TOKEN" > sentry_token.txt
-    - DOCKER_BUILDKIT=1 docker no-cache build --pull --secret id=SENTRY_AUTH_TOKEN,src=sentry_token.txt -t $REGISTRY_IMAGE/frontend:$TAG_LATEST ./frontend
+    - DOCKER_BUILDKIT=1 docker build --no-cache --pull --secret id=SENTRY_AUTH_TOKEN,src=sentry_token.txt -t $REGISTRY_IMAGE/frontend:$TAG_LATEST ./frontend
     - rm sentry_token.txt
     - docker push $REGISTRY_IMAGE/frontend:$TAG_LATEST
     - docker image prune -f
