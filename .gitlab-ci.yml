@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  REGISTRY_IMAGE: "registry.gitlab.com/portfolio-kamal-guidadou/devops-devsecops/projet-demo-devops-v1"
+  REGISTRY_IMAGE: "registry.gitlab.com/portfolio-kamal-guidadou/devopsnotes-blog"
   TAG_LATEST: "latest"
 
 build_images:
