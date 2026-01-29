@@ -34,9 +34,7 @@ const httpServer = createServer(app); // On crée le serveur HTTP
 const io = new Server(httpServer, {
   cors: {
     origin: ['http://localhost:3000',
-              'https://devopsnotes.org',
               'https://blog.devopsnotes.org',
-              'https://www.devopsnotes.org',
               "https://resources.devopsnotes.org",
             ],
     methods: ["GET", "POST"],
