@@ -28,8 +28,8 @@ const ChatPage: React.FC = () => {
       NProgress.start();
       setLoading(true);
       try {
-        const res = await axios.get(`https://blog.devopsnotes.org/api/chat/messages?room=${activeRoom}`, { 
-          withCredentials: true 
+        const res = await axios.get(`/api/chat/messages?room=${activeRoom}`, {
+          withCredentials: true
         });
         setMessages(res.data);
       } catch (err) {
