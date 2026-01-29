@@ -4,7 +4,7 @@ let socket: Socket | null = null;
 
 const SOCKET_URL = process.env.NODE_ENV === 'production'
   ? 'https://blog.devopsnotes.org'
-  : 'http://localhost:5000';
+  : 'http://localhost:5000'
 
 export const getChatSocket = () => {
   if (!socket) {

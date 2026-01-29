@@ -28,7 +28,7 @@ const ChatPage: React.FC = () => {
       NProgress.start();
       setLoading(true);
       try {
-        const res = await axios.get(`https://devopsnotes.org/api/chat/messages?room=${activeRoom}`, { 
+        const res = await axios.get(`https://blog.devopsnotes.org/api/chat/messages?room=${activeRoom}`, { 
           withCredentials: true 
         });
         setMessages(res.data);
@@ -169,5 +169,4 @@ const ChatPage: React.FC = () => {
   );
 };
 
-// Assure-toi que cette ligne est bien présente à la fin
 export default ChatPage;
