@@ -17,21 +17,21 @@ export default function HomePage() {
         </>
       ),      
       notice: "Des opérations de maintenance évolutive sur l'infrastructure et l'interface peuvent entraîner des indisponibilités temporaires.",
-      explore: "Explorer le Portfolio",
+      explore: "Explorer l'app'",
       repo: "Repo Projet GitLab",
       powered: "Powered by"
     },
     EN: {
       title: "Technical Portfolio & DevSecOps Hub",
       subtitle: "Cloud Architecture | CI/CD Automation | Cloud-native Security",
-      description1: "is a full-stack platform built to demonstrate end-to-end expertise in the Software Development Life Cycle (SDLC). More than a portfolio, it's a living lab integrating security and automation best practices.",
+      description1: "is a full-stack platform built to demonstrate end-to-end expertise in the Software Development Life Cycle (SDLC). More than just a technical demo, it's a living lab integrating security and automation best practices.",
       description2: (
         <>
           A project designed to showcase DevOps and DevSecOps best practices, from containerization to CDN performance optimization with lightweight yet powerful and robust technologies for a microservices application.
         </>
       ),
       notice: "Ongoing infrastructure and UI optimizations may result in occasional service interruptions.",
-      explore: "Explore Portfolio",
+      explore: "Explore the app",
       repo: "GitLab Project Repo",
       powered: "Powered by"
     }
