@@ -61,7 +61,7 @@
 
 /* --- Typographie --- */
 .landing-title {
-  font-size: 2.4rem;
+  font-size: 2.1rem;
   font-weight: 800;
   background: linear-gradient(135deg, #1e293b, #334155);
   -webkit-background-clip: text;
@@ -223,7 +223,7 @@
   }
   
   .landing-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
   }
 
   .landing-buttons {
