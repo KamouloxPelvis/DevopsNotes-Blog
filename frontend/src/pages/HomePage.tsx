@@ -8,7 +8,7 @@ export default function HomePage() {
 
   const content = {
     FR: {
-      title: "Portfolio Technique & Hub DevSecOps",
+      title: "Blog Technique & Hub DevSecOps",
       subtitle: "Architecture Cloud | Automatisation CI/CD | Sécurité Cloud-native",
       description1: "est une plateforme full-stack conçue pour démontrer une expertise end-to-end dans le cycle de vie logiciel (SDLC). Plus qu'une simple vitrine, c'est un laboratoire vivant qui a pour vocation d'intégrer les meilleures pratiques d'architecture sécurisée et d'automatisation.",
       description2: (
@@ -17,12 +17,13 @@ export default function HomePage() {
         </>
       ),      
       notice: "Des opérations de maintenance évolutive sur l'infrastructure et l'interface peuvent entraîner des indisponibilités temporaires.",
-      explore: "Explorer l'app'",
+      explore: "Explorer l'app",
+      portfolio: "Explorer le Portfolio (lien externe)",
       repo: "Repo Projet GitLab",
       powered: "Powered by"
     },
     EN: {
-      title: "Technical Portfolio & DevSecOps Hub",
+      title: "Technical Blog & DevSecOps Hub",
       subtitle: "Cloud Architecture | CI/CD Automation | Cloud-native Security",
       description1: "is a full-stack platform built to demonstrate end-to-end expertise in the Software Development Life Cycle (SDLC). More than just a technical demo, it's a living lab integrating security and automation best practices.",
       description2: (
@@ -32,6 +33,7 @@ export default function HomePage() {
       ),
       notice: "Ongoing infrastructure and UI optimizations may result in occasional service interruptions.",
       explore: "Explore the app",
+      portfolio: "Explore Portfolio (external link)",
       repo: "GitLab Project Repo",
       powered: "Powered by"
     }
@@ -52,7 +54,7 @@ export default function HomePage() {
         
         <div className="landing-description">
           <p className="landing-features">
-            <strong>DevOpsNotes </strong> {t.description1}
+            <strong>DevOpsNotes - Blog</strong> {t.description1}
           </p> 
           <div className="key-points-container">
             {t.description2}
@@ -67,6 +69,14 @@ export default function HomePage() {
           <button className="btn btn-primary landing-btn" onClick={() => navigate('/articles')}>
             🚀 {t.explore}
           </button>
+
+          <a 
+            href="https://portfolio.devopsnotes.org" 
+            className="btn btn-primary landing-btn portfolio-btn"
+            style={{ backgroundColor: '#6366f1', borderColor: '#6366f1' }} // Un bleu-indigo pour différencier
+          >
+            🌐 {t.portfolio}
+          </a>
 
           <a 
             href="https://gitlab.com/portfolio-kamal-guidadou/" 
