@@ -13,6 +13,7 @@ import jwt from 'jsonwebtoken';
 import { createServer } from 'http'; // Requis pour Socket.io
 import { Server } from 'socket.io';
 import * as Sentry from "@sentry/node";
+import { Registry, collectDefaultMetrics, Counter } from 'prom-client';
 
 // Import des routes
 import authRoutes from './routes/auth';
@@ -30,13 +31,39 @@ import { Message } from './models/Message';
 const app = express();
 const httpServer = createServer(app); // On crée le serveur HTTP
 
+// Configuration Prometheus
+const register = new Registry();
+collectDefaultMetrics({ register });
+
+const httpRequestCounter = new Counter({
+  name: 'blog_requests_total',
+  help: 'Nombre total de requêtes HTTP sur le blog',
+  labelNames: ['method', 'route', 'status'] as const,
+});
+register.registerMetric(httpRequestCounter);
+
+// Middleware de Monitoring
+app.use((req, res, next) => {
+  res.on('finish', () => {
+    // On évite de logger les routes de santé ou de métriques pour ne pas polluer les stats
+    if (req.path !== '/metrics' && req.path !== '/favicon.ico') {
+      httpRequestCounter.inc({
+        method: req.method,
+        route: req.route?.path || req.path,
+        status: res.statusCode.toString(),
+      });
+    }
+  });
+  next();
+});
+
 // Configuration de Socket.io
 const io = new Server(httpServer, {
   cors: {
     origin: ['http://localhost:3000',
-              'https://blog.devopsnotes.org',
-              "https://resources.devopsnotes.org",
-            ],
+      'https://blog.devopsnotes.org',
+      "https://resources.devopsnotes.org",
+    ],
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -62,6 +89,7 @@ app.use(cors({
   },
   credentials: true
 }));
+
 
 app.use(
   helmet({
@@ -90,6 +118,16 @@ app.use(
     },
   })
 );
+
+// Endpoints Métriques
+app.get('/metrics', async (_req, res) => {
+  try {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 // --- ROUTES API ---
 app.use('/api', uploadRoutes); // ROUTE IMAGES R2
