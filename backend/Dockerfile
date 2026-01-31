@@ -11,11 +11,6 @@ RUN npm install
 # Copier le code source
 COPY src ./src
 
-# --- LA MODIFICATION EST ICI ---
-# On remplace "RUN npm run build" par l'appel direct au compilateur
-ARG SENTRY_AUTH_TOKEN
-ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
-
 RUN npx --node-options="--max-old-space-size=2048" tsc
 
 # Étape 2 : image d'exécution
