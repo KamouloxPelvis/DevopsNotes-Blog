@@ -5,6 +5,10 @@
   font-family: 'Inter', -apple-system, sans-serif;
 }
 
+[data-theme='dark'] .new-article-v2 {
+  background-color: var(--bg-color);
+}
+
 /* Header collant */
 .editor-header {
   position: sticky;
@@ -95,6 +99,60 @@
   gap: 2rem;
 }
 
+/* Toolbar */
+/* Toolbar Sticky et Design devopsnotes */
+.text-toolbar {
+  position: sticky;
+  top: 72px; /* Positionnée juste sous ton Header collant */
+  z-index: 90;
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--toolbar-separator);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+[data-theme='dark'] .text-toolbar {
+  background: #1e293b; /* Couleur sombre cohérente avec ton thème */
+  border-color: var(--toolbar-separator);
+}
+
+.toolbar-group {
+  display: flex;
+  gap: 4px;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  color: var(--text-main);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+  background: var(--bg-color);
+  color: var(--primary);
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--toolbar-separator);
+  margin: 0 4px;
+}
+
 /* Section Meta (Image & Tags) */
 .meta-section {
   display: grid;
@@ -104,10 +162,6 @@
   padding: 1.5rem;
   border-radius: 16px;
   border: 1px solid #f1f5f9;
-}
-
-@media (max-width: 768px) {
-  .meta-section { grid-template-columns: 1fr; }
 }
 
 .meta-section label {
@@ -135,12 +189,19 @@
 /* Inputs principaux */
 .main-title-input {
   width: 100%;
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 2.4rem; 
+  font-weight: 900;
   border: none;
   outline: none;
   color: #1e293b;
   line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  background: transparent;
+}
+
+[data-theme='dark'] .main-title-input {
+  color: var(--text-main);
 }
 
 .main-title-input::placeholder { color: #e2e8f0; }
@@ -167,9 +228,10 @@
   resize: vertical;
 }
 
-/* Mode Preview */
 .full-preview {
   animation: fadeIn 0.3s ease-out;
+  color: var(--text-main);
+  line-height: 1.8;
 }
 
 .cover-img {
@@ -181,10 +243,22 @@
 }
 
 .preview-title {
-  font-size: 1.2rem;
+  font-size: 2.4rem;
   font-weight: 900;
-  margin-bottom: 1rem;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  color: var(--text-main);
 }
+
+.preview-body h2 {
+  font-size: 1.5rem;
+  font-weight: 750;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--toolbar-separator);
+  padding-bottom: 0.4rem;
+} 
 
 .preview-tags {
   display: flex;
@@ -211,6 +285,68 @@
 
 .full-preview div[align] {
     margin-bottom: 1rem;
+}
+
+/* ============================================================
+RESPONSIVE - COHÉRENCE AVEC LA PUBLICATION
+============================================================ */
+
+@media (max-width: 768px) {
+  /* Ajustement de la zone de contenu pour mobile */
+  .meta-section { grid-template-columns: 1fr; }
+  
+  .editor-content-area {
+    padding: 1rem 14px;
+  }
+
+  /* Le titre dans l'aperçu mobile */
+  .preview-title {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  /* L'input de titre en mode édition mobile */
+  .main-title-input {
+    font-size: 1.5rem;
+  }
+
+  /* Corps de l'aperçu mobile */
+  .full-preview {
+    font-size: 1rem; /* Cohérence avec le 1rem de la publication */
+    line-height: 1.75;
+  }
+
+  .preview-body h2 {
+    font-size: 1.3rem; /* Légèrement réduit pour mobile */
+    margin-top: 1.5rem;
+  }
+
+
+  /* Image de couverture en mode édition/aperçu mobile */
+  .cover-img {
+    border-radius: 12px;
+    max-height: 250px;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Header de l'éditeur mobile */
+  .header-container {
+    padding: 0 1rem;
+  }
+
+  .view-switcher button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* --- Ajustements spécifiques pour les écrans très larges (Desktop) --- */
+@media (min-width: 1024px) {
+  .full-preview {
+    font-size: 1.1rem; /* Confort de lecture identique à la publication */
+  }
 }
 
 @keyframes fadeIn {

@@ -41,7 +41,7 @@ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log("Image insérée :", fullUrl);
     editor?.chain().focus().setImage({ src: fullUrl }).run();
   } catch (err) {
-    showToast({ type: 'error', message: "Erreur de transfert vers R2" });
+    showToast("Erreur de transfert vers R2", 'error');
   }
 };
 

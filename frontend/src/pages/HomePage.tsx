@@ -54,7 +54,7 @@ export default function HomePage() {
         
         <div className="landing-description">
           <p className="landing-features">
-            <strong>DevOpsNotes - Blog</strong> {t.description1}
+            <strong>DevopsNotes - Blog</strong> {t.description1}
           </p> 
           <div className="key-points-container">
             {t.description2}
@@ -97,7 +97,7 @@ export default function HomePage() {
           <img src="/logos/node.webp" alt="Node.js" title="Node.js 20 + Express Backend" />
           <img src="/logos/mongodb.webp" alt="MongoDB" title="MongoDB + Mongoose Cloud Database" />
           <img src="/logos/docker.webp" alt="Docker" title="Docker Containerization" />
-          <img src="/logos/kubernetes.webp" alt="Kubernetes" title="Kubernetes / k3s : Orchestration" />
+          <img src="/logos/kubernetes.webp?=v2" alt="Kubernetes" title="Kubernetes / k3s : Orchestration" />
           <img src="/logos/gitlab.webp" alt="GitLab" title="GitLab Repository and CI/CD Pipelines" />
           <img src="/logos/cf.webp" alt="Cloudflare" title="CDN, R2 & Security" />
           <img src="/logos/ingress.webp" alt="Ingress" title="Ingress : HTTP traffic manager" />

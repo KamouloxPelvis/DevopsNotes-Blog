@@ -75,10 +75,10 @@ export default function ProfileEditPage() {
       const res = await api.put('/auth/update-profile', formData);
       
       setUser(res.data.user);
-      showToast({ type: 'success', message: 'Profil mis à jour !' });
+      showToast("Profil mis à jour !", 'success');
       navigate('/profile');
     } catch (err) {
-      showToast({ type: 'error', message: 'Erreur lors de la mise à jour' });
+      showToast("Erreur lors de la mise à jour du profil", 'error');
     } finally {
       setSubmitting(false);
     }

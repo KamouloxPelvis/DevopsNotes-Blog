@@ -189,17 +189,22 @@ export function ArticlesPage() {
 
             return (
               <div key={article._id} className="article-card-v2">
-                {imageUrl && (
-                  <div className="article-image-v2">
-                    <img
-                      src={imageUrl} 
-                      alt={article.title}
-                      style={{ width: '100%', height: '250px', objectFit: 'cover', objectPosition: 'center 30%' }}
-                      fetchPriority={index === 0 ? 'high' : 'auto'}
-                      loading={index === 0 ? 'eager' : 'lazy'}
-                    />
+                <div className="article-image-v2">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl} 
+                    alt={article.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                ) : (
+                  /* Fallback visuel : Icône DevOps / Logo */
+                  <div className="image-fallback">
+                    <span className="fallback-logo">devopsnotes</span>
+                    <div className="fallback-decoration"></div>
                   </div>
                 )}
+              </div>
                 <div className="article-content-v2">
                   <h3 className="article-title-v2">
                     {article.title}

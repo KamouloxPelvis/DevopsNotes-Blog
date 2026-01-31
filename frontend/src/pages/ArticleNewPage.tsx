@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../api/axios'; 
 import { useToast } from '../context/ToastContext';
 import TiptapEditor from '../components/Editor';
-import '../styles/ArticleNewPage.css';
+import '../styles/ArticleModPage.css';
 
 export default function EditArticle() {
   const { slug: currentSlug } = useParams<{ slug: string }>();
@@ -54,7 +54,7 @@ export default function EditArticle() {
         setTags(data.tags || []);
         setRawTags((data.tags || []).join(', '));
       } catch (err) {
-        showToast({ type: 'error', message: "Erreur de chargement" });
+        showToast("Erreur de chargement de l'article", 'error');
       } finally {
         setLoading(false);
       }
@@ -78,9 +78,9 @@ export default function EditArticle() {
       setImageUrl(newImageKey); 
       setImagePreview(getFullImageUrl(newImageKey));
       setImageFile(null);
-      showToast({ type: 'success', message: 'Image validée et stockée sur R2 !' });
+      showToast("Image validée et stockée sur R2 !", 'success');
     } catch (err) {
-      showToast({ type: 'error', message: "Échec de l'upload. Vérifiez le format (WebP/JPG/PNG)." });
+      showToast("Échec de l'upload. Vérifiez le format (WebP/JPG/PNG).", 'error');
     } finally {
       setUploading(false);
     }
@@ -104,14 +104,14 @@ export default function EditArticle() {
 
       if (currentSlug) {
         await api.put(`/articles/${currentSlug}`, articleData);
-        showToast({ type: 'success', message: 'Article mis à jour !' });
+        showToast("Article mis à jour !", 'success');
       } else {
         const res = await api.post('/articles', articleData);
-        showToast({ type: 'success', message: 'Article créé !' });
+        showToast("Article créé !", 'success');
         navigate(`/articles/${res.data.slug}`);
       }
     } catch (err: any) {
-      showToast({ type: 'error', message: "Erreur lors de l'enregistrement" });
+      showToast("Erreur lors de l'enregistrement", 'error');
     } finally {
       setSubmitting(false);
     }

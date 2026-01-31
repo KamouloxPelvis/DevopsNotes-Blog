@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../api/axios'; 
 import { useToast } from '../context/ToastContext';
 import TiptapEditor from '../components/Editor';
-import '../styles/ArticleNewPage.css';
+import '../styles/ArticleModPage.css';
 
 export default function EditArticle() {
   const { slug: currentSlug } = useParams<{ slug: string }>();
@@ -53,7 +53,7 @@ useEffect(() => {
       setTags(data.tags || []);
       setRawTags((data.tags || []).join(', '));
     } catch (err) {
-      showToast({ type: 'error', message: "Erreur de chargement" });
+      showToast("Erreur de chargement",'error',);
     } finally {
       setLoading(false);
     }
@@ -76,9 +76,9 @@ useEffect(() => {
       setImageUrl(newImageKey); 
       setImagePreview(getFullImageUrl(newImageKey));
       setImageFile(null);
-      showToast({ type: 'success', message: 'Image mise à jour sur R2 !' });
+      showToast('Image mise à jour sur R2 !', 'success');
     } catch (err) {
-      showToast({ type: 'error', message: "Échec de l'envoi de l'image." });
+      showToast("Échec de l'envoi de l'image.", 'error');
     } finally {
       setUploading(false);
     }
@@ -99,10 +99,10 @@ useEffect(() => {
 
       await api.put(`/articles/${currentSlug}`, updateData);
 
-      showToast({ type: 'success', message: 'Article mis à jour avec succès !' });
+      showToast('Article mis à jour avec succès !', 'success');
       navigate(`/articles/${currentSlug}`);
     } catch (err: any) {
-      showToast({ type: 'error', message: "Erreur lors de la sauvegarde de l'article" });
+      showToast("Erreur lors de la sauvegarde de l'article", 'error');
     } finally {
       setSubmitting(false);
     }
