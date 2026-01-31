@@ -1,16 +1,19 @@
 import { FormEvent, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Signup.css';
 
 export default function SigninPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const from = location.state?.from?.pathname || '/articles';
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -19,7 +22,7 @@ export default function SigninPage() {
 
     try {
       await login(email, password);
-      navigate('/articles');
+      navigate(from, { replace: true });
     } catch (err: any) {
       // Affiche l'erreur du backend (ex: "Veuillez confirmer votre email")
       setError(err.message || 'Identifiants invalides');
