@@ -10,7 +10,7 @@ type Toast = {
 };
 
 type ToastContextType = {
-  showToast: (opts: { type: ToastType; message: string }) => void;
+  showToast: (message: string, type?: ToastType) => void;
 };
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -18,11 +18,10 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = useCallback(({ type, message }: { type: ToastType; message: string }) => {
+  const showToast = useCallback((message: string, type: ToastType = 'info') => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, type, message }]);
 
-    // Auto-close après 4 secondes
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);

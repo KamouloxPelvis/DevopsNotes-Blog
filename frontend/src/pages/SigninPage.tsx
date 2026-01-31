@@ -1,12 +1,14 @@
 import { FormEvent, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import '../styles/Signup.css';
 
 export default function SigninPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const { showToast } = useToast();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,10 +24,14 @@ export default function SigninPage() {
 
     try {
       await login(email, password);
+      showToast('Connexion réussie ! Heureux de vous revoir.', 'success');
+
       navigate(from, { replace: true });
     } catch (err: any) {
       // Affiche l'erreur du backend (ex: "Veuillez confirmer votre email")
-      setError(err.message || 'Identifiants invalides');
+      const errorMsg = err.message || 'Identifiants invalides';
+      setError(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
