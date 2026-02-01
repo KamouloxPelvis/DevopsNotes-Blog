@@ -5,6 +5,8 @@ stages:
 variables:
   REGISTRY_IMAGE: "registry.gitlab.com/portfolio-kamal-guidadou/devopsnotes-blog"
   TAG_LATEST: "latest"
+  FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: "true"
+  BASH_ENV: "~/.bashrc"
 
 build_images:
   stage: build
