@@ -5,10 +5,26 @@ import { Comment } from '../models/Comment';
 // 1. Récupérer tous les articles
 export const getAllArticles = async (req: Request, res: Response) => {
   try {
-    // Utilisation du modèle Article (et non IArticle)
-    const articles = await Article.find().sort({ createdAt: -1 });
-    res.json(articles);
-} catch (error) {
+    // Récupération du numéro de page depuis la requête, par défaut 1
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = 4; // Ta limite stricte de 4 articles
+    const skip = (page - 1) * limit;
+
+    // On compte le total pour calculer le nombre de pages sur le front
+    const total = await Article.countDocuments();
+    
+    const articles = await Article.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      articles,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      totalArticles: total
+    });
+  } catch (error) {
     res.status(500).json({ message: "Erreur lors de la récupération des articles" });
   }
 };

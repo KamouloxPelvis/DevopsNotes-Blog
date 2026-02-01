@@ -4,8 +4,7 @@
   justify-content: space-between;
   align-items: center;
   width: 103%;
-  margin-left: -32px;
-  margin-bottom: 2rem;
+  margin-left: -32px;;
 }
 
 .articles-actions-v2 {  
@@ -134,9 +133,10 @@
 }
 
 .article-title-v2 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  margin: 0;
+  margin-bottom: 8px;
+  margin-top: 0;
   color: var(--text-main);
 }
 
@@ -261,6 +261,22 @@
   opacity: 0.6;
 }
 
+.article-stats-v2 .stat-btn:first-child:hover {
+  color: #e31b23 !important;
+  transform: scale(1.1);
+}
+
+.article-stats-v2 .stat-btn {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.stat-btn, .comments-count {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: inherit;
+}
+
 /* Footer de la carte */
 .article-footer-v2 {
   display: flex;
@@ -275,24 +291,64 @@
 }
 
 /* ===== PAGINATION ===== */
-.pagination-v2 {
+.pagination-container {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid #e2e8f0;
+  justify-content: center;
+  margin-top: -1.5rem;
+  margin-bottom: 1.5rem;
+  height: 2rem;
 }
 
-.pagination-nav {
+.pagination-dots-wrapper {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  background: var(--card-bg);
+  padding: 0.5rem;
+  border-radius: 50px;
+  border: 1px solid var(--toolbar-separator);
+  gap: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.pagination-info {
+.pagination-arrow-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.pagination-arrow-btn:hover:not(:disabled) {
+  background: var(--toolbar-separator);
+  color: var(--primary);
+}
+
+.pagination-number {
+  background: transparent;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: 600;
   font-size: 0.9rem;
   color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.pagination-number.active {
+  background: var(--primary);
+  height: 1.8rem;
+  width: 1.8rem;
+  color: white;
+}
+
+.pagination-number:hover:not(.active) {
+  background: var(--toolbar-separator);
 }
 
 /* --- Optimisation Markdown dans les vignettes --- */
@@ -386,14 +442,8 @@
     padding-bottom: 0;
   }
 
-  .pagination-v2 {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .welcome-text, .user-greeting {
-    display: none; /* Cache "Bonjour, 'Member'" pour éviter l'encombrement */
+  .welcome-text, .user-greeting {
+  display: none; /* Cache "Bonjour, 'Member'" pour éviter l'encombrement */
   }
 }
 

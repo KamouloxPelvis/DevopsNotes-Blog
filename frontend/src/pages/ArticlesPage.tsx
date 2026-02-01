@@ -1,69 +1,54 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios'; 
-import { getArticles } from '../api/articles';
-import { Article } from '../types/articles';
 import { useAuth } from '../context/AuthContext';
+import { useAllArticles } from '../hooks/useAllArticles';
+import { Article } from '../types/articles';
 import MarkdownPreview from '../components/MarkdownPreview';
-import NProgress from 'nprogress';
+import { Heart, Eye, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import '../styles/ArticlesPage.css';
 
 type CommentCountMap = Record<string, number>;
+type LikeCountMap = Record<string, number>;
 
 export function ArticlesPage() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [commentCounts, setCommentCounts] = useState<CommentCountMap>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // 1. ÉTAT DE LA PAGE & DONNÉES
+  const [page, setPage] = useState(1);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-  
+
+  const { articles, totalPages, loading } = useAllArticles(page);
+
+  // États pour les interactions (Likes, Commentaires)
+  const [commentCounts, setCommentCounts] = useState<CommentCountMap>({});
   const [likedArticles, setLikedArticles] = useState<Set<string>>(new Set());
+  const [localLikeCounts, setLocalLikeCounts] = useState<LikeCountMap>({}); // Pour l'affichage instantané
   const [isLiking, setIsLiking] = useState<string | null>(null);
-  
+
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const R2_PUBLIC_URL = process.env.REACT_APP_R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
-  const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
-
-  // Simulation d'un petit délai pour l'onctuosité de l'animation si besoin
-  useEffect(() => {
-    NProgress.start();
-    setLoading(true);
-    getArticles(page, 6)
-      .then((data) => {
-        setArticles(data.items);
-        setPages(data.pages);
-
-        if (user) {
-          const initialLikes = new Set<string>();
-          data.items.forEach((a: Article) => {
-            if (a.likedBy?.some(id => id.toString() === user.id)) {
-              initialLikes.add(a.slug);
-            }
-          });
-          setLikedArticles(initialLikes);
-        }
-      })
-      .catch((err) => setError(err.message))
-      .finally(async () => {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        NProgress.done();
-        setLoading(false);
-      });
-  }, [page, user]);
-
-  // Récupération des compteurs de commentaires
+  // 2. EFFETS SECONDAIRES (Likes initiaux & Commentaires)
   useEffect(() => {
     if (articles.length === 0) return;
 
+    // A. Initialiser les likes de l'utilisateur
+    if (user) {
+      const initialLikes = new Set<string>();
+      articles.forEach((a: Article) => {
+        if (a.likedBy?.some((id: any) => id.toString() === user.id)) {
+          initialLikes.add(a.slug);
+        }
+      });
+      setLikedArticles(initialLikes);
+    }
+
+    // B. Récupérer le nombre de commentaires
     const loadCounts = async () => {
       const counts: CommentCountMap = {};
       await Promise.all(
-        articles.map(async (a) => {
+        articles.map(async (a: Article) => {
           try {
             const res = await api.get(`/articles/${a.slug}/comments/count`);
             counts[a.slug] = res.data.count;
@@ -74,36 +59,47 @@ export function ArticlesPage() {
       );
       setCommentCounts(counts);
     };
-
     loadCounts();
-  }, [articles]);
+  }, [articles, user]);
 
-  const handleLike = async (slug: string) => {
+  // 3. LOGIQUE DES LIKES
+  const handleLike = async (slug: string, currentLikes: number) => {
     if (!user) {
-      alert("Veuillez vous connecter pour aimer cet article.");
+      alert("Connectez-vous pour aimer cet article !");
       return;
     }
     if (isLiking === slug) return;
+
     try {
-      setIsLiking(slug); 
+      setIsLiking(slug);
+      // Appel API
       const res = await api.post(`/articles/${slug}/like`);
-      const { likes, hasLiked } = res.data;
-      setArticles(prev => prev.map(a => a.slug === slug ? { ...a, likes: likes } : a));
+      const { hasLiked, likes } = res.data;
+
+      // Mise à jour locale immédiate (Optimistic UI)
       setLikedArticles(prev => {
         const newSet = new Set(prev);
         if (hasLiked) newSet.add(slug);
         else newSet.delete(slug);
         return newSet;
       });
+
+      setLocalLikeCounts(prev => ({
+        ...prev,
+        [slug]: likes 
+      }));
+
     } catch (error) {
-      console.error('Erreur lors du like:', error);
+      console.error('Erreur like:', error);
     } finally {
       setIsLiking(null);
     }
   };
 
+  // 4. FILTRES (Search + Tags)
+  // Note: Avec la pagination serveur, ceci ne filtre que la page courante.
   const filteredArticles = useMemo(() => {
-    return articles.filter((article) => {
+    return articles.filter((article: Article) => {
       const matchesTag = activeTag === null || (article.tags || []).includes(activeTag);
       const term = searchTerm.toLowerCase();
       const matchesSearch = term === '' || 
@@ -113,32 +109,67 @@ export function ArticlesPage() {
     });
   }, [articles, activeTag, searchTerm]);
 
+  // Liste de tous les tags visibles
   const allTags = useMemo(() => {
-    const tags = new Set(articles.flatMap(a => a.tags || []));
+    const tags = new Set(articles.flatMap((a: Article) => a.tags || []));
     return Array.from(tags).filter(Boolean).sort();
   }, [articles]);
 
-  if (error) return <div className="error-msg">Erreur: {error}</div>;
+  // 5. COMPOSANT DE PAGINATION (Réutilisable)
+  const PaginationNav = () => (
+  <div className="pagination-container">
+    <div className="pagination-dots-wrapper">
+      <button 
+        onClick={() => setPage(p => Math.max(1, p - 1))}
+        disabled={page === 1}
+        className="pagination-arrow-btn"
+      >
+        <ChevronLeft size={20} />
+      </button>
 
+      <div className="pagination-pages-list">
+        {[...Array(totalPages)].map((_, i) => (
+          <button
+            key={i + 1}
+            onClick={() => setPage(i + 1)}
+            className={`pagination-number ${page === i + 1 ? 'active' : ''}`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+
+      <button 
+        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+        disabled={page === totalPages}
+        className="pagination-arrow-btn"
+      >
+        <ChevronRight size={20} />
+      </button>
+    </div>
+  </div>
+);
+
+  // 6. RENDU
   return (
-    /* 1. Animation de fondu sur toute la page */
     <div className="articles-content fade-in-page">
+      {/* HEADER & RECHERCHE */}
       <div className="articles-header-v2">
         <div className="articles-search-wrapper">
           <input
             type="text"
             className="articles-search"
-            placeholder="Rechercher..."
+            placeholder="Rechercher une pépite..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className="articles-actions-v2">
-          <div className="nav-buttons" style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="nav-buttons flex gap-2">
             <Link to="/forum" className="btn btn-secondary">Forum</Link>
-            {user && <Link to="/chat" aria-label="chat" className="btn btn-secondary">Chat</Link>}
+            {user && <Link to="/chat" className="btn btn-secondary">Chat</Link>}
           </div>
-          {user && isAdmin && (
+          {isAdmin && (
             <Link to="/articles/new" className="btn btn-primary admin-new-btn">
               <span className="full-text">+ Nouvel article</span>
               <span className="mobile-icon">+</span>
@@ -147,40 +178,51 @@ export function ArticlesPage() {
         </div>
       </div>
 
-      {/* Tags avec skeleton si loading */}
+      {/* TAGS */}
       <div className="articles-filters-v2">
         <div className="tags-grid-v2">
-          {loading ? (
-             [1, 2, 3, 4, 5].map(n => <div key={n} className="skeleton-loader" style={{ width: '60px', height: '30px', borderRadius: '20px' }}></div>)
-          ) : (
-            <>
-              <button className={`tag-pill ${activeTag === null ? 'active' : ''}`} onClick={() => setActiveTag(null)}>All</button>
-              {allTags.map((tag) => (
-                <button key={tag} className={`tag-pill ${activeTag === tag ? 'active' : ''}`} onClick={() => setActiveTag(tag)}>{tag}</button>
-              ))}
-            </>
-          )}
+          <button 
+            className={`tag-pill ${activeTag === null ? 'active' : ''}`} 
+            onClick={() => setActiveTag(null)}
+          >
+            All
+          </button>
+          {allTags.map((tag) => (
+            <button 
+              key={tag} 
+              className={`tag-pill ${activeTag === tag ? 'active' : ''}`} 
+              onClick={() => setActiveTag(tag)}
+            >
+              {tag}
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* --- PAGINATION HAUT --- */}
+      {!loading && totalPages > 1 && <PaginationNav />}
+
+      {/* GRILLE D'ARTICLES */}
       <div className="articles-grid-v2">
         {loading ? (
-          /* 2. Squelettes améliorés pour correspondre aux cartes réelles */
-          [...Array(6)].map((_, i) => (
+          /* SQUELETTES DE CHARGEMENT */
+          [...Array(4)].map((_, i) => (
             <div key={i} className="article-card-v2">
-              <div className="skeleton-loader" style={{ height: '250px', width: '100%' }}></div>
+              <div className="skeleton-loader" style={{ height: '200px', width: '100%' }} />
               <div style={{ padding: '1.25rem' }}>
-                <div className="skeleton-loader" style={{ height: '24px', width: '80%', marginBottom: '15px' }}></div>
-                <div className="skeleton-loader" style={{ height: '16px', width: '100%', marginBottom: '8px' }}></div>
-                <div className="skeleton-loader" style={{ height: '16px', width: '90%', marginBottom: '20px' }}></div>
-                <div className="skeleton-loader" style={{ height: '35px', width: '120px', borderRadius: '8px' }}></div>
+                <div className="skeleton-loader" style={{ height: '24px', width: '80%', marginBottom: '10px' }} />
+                <div className="skeleton-loader" style={{ height: '16px', width: '100%' }} />
               </div>
             </div>
           ))
         ) : (
-          filteredArticles.map((article, index) => {
+          /* CARTES RÉELLES */
+          filteredArticles.map((article: Article, index: number) => {
             const isLiked = likedArticles.has(article.slug);
-            const likesCount = article.likes || 0;
+            // On prend le count local si dispo, sinon celui de l'article
+            const likesCount = localLikeCounts[article.slug] ?? article.likes ?? 0;
+            
+            // Gestion URL Image
             const imageUrl = article.imageUrl 
               ? (article.imageUrl.startsWith('http') 
                   ? article.imageUrl 
@@ -190,50 +232,64 @@ export function ArticlesPage() {
             return (
               <div key={article._id} className="article-card-v2">
                 <div className="article-image-v2">
-                {imageUrl ? (
-                  <img
-                    src={imageUrl} 
-                    alt={article.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                  />
-                ) : (
-                  /* Fallback visuel : Icône DevOps / Logo */
-                  <div className="image-fallback">
-                    <span className="fallback-logo">devopsnotes</span>
-                    <div className="fallback-decoration"></div>
-                  </div>
-                )}
-              </div>
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl} 
+                      alt={article.title}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                    />
+                  ) : (
+                    <div className="image-fallback">
+                      <span className="fallback-logo">devopsnotes</span>
+                    </div>
+                  )}
+                </div>
+
                 <div className="article-content-v2">
                   <h3 className="article-title-v2">
                     {article.title}
                     {article.status === 'draft' && <span className="draft-badge">Brouillon</span>}
                   </h3>
+                  
                   <div className="article-excerpt">
                     <MarkdownPreview 
-                      content={(article.excerpt || article.content || '').slice(0, 180) + '...'}
+                      content={(article.excerpt || article.content || '').slice(0, 300) + '...'}
                       className="preview-card-clean" 
                     />
                   </div>
+
                   <div className="article-tags-v2">
-                    {(article.tags || []).map((tag) => <span key={tag} className="tag">#{tag}</span>)}
+                    {(article.tags || []).slice(0, 3).map((tag: string) => (
+                      <span key={tag} className="tag">#{tag}</span>
+                    ))}
                   </div>
+
                   <div className="article-stats-v2">
                     <button 
-                      className={`stat-btn ${isLiked ? 'active' : ''}`} 
-                      onClick={() => handleLike(article.slug)}
+                      className={`stat-btn like-btn ${isLiked ? 'active' : ''}`} 
+                      onClick={() => handleLike(article.slug, likesCount)}
                       disabled={isLiking === article.slug}
-                      style={{ 
-                        color: likesCount === 0 ? '#a0aec0' : (isLiked ? '#e31b23' : '#ffb6c1'),
-                        transition: 'all 0.2s ease'
-                      }}
+                      // On retire le style inline pour laisser le CSS gérer la couleur
                     >
-                      ❤️ {likesCount}
+                      <Heart 
+                        size={18} 
+                        fill={isLiked ? "currentColor" : "none"} 
+                        strokeWidth={2.5}
+                      /> 
+                      <span className="stat-value">{likesCount}</span>
                     </button>
-                    <div className="stat-btn">👁️ {article.views ?? 0}</div>
-                    <span className="comments-count">💬 {commentCounts[article.slug] ?? 0}</span>
+
+                    <div className="stat-btn">
+                      <Eye size={18} strokeWidth={2.5} /> 
+                      <span className="stat-value">{article.views ?? 0}</span>
+                    </div>
+
+                    <div className="stat-btn comments-count">
+                      <MessageSquare size={18} strokeWidth={2.5} /> 
+                      <span className="stat-value">{commentCounts[article.slug] ?? 0}</span>
+                    </div>
                   </div>
+
                   <div className="article-footer-v2">
                     <Link to={`/articles/${article.slug}`} className="btn btn-primary">Lire l'article</Link>
                   </div>
@@ -243,14 +299,6 @@ export function ArticlesPage() {
           })
         )}
       </div>
-
-      {!loading && pages > 1 && (
-        <div className="pagination-v2">
-          <button className="btn btn-secondary" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Précédent</button>
-          <span className="pagination-info">Page {page} sur {pages}</span>
-          <button className="btn btn-secondary" disabled={page === pages} onClick={() => setPage(p => p + 1)}>Suivant</button>
-        </div>
-      )}
     </div>
   );
-};
+}

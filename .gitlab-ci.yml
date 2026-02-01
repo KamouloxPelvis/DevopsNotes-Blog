@@ -9,7 +9,7 @@ variables:
 build_images:
   stage: build
   tags:
-    - deploy_production
+    - debian
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     # --- Build Backend ---
@@ -30,7 +30,7 @@ build_images:
 deploy_production:
   stage: deploy
   tags:
-    - deploy_production
+    - debian
   before_script:
     - eval $(ssh-agent -s)
     - chmod 400 "$CI_CD_SSH_KEY"

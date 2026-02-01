@@ -1,13 +1,20 @@
 /* ============================================================
-  ARTICLE SHOW PAGE - STRUCTURE
+  ARTICLE DETAIL PAGE - STYLES GLOBAUX
   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .article-detail-page {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 1rem 2rem;
+  animation: fadeIn 0.4s ease-out;
 }
 
-/* Navigation & Admin Actions */
+
+/* Navigation & Header */
 .detail-nav {
   display: flex;
   justify-content: space-between;
@@ -20,22 +27,57 @@
   gap: 0.75rem;
 }
 
+/* Intégration du bouton supprimer dans le header du commentaire */
+.comment-meta-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-delete-comment {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0; /* Caché par défaut */
+  border-radius: 6px;
+}
+
+/* On affiche le bouton au survol de la carte (comme tes boutons de copie de code) */
+.comment-card:hover .btn-delete-comment {
+  opacity: 0.6;
+}
+
+.btn-delete-comment:hover {
+  opacity: 1 !important;
+  color: #ef4444; /* Rouge alerte pour la suppression */
+  background: rgba(239, 68, 68, 0.1);
+}
+
+
 /* ============================================================
-  MAIN CONTAINER
+  CONTENEUR DE L'ARTICLE
   ============================================================ */
+
 .article-detail-container {
   background: var(--card-bg);
   border-radius: 16px;
   border: 1px solid var(--toolbar-separator);
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
 }
 
-/* Hero Image R2 Storage */
+/* Hero Image */
 .article-hero-image {
   width: 100%;
-  height: clamp(250px, 45vh, 500px);
+  height: clamp(250px, 40vh, 450px);
   overflow: hidden;
   background-color: var(--bg-color);
   border-bottom: 1px solid var(--toolbar-separator);
@@ -45,7 +87,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  display: block;
 }
 
 /* Header Meta Section */
@@ -54,142 +96,361 @@
 }
 
 .article-detail-title {
-  font-size: clamp(1.8rem, 4vw, 2.8rem); 
+  font-size: clamp(1.6rem, 3vw, 2rem); 
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.2;
   color: var(--text-main);
   margin-bottom: 1.5rem;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
-/* Tags Style DevOpsNotes */
 .article-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.tag-pill {
+.article-tags .tag-pill {
   background: var(--bg-color);
   color: var(--primary);
-  font-weight: 700;
-  font-size: 0.8rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
   border: 1px solid var(--toolbar-separator);
-  text-transform: lowercase;
 }
 
 /* ============================================================
-  BODY CONTENT (MARKDOWN RENDER)
+  CORPS DE L'ARTICLE (RENDU TIPTAP / HTML)
   ============================================================ */
+
 .article-body-content {
-  padding: 1rem 3rem 4rem;
-  font-size: 1.15rem;
-  line-height: 1.8;
-  color: var(--text-main);
+padding: 1rem 3rem 3rem;
+font-size: 1.1rem;
+line-height: 1.8;
+color: var(--text-main);
 }
 
 .article-body-content h2 {
-  font-size: 1.75rem; 
-  font-weight: 800;
-  margin-top: 3rem;
-  margin-bottom: 1.5rem;
-  color: var(--text-main);
-  border-bottom: 2px solid var(--primary); /* Ligne d'accentuation DevOps */
-  padding-bottom: 0.4rem;
-  width: fit-content;
+/* Réduit à 1.5rem pour bien marquer la hiérarchie avec le titre principal */
+font-size: 1.5rem; 
+font-weight: 750;
+color: var(--text-main);
+margin-top: 2.5rem;
+margin-bottom: 1.2rem;
+border-bottom: 1px solid var(--toolbar-separator);
+padding-bottom: 0.5rem;
 }
 
+.article-body-content h3 {
+font-size: 1.25rem;
+font-weight: 700;
+margin-top: 2rem;
+margin-bottom: 1rem;
+}
+
+/* Paragraphes et listes */
 .article-body-content p {
-  margin-bottom: 1.8rem;
+  margin-bottom: 1.5rem;
 }
 
-/* Blocs de Code - Tokyo Night Theme */
+.article-body-content ul, 
+.article-body-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.article-body-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Citations */
+.article-body-content blockquote {
+  border-left: 4px solid var(--primary);
+  background: var(--bg-color);
+  margin: 2rem 0;
+  padding: 1rem 2rem;
+  font-style: italic;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* ============================================================
+  BLOCS DE CODE (HIGHLIGHT.JS)
+  ============================================================ */
+
 .article-body-content pre {
-  margin: 2.5rem 0;
+  margin: 2rem 0;
   border-radius: 12px;
-  background: #1a1b26 !important; 
+  background: #1a1b26 !important; /* Tokyo Night Dark */
   border: 1px solid #2f334d;
+  overflow: hidden;
   position: relative;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .article-body-content pre code {
-  font-family: 'Fira Code', monospace;
-  font-size: 0.95rem;
-  padding: 1.5rem;
   display: block;
+  padding: 1.5rem;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  tab-size: 4;
+  background: transparent !important;
 }
 
-/* Bouton Copier (Injecté par JS) */
-.copy-button {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #a9b1d6;
-  padding: 5px 12px;
+/* Code en ligne */
+.article-body-content :not(pre) > code {
+  background: var(--bg-color);
+  color: var(--primary);
+  padding: 0.2rem 0.4rem;
   border-radius: 6px;
-  font-size: 0.7rem;
-  cursor: pointer;
-  opacity: 0;
-  transition: all 0.2s;
-  backdrop-filter: blur(4px);
+  font-size: 0.9em;
+  font-family: 'Fira Code', monospace;
+  border: 1px solid var(--toolbar-separator);
 }
 
+/* On affiche le bouton seulement au survol du bloc de code */
 .article-body-content pre:hover .copy-button {
   opacity: 1;
 }
 
+.copy-button:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.copy-button.copied {
+  background: var(--success);
+  border-color: var(--success);
+  opacity: 1;
+}
+
+/* Alignement */
+:global(.ProseMirror) {
+  text-align: left; /* Par défaut */
+}
+
+:global([style*="text-align: center"]) { text-align: center; }
+:global([style*="text-align: right"]) { text-align: right; }
+:global([style*="text-align: justify"]) { text-align: justify; }
+
+/* Images dans l'éditeur */
+:global(.editor-image) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  margin: 1rem auto; /* Centré par défaut */
+}
+
+/* Boutons actifs */
+.active {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.separator {
+  width: 1px;
+  height: 20px;
+  background: var(--toolbar-separator);
+  margin: 0 5px;
+}
+
 /* ============================================================
-  COMMENTS SECTION
+  SECTION COMMENTAIRES
   ============================================================ */
+
+.section-divider {
+  border: 0;
+  border-top: 1px solid var(--toolbar-separator);
+  margin: 0;
+}
+
 .comments-section {
   padding: 3rem;
   background: var(--bg-color);
+  opacity: 0.95;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--text-main);
+}
+
+.comment-box {
+  margin-bottom: 3rem;
+}
+
+.comment-box textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--toolbar-separator);
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s;
+}
+
+.comment-box textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .comment-card {
   background: var(--card-bg);
   border: 1px solid var(--toolbar-separator);
   padding: 1.5rem;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  position: relative;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
 }
 
-.btn-delete-comment {
-  background: transparent;
-  border: none;
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.comment-author {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.comment-date {
+  color: var(--text-muted);
+}
+
+.comment-text {
+  line-height: 1.6;
+  color: var(--text-main);
+}
+
+/* Related articles footer */
+.related-articles-footer {
+  padding: 3rem;
+  border-top: 1px solid var(--toolbar-separator);
+}
+
+/* Positionnement du bouton dans le bloc pre */
+.article-body-content pre {
+  position: relative; /* Nécessaire pour le bouton en absolute */
+}
+
+.copy-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.comment-card:hover .btn-delete-comment {
-  opacity: 1;
+  transition: all 0.2s;
+  opacity: 0; /* Caché par défaut */
+  backdrop-filter: blur(4px);
+  z-index: 10;
 }
 
 /* ============================================================
-  SKELETON & ANIMATIONS
+  RESPONSIVE
   ============================================================ */
-.skeleton-loader {
-  background: linear-gradient(90deg, var(--bg-color) 25%, var(--toolbar-separator) 50%, var(--bg-color) 75%);
-  background-size: 200% 100%;
-  animation: loading-shimmer 1.5s infinite;
-}
 
-@keyframes loading-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
-  .article-header-meta, .article-body-content, .comments-section {
+  .article-detail-title{
+    font-size: 1.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .comments-section, 
+  .related-articles-footer {
     padding: 1.5rem;
   }
-  .article-detail-title { font-size: 1.8rem; }
+
+  .article-body-content {
+    padding: 1.2rem;
+    font-size: 1rem;
+  }
+
+  .article-body-content h2 {
+    font-size: 1.3rem; /* Ajustement proportionnel sur mobile */
+  }
+
+  .article-header-meta {
+    padding: 14px;
+  }
+
+  .article-tags {
+    padding: 8px;
+    margin: 0;
+  }
+
+  .btn-delete-comment {
+    opacity: 0.7;
+  }
+}
+
+
+/* --- SKELETON ET ANIMATIONS CHARGEMENT FLUIDE ---- */
+/* Animation de fondu pour la page */
+.fade-in-page {
+animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+/* Structure du Skeleton */
+.hero-skeleton {
+width: 100%;
+height: clamp(250px, 40vh, 450px);
+border-bottom: 1px solid var(--toolbar-separator);
+}
+
+.skeleton-content-padding {
+padding: 3rem;
+}
+
+.title-skeleton {
+height: 3rem;
+width: 80%;
+margin-bottom: 1.5rem;
+border-radius: 8px;
+}
+
+.tag-skeleton {
+height: 1.5rem;
+width: 120px;
+margin-bottom: 2rem;
+border-radius: 20px;
+}
+
+.text-line {
+height: 1rem;
+width: 100%;
+margin-bottom: 1rem;
+border-radius: 4px;
+}
+
+/* L'animation Shimmer (déjà présente dans ArticlesPage.css) */
+.skeleton-loader {
+background: linear-gradient(90deg, var(--bg-color) 25%, var(--toolbar-separator) 50%, var(--bg-color) 75%);
+background-size: 200% 100%;
+animation: loading-shimmer 1.5s infinite;
 }

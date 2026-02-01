@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import api from '../api/axios';
@@ -21,7 +21,7 @@ interface Comment {
   createdAt: string;
 }
 
-export default function ArticleShowPage() {
+export default function ArticleShow() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -35,44 +35,32 @@ export default function ArticleShowPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isAdmin = user?.role === 'admin';
-  const R2_PUBLIC_URL = process.env.REACT_APP_R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
+  const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL ?? "https://resources.devopsnotes.org";
 
-  // Gestion des images R2
-  const getFullImageUrl = useCallback((path: string | undefined) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    return `${R2_PUBLIC_URL}${cleanPath}`;
-  }, [R2_PUBLIC_URL]);
-
-  // 1. Fetching Data
+  // 1. Chargement des données avec NProgress et Skeleton
   useEffect(() => {
     if (!slug) return;
     setLoadingArticle(true);
     NProgress.start();
 
-    const loadData = async () => {
-      try {
-        const articleRes = await api.get(`/articles/${slug}`);
-        setArticle(articleRes.data);
+    api.get(`/articles/${slug}`)
+      .then((res) => {
+        setArticle(res.data);
         setError(null);
-        
-        const commentRes = await api.get(`/comments/${slug}`);
-        setComments(commentRes.data);
-      } catch (err: any) {
-        if (!err.config?.url?.includes('/comments')) {
-          setError(err.response?.data?.message || "Article introuvable");
-        }
-      } finally {
+        return api.get(`/comments/${slug}`);
+      })
+      .then((res) => setComments(res.data))
+      .catch((err) => {
+        const isCommentError = err.config?.url?.includes('/comments');
+        if (!isCommentError) setError(err.response?.data?.message || "Article introuvable");
+      })
+      .finally(() => {
         setLoadingArticle(false);
         NProgress.done();
-      }
-    };
-
-    loadData();
+      });
   }, [slug]);
 
-  // 2. Highlighting & Copy Button logic
+  // 2. Coloration syntaxique Highlight.js
   useEffect(() => {
     if (article?.content && !loadingArticle) {
       const preBlocks = document.querySelectorAll('.article-body-content pre');
@@ -85,7 +73,8 @@ export default function ArticleShowPage() {
             button.className = 'copy-button';
             button.innerText = 'Copier';
             button.onclick = () => {
-              navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+              const text = codeBlock.innerText;
+              navigator.clipboard.writeText(text).then(() => {
                 button.innerText = 'Copié !';
                 button.classList.add('copied');
                 setTimeout(() => {
@@ -101,14 +90,16 @@ export default function ArticleShowPage() {
     }
   }, [article?.content, loadingArticle]);
 
-  // 3. Increment views
+  // 3. Incrémenter les vues
   useEffect(() => {
-    if (article?.slug && !loadingArticle) {
-      api.post(`/articles/${article.slug}/view`).catch(() => {});
+    if (article && !loadingArticle) {
+      api.post(`/articles/${article.slug}/view`)
+        .catch((err) => console.error("Erreur increment vues:", err));
     }
-  }, [article?.slug, loadingArticle]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [article?._id, loadingArticle]);
 
-  const handleDelete = async () => {
+  async function handleDelete() {
     if (!slug || !window.confirm('Supprimer cet article ?')) return;
     try {
       await api.delete(`/articles/${slug}`);
@@ -116,9 +107,9 @@ export default function ArticleShowPage() {
     } catch (err) {
       alert("Erreur lors de la suppression");
     }
-  };
+  }
 
-  const handlePostComment = async (e: React.FormEvent) => {
+  async function handlePostComment(e: React.FormEvent) {
     e.preventDefault();
     if (!commentBody.trim() || !slug) return;
     setIsSubmitting(true);
@@ -126,51 +117,73 @@ export default function ArticleShowPage() {
       const res = await api.post('/comments', { articleSlug: slug, content: commentBody });
       setComments((prev) => [res.data, ...prev]);
       setCommentBody('');
-    } catch (err) {
-      alert("Erreur lors de l'envoi");
+    } catch (err: any) {
+      alert("Erreur lors de l'envoi du commentaire");
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }
 
-  if (error) return <div className="error-container">⚠️ {error}</div>;
+  async function handleDeleteComment(commentId: string) {
+    if (!window.confirm("Supprimer ce commentaire ?")) return;
+    try {
+      await api.delete(`/comments/${commentId}`);
+      setComments((prev) => prev.filter(c => c._id !== commentId));
+    } catch (err) {
+      alert("Impossible de supprimer le commentaire");
+    }
+  }
+
+  if (error) return <div className="error-msg">⚠️ {error}</div>;
+
+  const fullImageUrl = article?.imageUrl 
+      ? (article.imageUrl.startsWith('http') 
+          ? article.imageUrl 
+          : `${R2_PUBLIC_URL}${article.imageUrl.startsWith('/') ? '' : '/'}${article.imageUrl}`)
+      : null;
 
   return (
     <div className="article-detail-page page-transition fade-in-page">
       <Helmet>
         <title>{loadingArticle ? 'Chargement...' : `${article?.title} | DevOpsNotes`}</title>
-        <meta name="description" content={article?.excerpt || "Article technique DevOps"} />
+        <link rel="canonical" href={`https://blog.devopsnotes.org/articles/${article?.slug}`} />
+        <meta name="description" content={article?.excerpt || "Chargement de l'article..."} />
       </Helmet>
 
       <header className="detail-nav">
-        <Link to="/articles" className="btn btn-secondary btn-sm">← Retour</Link>
+        <Link to="/articles" className="btn btn-secondary btn-sm">← Retour aux articles</Link>
         {isAdmin && article && !loadingArticle && (
           <div className="admin-quick-actions">
             <Link to={`/articles/${article.slug}/edit`} className="btn btn-primary btn-sm">Modifier</Link>
-            <button onClick={handleDelete} className="btn btn-danger btn-sm">Supprimer</button>
+            <button aria-label="Supprimer l'article" onClick={handleDelete} className="btn btn-danger btn-sm">Supprimer</button>
           </div>
         )}
       </header>
 
       <article className="article-detail-container">
         {loadingArticle ? (
+          /* ===== SQUELETTE DE CHARGEMENT ===== */
           <div className="article-skeleton">
-            <div className="skeleton-loader hero-skeleton" />
+            <div className="skeleton-loader hero-skeleton"></div>
             <div className="skeleton-content-padding">
-              <div className="skeleton-loader title-skeleton" />
-              <div className="skeleton-loader text-line" />
+              <div className="skeleton-loader title-skeleton"></div>
+              <div className="skeleton-loader tag-skeleton"></div>
+              <div className="skeleton-loader text-line"></div>
+              <div className="skeleton-loader text-line"></div>
+              <div className="skeleton-loader text-line" style={{ width: '60%' }}></div>
             </div>
           </div>
         ) : article ? (
+          /* ===== CONTENU RÉEL DE L'ARTICLE ===== */
           <>
-            {article.imageUrl && (
+            {fullImageUrl && (
               <div className="article-hero-image">
-                <img src={getFullImageUrl(article.imageUrl)!} alt={article.title} />
+                <img src={fullImageUrl} alt={article.title} />
               </div>
             )}
 
             <div className="article-header-meta">
-              <h1 className="article-detail-title brand-bold">{article.title}</h1>
+              <h1 className="article-detail-title">{article.title}</h1>
               <div className="article-tags">
                 {article.tags?.map(tag => <span key={tag} className="tag-pill">#{tag}</span>)}
               </div>
@@ -185,21 +198,24 @@ export default function ArticleShowPage() {
 
             <section className="comments-section">
               <h3 className="section-title">Discussion ({comments.length})</h3>
+              
               {user ? (
                 <form onSubmit={handlePostComment} className="comment-box">
                   <textarea
                     value={commentBody}
                     onChange={(e) => setCommentBody(e.target.value)}
-                    placeholder="Un avis technique ?"
+                    placeholder="Un avis ? Une question technique ?"
                     required
                   />
-                  <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                    {isSubmitting ? 'Envoi...' : 'Publier'}
-                  </button>
+                  <div className="comment-actions">
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                      {isSubmitting ? 'Envoi...' : 'Publier le commentaire'}
+                    </button>
+                  </div>
                 </form>
               ) : (
                 <div className="login-prompt">
-                  <Link to="/login">Connectez-vous</Link> pour commenter.
+                  <Link to="/login">Connectez-vous</Link> pour participer à la discussion.
                 </div>
               )}
 
@@ -207,8 +223,17 @@ export default function ArticleShowPage() {
                 {comments.map((c) => (
                   <div key={c._id} className="comment-card">
                     <div className="comment-header">
-                      <span className="comment-author brand-bold">{c.author?.pseudo}</span>
-                      <span className="comment-date">{new Date(c.createdAt).toLocaleDateString()}</span>
+                      <span className="comment-author">{c.author?.pseudo || "Anonymous"}</span>
+                      <div className="comment-meta-right">
+                        <span className="comment-date">
+                          {new Date(c.createdAt).toLocaleDateString('fr-FR')}
+                        </span>
+                        {(isAdmin || (user && (c.author as any)?._id === user.id)) && (
+                          <button onClick={() => handleDeleteComment(c._id)} className="btn-delete-comment">
+                            <span role="img" aria-label="Supprimer">🗑️</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <p className="comment-text">{c.content}</p>
                   </div>
@@ -216,9 +241,15 @@ export default function ArticleShowPage() {
               </div>
             </section>
 
-            {!loadingAllArticles && <RelatedArticles currentArticle={article} allArticles={allArticles} />}
+            {!loadingAllArticles && allArticles.length > 0 && (
+              <div className="related-articles-footer">
+                <RelatedArticles currentArticle={article} allArticles={allArticles} />
+              </div>
+            )}
           </>
-        ) : null}
+        ) : (
+          <div className="error-msg" style={{ padding: '2rem' }}>Article introuvable.</div>
+        )}
       </article>
     </div>
   );

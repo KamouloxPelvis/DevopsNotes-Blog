@@ -13,7 +13,7 @@ import HomePage from './pages/HomePage';
 // --- Chargement DIFFÉRÉ (Lazy Loading) ---
 // On déplace tous les autres imports ici pour réduire le bundle initial
 const ArticlesPage = lazy(() => import('./pages/ArticlesPage').then(module => ({ default: module.ArticlesPage })));
-const ArticleDetail = lazy(() => import('./pages/ArticleDetailPage'));
+const ArticleShow = lazy(() => import('./pages/ArticleShowPage'));
 const NewArticle = lazy(() => import('./pages/ArticleNewPage'));
 const EditArticle = lazy(() => import('./pages/ArticleEditPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
@@ -42,7 +42,7 @@ function App() {
               
               {/* Articles */}
               <Route path="/articles" element={<ArticlesPage />} />
-              <Route path="/articles/:slug" element={<ArticleDetail />} />
+              <Route path="/articles/:slug" element={<ArticleShow />} />
               <Route 
                 path="/articles/new" 
                 element={<RequireAdminRoute><NewArticle /></RequireAdminRoute>} 
