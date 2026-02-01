@@ -178,7 +178,10 @@ export default function ArticleShow() {
           <>
             {fullImageUrl && (
               <div className="article-hero-image">
+              <>
                 <img src={fullImageUrl} alt={article.title} />
+                <span className="ai-badge-hero">Illustration générée par IA</span>
+              </>
               </div>
             )}
 

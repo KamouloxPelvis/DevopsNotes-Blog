@@ -232,18 +232,23 @@ export function ArticlesPage() {
             return (
               <div key={article._id} className="article-card-v2">
                 <div className="article-image-v2">
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl} 
-                      alt={article.title}
-                      loading={index === 0 ? 'eager' : 'lazy'}
-                    />
+                  <Link to={`/articles/${article.slug}`} className="image-link-wrapper">
+                    {imageUrl ? (
+                    <>
+                      <img
+                        src={imageUrl} 
+                        alt={article.title}
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                      />
+                        <span className="ai-badge-vignette">Illustration générée par IA</span>
+                    </>
                   ) : (
                     <div className="image-fallback">
                       <span className="fallback-logo">devopsnotes</span>
                     </div>
                   )}
-                </div>
+                </Link>
+              </div>
 
                 <div className="article-content-v2">
                   <h3 className="article-title-v2">

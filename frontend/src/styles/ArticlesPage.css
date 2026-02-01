@@ -455,6 +455,33 @@
   animation: loading-shimmer 1.5s infinite;
 }
 
+/* Mention IA sur les vignettes */
+.article-image-v2 {
+  position: relative; /* Indispensable pour placer le badge */
+}
+
+.ai-badge-vignette {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 0.5rem; /* Très petit comme demandé */
+  color: rgba(255, 255, 255, 0.8); /* Blanc doux */
+  background: rgba(0, 0, 0, 0.2); /* Fond très léger pour le contraste */
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none; /* Ne gêne pas le clic sur l'image */
+  backdrop-filter: blur(2px); /* Petit effet de verre */
+  z-index: 2;
+  text-transform: lowercase; /* Optionnel : pour un look minimaliste */
+  letter-spacing: 0.02em;
+}
+
+/* On s'assure que le badge ne zoome pas avec l'image au hover */
+.article-card-v2:hover .ai-badge-vignette {
+  transform: none; 
+  opacity: 1;
+}
+
 @keyframes loading-shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }

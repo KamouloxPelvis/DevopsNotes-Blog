@@ -454,3 +454,34 @@ background: linear-gradient(90deg, var(--bg-color) 25%, var(--toolbar-separator)
 background-size: 200% 100%;
 animation: loading-shimmer 1.5s infinite;
 }
+
+/* Badge IA pour la Hero Image */
+.article-hero-image {
+  position: relative; /* Indispensable pour le placement du badge */
+}
+
+.ai-badge-hero {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  font-size: 0.7rem; /* Un poil plus grand que sur les vignettes car l'image est large */
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 3px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  backdrop-filter: blur(3px);
+  z-index: 5;
+  text-transform: lowercase;
+  letter-spacing: 0.03em;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Adaptation mobile pour le badge hero */
+@media (max-width: 768px) {
+  .ai-badge-hero {
+    bottom: 8px;
+    left: 8px;
+    font-size: 0.6rem;
+  }
+}
