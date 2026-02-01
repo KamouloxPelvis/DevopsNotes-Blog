@@ -41,12 +41,15 @@ deploy_production:
     - chmod 700 ~/.ssh
     - ssh-keyscan -H 113.30.191.17 >> ~/.ssh/known_hosts
   script:
+    # 1. Synchronisation des manifests vers le nouveau dossier sur le VPS
+    - scp -r k8s/ kamal@113.30.191.17:~/infrastructure/apps/blog-devopsnotes/
+    # 2. Déploiement distant
     - |
       ssh kamal@113.30.191.17 "
-        cd ~/blog-devopsnotes &&
+        cd ~/infrastructure/apps/blog-devopsnotes &&
         export CI_REGISTRY_IMAGE='${REGISTRY_IMAGE}' &&
         
-        # Application des manifests K8S (Full Strict)
+        # Application des manifests K8S (Chemin mis à jour)
         envsubst < k8s/deployment.yaml | kubectl apply -f - &&
         kubectl apply -f k8s/blog-devopsnotes.yaml &&
         kubectl apply -f k8s/blog-ingress.yaml &&
