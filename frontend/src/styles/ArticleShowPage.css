@@ -1,0 +1,195 @@
+/* ============================================================
+  ARTICLE SHOW PAGE - STRUCTURE
+  ============================================================ */
+.article-detail-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Navigation & Admin Actions */
+.detail-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.admin-quick-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ============================================================
+  MAIN CONTAINER
+  ============================================================ */
+.article-detail-container {
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--toolbar-separator);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+/* Hero Image R2 Storage */
+.article-hero-image {
+  width: 100%;
+  height: clamp(250px, 45vh, 500px);
+  overflow: hidden;
+  background-color: var(--bg-color);
+  border-bottom: 1px solid var(--toolbar-separator);
+}
+
+.article-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+/* Header Meta Section */
+.article-header-meta {
+  padding: 3rem 3rem 1rem;
+}
+
+.article-detail-title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem); 
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--text-main);
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+/* Tags Style DevOpsNotes */
+.article-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.tag-pill {
+  background: var(--bg-color);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 50px;
+  border: 1px solid var(--toolbar-separator);
+  text-transform: lowercase;
+}
+
+/* ============================================================
+  BODY CONTENT (MARKDOWN RENDER)
+  ============================================================ */
+.article-body-content {
+  padding: 1rem 3rem 4rem;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: var(--text-main);
+}
+
+.article-body-content h2 {
+  font-size: 1.75rem; 
+  font-weight: 800;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-main);
+  border-bottom: 2px solid var(--primary); /* Ligne d'accentuation DevOps */
+  padding-bottom: 0.4rem;
+  width: fit-content;
+}
+
+.article-body-content p {
+  margin-bottom: 1.8rem;
+}
+
+/* Blocs de Code - Tokyo Night Theme */
+.article-body-content pre {
+  margin: 2.5rem 0;
+  border-radius: 12px;
+  background: #1a1b26 !important; 
+  border: 1px solid #2f334d;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.article-body-content pre code {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.95rem;
+  padding: 1.5rem;
+  display: block;
+}
+
+/* Bouton Copier (Injecté par JS) */
+.copy-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a9b1d6;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.article-body-content pre:hover .copy-button {
+  opacity: 1;
+}
+
+/* ============================================================
+  COMMENTS SECTION
+  ============================================================ */
+.comments-section {
+  padding: 3rem;
+  background: var(--bg-color);
+}
+
+.comment-card {
+  background: var(--card-bg);
+  border: 1px solid var(--toolbar-separator);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.btn-delete-comment {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.comment-card:hover .btn-delete-comment {
+  opacity: 1;
+}
+
+/* ============================================================
+  SKELETON & ANIMATIONS
+  ============================================================ */
+.skeleton-loader {
+  background: linear-gradient(90deg, var(--bg-color) 25%, var(--toolbar-separator) 50%, var(--bg-color) 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .article-header-meta, .article-body-content, .comments-section {
+    padding: 1.5rem;
+  }
+  .article-detail-title { font-size: 1.8rem; }
+}
