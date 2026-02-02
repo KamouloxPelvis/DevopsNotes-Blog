@@ -159,7 +159,7 @@ export function ArticlesPage() {
           <input
             type="text"
             className="articles-search"
-            placeholder="Rechercher une pépite..."
+            placeholder="Rechercher..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
