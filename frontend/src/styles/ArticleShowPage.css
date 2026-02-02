@@ -96,8 +96,8 @@
 }
 
 .article-detail-title {
-  font-size: clamp(1.6rem, 3vw, 2rem); 
-  font-weight: 900;
+  font-size: clamp(1.5rem, 3vw, 1.9rem); 
+  font-weight: 850;
   line-height: 1.2;
   color: var(--text-main);
   margin-bottom: 1.5rem;
@@ -134,19 +134,19 @@ color: var(--text-main);
 
 .article-body-content h2 {
 /* Réduit à 1.5rem pour bien marquer la hiérarchie avec le titre principal */
-font-size: 1.5rem; 
-font-weight: 750;
+font-size: 1.3rem; 
+font-weight: 700;
 color: var(--text-main);
-margin-top: 2.5rem;
+margin-top: 1.2rem;
 margin-bottom: 1.2rem;
 border-bottom: 1px solid var(--toolbar-separator);
 padding-bottom: 0.5rem;
 }
 
 .article-body-content h3 {
-font-size: 1.25rem;
-font-weight: 700;
-margin-top: 2rem;
+font-size: 1.1rem;
+font-weight: 650;
+margin-top: 1rem;
 margin-bottom: 1rem;
 }
 
@@ -192,7 +192,7 @@ margin-bottom: 1rem;
   display: block;
   padding: 1.5rem;
   font-family: 'Fira Code', 'Cascadia Code', monospace;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   line-height: 1.6;
   tab-size: 4;
   background: transparent !important;
@@ -204,7 +204,7 @@ margin-bottom: 1rem;
   color: var(--primary);
   padding: 0.2rem 0.4rem;
   border-radius: 6px;
-  font-size: 0.9em;
+  font-size: 0.8em;
   font-family: 'Fira Code', monospace;
   border: 1px solid var(--toolbar-separator);
 }
@@ -273,7 +273,7 @@ margin-bottom: 1rem;
 }
 
 .section-title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   margin-bottom: 2rem;
   color: var(--text-main);
@@ -321,7 +321,7 @@ margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.75rem;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .comment-author {
@@ -358,7 +358,7 @@ margin-bottom: 1rem;
   color: #fff;
   padding: 4px 10px;
   border-radius: 6px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   cursor: pointer;
   transition: all 0.2s;
   opacity: 0; /* Caché par défaut */
@@ -372,7 +372,7 @@ margin-bottom: 1rem;
 
 @media (max-width: 768px) {
   .article-detail-title{
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     padding: 0 0.5rem;
   }
 
