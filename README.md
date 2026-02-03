@@ -165,7 +165,19 @@ Pour garantir une visibilité maximale et une indexation en temps réel, le proj
     * Des balises **Open Graph** pour optimiser l'affichage lors des partages sur LinkedIn, Twitter, etc.
     * Des titres et descriptions uniques par article pour améliorer le taux de clic (CTR).
 
-### 3. Sécurité & DevOps
-* **Secret Management** : La clé privée du compte de service Google est injectée de manière sécurisée via les variables CI/CD de GitLab, évitant toute exposition dans le code source.
+## 🛡️ Observabilité & Sécurité (LGO Stack)
 
-Projet créé et maintenu par Kamal Guidadou.
+L'infrastructure intègre une suite de monitoring avancée basée sur **Prometheus** et **Grafana**, spécifiquement configurée pour la surveillance de la sécurité et du trafic réseau.
+
+### 📊 Dashboard de Surveillance du Trafic
+![Tableau de bord de sécurité Grafana](frontend/public/rd_screenshots/monitoring_ram.png)
+*Visualisation en temps réel de la santé des requêtes, de la détection de scans et de la conformité TLS.*
+
+### 🚀 Capacités d'Ingénierie implémentées :
+
+* **Détection d'Intrusions (IDS Visuel)** : Corrélation immédiate entre les pics d'erreurs HTTP (4xx/5xx) et les adresses IP sources via des requêtes PromQL complexes (`topk`, `rate`).
+* **Analyse Forensique** : Capacité d'isoler des comportements suspects, comme les scans de vulnérabilités (illustré ci-dessus par un pic de 1.4 req/s sur une IP unique).
+* **Gestion de la Conformité TLS** : Monitoring automatisé du cycle de vie des certificats via Ingress Nginx, avec visualisation du temps restant en pourcentage pour garantir un renouvellement proactif.
+* **Golden Signals** : Surveillance des 4 signaux d'or (Latence, Trafic, Erreurs, Saturation) pour assurer la haute disponibilité de `blog-devopsnotes`.
+
+![Monitoring avec Grafana](frontend/public/rd_screenshots/monitoring_securite.png)
