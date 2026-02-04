@@ -1,183 +1,309 @@
-🚀 DevOpsNotes : Blog Technique & Plateforme Community
+[ 🇫🇷 Français ](#version-francaise) | [ 🇺🇸 English ](#english-version)
 
-DevOpsNotes est une application Full-Stack moderne conçue pour démontrer la mise en œuvre d'une architecture Cloud-Native, sécurisée et entièrement automatisée.
+---
 
-Ce projet dépasse le simple cadre d'un blog pour explorer des problématiques réelles de production : Stockage S3-compatible, Pipeline CI/CD, Optimisation Web (Lighthouse) et Sécurité SSL/TLS.
+### 🇫🇷 Version Française<a name="version-francaise"></a>
+
+# 🚀 DevOpsNotes : Blog Technique & Plateforme Communautaire
+
+**DevOpsNotes** est une application Full-Stack moderne conçue pour démontrer la mise en œuvre d'une architecture Cloud-Native, sécurisée et entièrement orchestrée. Le choix du contenu de l'application (articles + forum + chat) est non seulement un exercice de style mais aussi la vocation d'en faire un réel blog communautaire.
+
 
 ![Interface site](frontend/public/rd_screenshots/articles_ui.png)
 
+
+> **Note:** Ce projet a migré d'une configuration Docker Compose vers un cluster **Kubernetes (k3s)** afin de valider des compétences avancées en orchestration, résilience et scalabilité.
+
+
 ![Interface : Technos utilisées](frontend/public/rd_screenshots/technos.png)
 
-🛠️ Stack Technique
 
-Frontend & Performance
-- Framework : React (TypeScript)
-- UI/UX : Design responsive, gestion dynamique des états de connexion.
-- Optimisation : Score Lighthouse de 100/100 en performance grâce au déchargement des médias vers un CDN.
+### 🏗️ Architecture Cloud-Native
 
-![Interface site](frontend/public/rd_screenshots/responsive.png)
+Le projet repose sur une approche **stateless** et **hybride**, garantissant une haute disponibilité pour l'ensemble des services (`blog-devopsnotes`, `portfolio-portal` et `app-devopsnotes`).
 
-Backend & API
-- Runtime : Node.js / Express avec TypeScript.
-- Auth : Authentification JWT, gestion des rôles (Admin/Membre), validation d'email via Resend.
-- Base de données : MongoDB Atlas (DaaS).
+* **Orchestration & Infrastructure** :
+    * **Cluster k3s** : Distribution Kubernetes légère pilotant le cycle de vie des pods sur un VPS Kamatera (Ubuntu Server).
 
-![API emails Resend](frontend/public/rd_screenshots/resend.png)
+![VPS Kamatera](frontend/public/rd_screenshots/vps_kamatera.png)
 
-Infrastructure & DevOps (Le cœur du projet)
-- Conteneurisation : Docker & Docker Compose (Builds multi-stage optimisés) vers VPS via :
-- CI/CD : Pipeline GitLab CI automatisé avec déploiement continu sur VPS (Kamatera).
-- Stockage Cloud (Object Storage) : Migration des uploads locaux vers Cloudflare R2 (S3-Compatible) avec Custom Domain.
+    * **Ingress Controller (Nginx)** : Utilisé à la place de Traefik pour un contrôle granulaire du routage, des réécritures d'URL et de la terminaison TLS.
+    * **Runtime** : Docker avec des builds multi-stage pour optimiser la sécurité et la taille des images.
+
+* **Gestion des Données (Architecture Stateless)** :
+    * **Persistance** : MongoDB Atlas (DaaS) pour une base de données managée et résiliente.
+    * **Stockage Objet** : Migration intégrale des médias vers **Cloudflare R2** (S3-Compatible), rendant les applications totalement indépendantes du stockage disque local.
+
+![Cloudflare R2 Stockage](frontend/public/rd_screenshots/r2_storage.png)
+
+* **Edge, Réseau & Sécurité** :
+    * **Flux de trafic** : Sécurisé via Cloudflare (TLS 1.3 + WAF).
+    * **Certificats** : Gestion automatisée des certificats SSL/TLS via Let's Encrypt directement au niveau du cluster.
 
 
 ![SSH Ubuntu (VPS)](frontend/public/rd_screenshots/ubuntu_ssh.png)
 
 
-![Variables CI-CD](frontend/public/rd_screenshots/vps_kamatera.png)
+### Développement & Données
+* **Frontend** : React (TypeScript), React-Helmet-Async.
+
+![Interface site](frontend/public/rd_screenshots/responsive.png)
+
+
+* **Backend** : Node.js / Express (TypeScript).
+* **Base de données** : MongoDB Atlas.
+* **Object Storage** : Cloudflare R2 (S3-Compatible).
+* **Communications** : API Resend (système de Double Opt-in).
+
+
+![API emails Resend](frontend/public/rd_screenshots/resend.png)
+
+
+### CI/CD & Automatisation
+* **Plateforme** : GitLab CI.
+* **Workflow** : Builds automatisés, push vers registre de conteneurs et déploiement automatisé sur k3s via la clé `CI_CD_SSH_KEY`.
+
+![Variables CI-CD](frontend/public/rd_screenshots/ci-cd_variables.png)
+
+* **Stratégie** : Rolling updates pour des déploiements sans interruption de service (zero-downtime).
+
+### Télémétrie & SEO (Stack LGO)
+* **Error Tracking** : Sentry.io (Full-stack avec support des Source Maps).
+
+![Transactions vues par Sentry, 0 erreurs](frontend/public/rd_screenshots/sentry.png)
+
+* **Web Analytics** : Umami (Respect de la vie privée & auto-hébergé).
+
+![Retour données de trafic par Umami](frontend/public/rd_screenshots/umami.png)
+
+* **SEO Avancé** : Google Indexing API pour une indexation des articles en temps réel.
+
+![Google Cloud : Indexing API](frontend/public/rd_screenshots/gcloud_indexing_api.png)
+
+* **Benchmark Performances et SEO** : Google LightHouse.
+
+![Performances sur Lighthouse](frontend/public/rd_screenshots/lighthouse.png)
+
+### 🛡️ Monitoring & Sécurité
+L'infrastructure intègre une suite de monitoring native à l'écosystème Kubernetes pour un contrôle total de la production.
+
+**Monitoring** : Prometheus & Grafana :
+* **Stack LGO** : Surveillance en temps réel des ressources du cluster et des "4 Golden Signals".
+
+![Monitoring avec Grafana](frontend/public/rd_screenshots/monitoring_securite.png)
+
+* **Analyse Forensique** : Détection d'intrusions et scan de vulnérabilités via l'analyse des logs de l'Ingress Nginx.
+* **Fiabilité** : Routes de healthcheck automatisées (`/api/health`) et surveillance proactive du cycle de vie des certificats SSL.
+
+## 🔧 Installation & Configuration Locale
+
+
+```bash
+git clone [https://gitlab.com/kamal/blog-devopsnotes.git](https://gitlab.com/kamal/blog-devopsnotes.git)
+cd blog-devopsnotes
+
+# 1. Installation de l'Ingress Controller Nginx
+kubectl apply -f [https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml](https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml)
+
+# 2. Création du Namespace dédié
+kubectl create namespace devopsnotes-prod
+
+# 3. Configuration des Secrets (Base de données, R2, Resend)
+
+# Important : Ne poussez jamais vos fichiers .env. Créez le secret Kubernetes ainsi :
+kubectl create secret generic app-secrets \
+  --from-env-file=./backend/.env \
+  -n devopsnotes-prod
+
+# Application des manifests dans l'ordre (Config -> App -> Ingress)
+kubectl apply -f ./k8s/deployments/ -n devopsnotes-prod
+kubectl apply -f ./k8s/services/ -n devopsnotes-prod
+kubectl apply -f ./k8s/ingress-nginx.yaml -n devopsnotes-prod
+
+
+# Vérifier que tous les pods sont en état 'Running'
+kubectl get pods -n devopsnotes-prod
+
+# Récupérer l'adresse IP de l'Ingress
+kubectl get ingress -n devopsnotes-prod
+```
+
+### 🎓 Compétences Validées
+
+* **Orchestration Avancée** : Déploiement et gestion de cluster k3s avec Nginx Ingress.
+* **Architecture Stateless** : Découplage du stockage (S3/R2) et de la donnée (DaaS).
+* **Industrialisation** : Pipeline CI/CD complet vers un environnement Kubernetes.
+* **Observabilité** : Mise en place d'une télémétrie avancée pour le monitoring et la sécurité.
+
+
+Site et projet créés par Kamal Guidadou
+
+Contact : [https://linkedin.com/in/-kamal.guidadou / 
+Portfolio: https://portfolio.devopsnotes.org]
+
+
+----------------------------------------------------------------------------------
+
+### 🇺🇸 English Version <a name="english-version"></a> 
+
+# 🚀 DevOpsNotes: Technical Blog & Community Platform
+
+**DevOpsNotes** is a modern Full-Stack application designed to demonstrate the implementation of a Cloud-Native, secure, and fully orchestrated architecture. The choice of application content (articles + forum + chat) is not only a technical exercise but also aims to serve as a genuine community blog.
+
+> **Note:** This project has migrated from a Docker Compose configuration to a **Kubernetes (k3s)** cluster to validate advanced skills in orchestration, resilience, and scalability."
+
+![Interface site](frontend/public/rd_screenshots/articles_ui.png)
+
+### 🏗️ Cloud-Native Architecture & Technical Stack
+
+The project follows a **stateless** and **hybrid** approach, ensuring high availability for all services: `blog-devopsnotes`, `portfolio-portal`, and `app-devopsnotes`.
+
+* **Orchestration & Infrastructure**:
+    * **k3s Cluster**: Lightweight Kubernetes distribution managing the pod lifecycle on a Kamatera VPS (Ubuntu Server).
+
+
+![VPS Kamatera](frontend/public/rd_screenshots/vps_kamatera.png)
+
+
+    * **Ingress Controller (Nginx)**: Implemented instead of Traefik for granular routing control, URL rewrites, and TLS termination.
+    * **Runtime**: Docker with multi-stage builds to optimize security and image size.
+
+* **Data Management (Stateless Architecture)**:
+    * **Persistence**: MongoDB Atlas (DaaS) for a managed and resilient database.
+    * **Object Storage**: Full media migration to **Cloudflare R2** (S3-Compatible), making the applications completely independent of local disk storage.
+
+![Cloudflare R2 Stockage](frontend/public/rd_screenshots/r2_storage.png)
+
+* **Edge, Networking & Security**:
+    * **Traffic Flow**: Secured via Cloudflare (TLS 1.3 + WAF).
+    * **Certificates**: Automated SSL/TLS certificate management via Let's Encrypt at the cluster level.
+
+![SSH Ubuntu (VPS)](frontend/public/rd_screenshots/ubuntu_ssh.png)
+
+### 2. Development & Data
+* **Frontend:** React (TypeScript), React-Helmet-Async.
+
+![Interface site](frontend/public/rd_screenshots/responsive.png)
+
+
+* **Backend:** Node.js / Express (TypeScript).
+* **Database:** MongoDB Atlas.
+* **Object Storage:** Cloudflare R2 (S3-Compatible).
+* **Communications:** Resend API (Double Opt-in system).
+
+
+![API emails Resend](frontend/public/rd_screenshots/resend.png)
+
+
+### 3. CI/CD & Automation
+* **Platform:** GitLab CI.
+* **Workflow:** Automated builds, container registry push, and automated deployment to k3s using the CI_CD_SSH_KEY.
+
+![Variables CI-CD](frontend/public/rd_screenshots/ci-cd_variables.png)
+
+* **Strategy:** Rolling updates for zero-downtime deployments.
 
 
 ![Pipelines Gitlab](frontend/public/rd_screenshots/pipelines.png)
 
 
-Réseau & Sécurité :
-- Reverse Proxy Nginx.
-- Certificats SSL/TLS via Let's Encrypt.
-- Protection & DNS : Cloudflare (Mode Full Strict).
-- Gestion du cache via Cloudflare Cache Rules.
-
-🏗️ Architecture & Flux de Données
-
-1. Client → Requête via HTTPS (TLS 1.3) → Cloudflare.
-
-2. Cloudflare → Gère le cache des images et redirige le trafic vers le VPS.
-
-3. VPS (Nginx) → Dispatch le trafic vers les containers Frontend ou Backend.
-
-4. Backend →
-
-  - Interagit avec MongoDB Atlas pour les données.
-  - Utilise Resend pour les emails transactionnels (vérification de compte).
-  - Communique avec Cloudflare R2 pour uploader/servir les médias.
-
-
-![Cloudflare R2 Stockage](frontend/public/rd_screenshots/r2_storage.png)
-
-
-🔧 Fonctionnalités Avancées
-
-- Système de Forum & Interaction : Création de fils de discussion, réponses, et profils membres avec avatars.
-- Sécurité Anti-Bot : Validation stricte des comptes par email (Double Opt-in).
-- Stockage Déporté (Stateless) : L'application est désormais "stateless". Les images ne sont plus stockées sur le disque du serveur mais sur un bucket R2, permettant une scalabilité horizontale facilitée.
-- Supervision : Route de healthcheck (/api/health) intégrée.
-
-📈 DevOps : Automatisation & Qualité
-
-  - Pipeline CI/CD (GitLab)
-Le projet intègre un pipeline complet défini dans .gitlab-ci.yml :
-
-  - Build : Vérification de la compilation TypeScript.
-  - Deploy : Déploiement automatique par SSH sur le VPS, mise à jour des images Docker et redémarrage des services sans interruption de service (Zero-downtime-like).
-
-- Web Performance & CDN
-L'utilisation d'un domaine personnalisé pour R2 (resources.devopsnotes.org) permet :
-
-  - Une réduction drastique de la charge serveur (CPU/RAM).
-  - Une mise en cache agressive au niveau du Edge (serveurs Cloudflare au plus proche de l'utilisateur).
-  - Un gain de performance mesuré par Lighthouse (SEO-friendly).
-
-
-![Performances sur Lighthouse](frontend/public/rd_screenshots/lighthouse.png)
-
-
-- Observabilité au Build : Injection de SENTRY_AUTH_TOKEN lors de l'étape de construction Docker pour garantir la traçabilité des versions déployées.
-
-
-![Variables CI-CD](frontend/public/rd_screenshots/ci-cd_variables.png)
-
-
-🚀 Installation & Lancement (Local)
-
-1. Clonage du projet :
-
-Bash
-
-git clone https://gitlab.com/votre-repo/devopsnotes.git
-cd devopsnotes
-
-2. Configuration : Créez un fichier .env dans /backend et /frontend en vous basant sur les exemples fournis (incluant vos clés R2, Resend, et MongoDB).
-
-3. Lancement via Docker Compose :
-
-Bash
-
-docker compose up -d --build
-Accès :
-
-Frontend : http://localhost:3000
-
-API : http://localhost:5000/api
-
-🎓 Objectifs Pédagogiques Atteints
-
-- Maîtrise du cycle de vie complet d'un logiciel (SDLC).
-- Capacité à migrer une infrastructure locale vers une architecture hybride Cloud.
-- Mise en œuvre de bonnes pratiques de sécurité (Secrets, TLS, filtrage CORS).
-- Optimisation des ressources système et des performances frontend.
-
-### 📊 Observabilité & Télémétrie (MAJ DU 23 JANVIER 2026)
-Pour garantir la fiabilité et la performance en production, le projet intègre une stack de monitoring moderne :
-
-- **Error Tracking (Sentry)** : 
-  - Monitoring Full-Stack : Capture automatique des exceptions Backend (Express) et erreurs Runtime Frontend (React).
-  - **Gestion des Source Maps** : Pipeline CI/CD automatisé pour l'injection et l'upload des artifacts de débogage vers Sentry, permettant une lecture du code source original (TSX) sur les erreurs minifiées.
-  - **Performance Monitoring** : Suivi des transactions et profiling des ressources pour identifier les goulots d'étranglement.
-
+### 4. Telemetry & SEO (LGO Stack)
+* **Error Tracking:** Sentry.io (Full-stack with Source Maps support).
 
 ![Transactions vues par Sentry, 0 erreurs](frontend/public/rd_screenshots/sentry.png)
 
-
-- **Analytics Privacy-First (Umami)** : Suivi du trafic et de l'engagement utilisateur sans cookies, conforme RGPD et auto-hébergé pour une maîtrise totale des données.
-
+* **Web Analytics:** Umami (Privacy-first & Self-hosted).
 
 ![Retour données de trafic par Umami](frontend/public/rd_screenshots/umami.png)
 
-
-- **SEO & Indexation** : Génération dynamique de sitemaps XML via API pour assurer une visibilité maximale sur les moteurs de recherche.
-
-## 🚀 SEO & Visibility : Améliorations du SEO (25 janvier 2026)
-
-Pour garantir une visibilité maximale et une indexation en temps réel, le projet intègre une stratégie SEO avancée :
-
-### 1. Indexation Automatisée (Real-time)
-
-* **Google Indexing API** : Intégration d'un service backend (`googleIndexingService.ts`) qui notifie Google instantanément via un compte de service dès qu'un article est créé ou modifié. Cela réduit le temps d'indexation de plusieurs jours à quelques minutes.
-
+* **Advanced SEO:** Google Indexing API for real-time article indexing.
 
 ![Google Cloud : Indexing API](frontend/public/rd_screenshots/gcloud_indexing_api.png)
 
+* **Performance & SEO benchmark** Google LightHouse
 
-* **Architecture asynchrone** : Les notifications sont envoyées en arrière-plan pour ne pas impacter la performance de l'interface d'administration.
+![Performances sur Lighthouse](frontend/public/rd_screenshots/lighthouse.png)
 
-### 2. Structure & Métadonnées
-* **Sitemap Dynamique** : Génération automatisée d'un `sitemap.xml` propre au sous-domaine `blog.devopsnotes.org`.
-* **Gestion du Head (React 19)** : Utilisation de `react-helmet-async` pour l'injection dynamique :
-    * Des **balises canoniques** pour éviter le "duplicate content" entre le domaine racine et le sous-domaine.
-    * Des balises **Open Graph** pour optimiser l'affichage lors des partages sur LinkedIn, Twitter, etc.
-    * Des titres et descriptions uniques par article pour améliorer le taux de clic (CTR).
+### 5. 🛡️ Monitoring & Security
 
-## 🛡️ Observabilité & Sécurité (LGO Stack)
+The infrastructure integrates a monitoring suite native to the Kubernetes ecosystem for total production control.
 
-L'infrastructure intègre une suite de monitoring avancée basée sur **Prometheus** et **Grafana**, spécifiquement configurée pour la surveillance de la sécurité et du trafic réseau.
-
-### 📊 Dashboard de Surveillance du Trafic
-![Tableau de bord de sécurité Grafana](frontend/public/rd_screenshots/monitoring_ram.png)
-*Visualisation en temps réel de la santé des requêtes, de la détection de scans et de la conformité TLS.*
-
-### 🚀 Capacités d'Ingénierie implémentées :
-
-* **Détection d'Intrusions (IDS Visuel)** : Corrélation immédiate entre les pics d'erreurs HTTP (4xx/5xx) et les adresses IP sources via des requêtes PromQL complexes (`topk`, `rate`).
-* **Analyse Forensique** : Capacité d'isoler des comportements suspects, comme les scans de vulnérabilités (illustré ci-dessus par un pic de 1.4 req/s sur une IP unique).
-* **Gestion de la Conformité TLS** : Monitoring automatisé du cycle de vie des certificats via Ingress Nginx, avec visualisation du temps restant en pourcentage pour garantir un renouvellement proactif.
-* **Golden Signals** : Surveillance des 4 signaux d'or (Latence, Trafic, Erreurs, Saturation) pour assurer la haute disponibilité de `blog-devopsnotes`.
+**Monitoring** : Prometheus & Grafana :
+* **LGO Stack:** Real-time monitoring of cluster resources and the "4 Golden Signals".
 
 ![Monitoring avec Grafana](frontend/public/rd_screenshots/monitoring_securite.png)
+
+* **Forensic Analysis:** Intrusion detection and vulnerability scanning through Nginx Ingress log analysis.
+* **Reliability:** Automated healthcheck routes (/api/health) and proactive SSL certificate lifecycle monitoring.
+
+## 🔧 Local Installation & Configuration
+
+```bash
+# Clone the repository
+git clone [https://gitlab.com/kamal/blog-devopsnotes.git](https://gitlab.com/kamal/blog-devopsnotes.git)
+cd blog-devopsnotes
+
+# 1. Install Nginx Ingress Controller
+kubectl apply -f [https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml](https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml)
+
+# 2. Create the dedicated Namespace
+kubectl create namespace devopsnotes-prod
+
+# 3. Configure Secrets (Database, R2, Resend)
+# Important: Never push your .env files. Create the Kubernetes secret as follows:
+kubectl create secret generic app-secrets \
+  --from-env-file=./backend/.env \
+  -n devopsnotes-prod
+
+# 4. Deploy manifests in order (Config -> App -> Ingress)
+kubectl apply -f ./k8s/deployments/ -n devopsnotes-prod
+kubectl apply -f ./k8s/services/ -n devopsnotes-prod
+kubectl apply -f ./k8s/ingress-nginx.yaml -n devopsnotes-prod
+
+# 5. Verify that all pods are in 'Running' state
+kubectl get pods -n devopsnotes-prod
+
+# 6. Retrieve the Ingress IP address
+kubectl get ingress -n devopsnotes-prod
+```
+
+## 🎓 Validated Engineering Skills
+
+* **Advanced Orchestration:** Deploying and managing a k3s cluster with Nginx Ingress.
+* **Stateless Architecture:** Total decoupling of storage (S3/R2) and data (DaaS).
+* **Industrialization:** Complete CI/CD pipeline targeting a Kubernetes environment.
+* **Performance:** Achieving a 100/100 Lighthouse score through CDN offloading and Sharp image optimization.
+
+
+Created by **Kamal Guidadou**
+
+**Contact:** [https://linkedin/in/kamal-guidadou / 
+https://portfolio.devopsnotes.org]
+
+----------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
