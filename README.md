@@ -1,8 +1,8 @@
 [ 🇫🇷 Français ](#version-francaise) | [ 🇺🇸 English ](#english-version)
 
 ---
-
-### 🇫🇷 Version Française<a name="version-francaise"></a>
+<a name="version-francaise"></a>
+🇫🇷 Version Française
 
 # 🚀 DevOpsNotes : Blog Technique & Plateforme Communautaire
 
@@ -41,7 +41,7 @@ Le projet repose sur une approche **stateless** et **hybride**, garantissant une
     * **Certificats** : Gestion automatisée des certificats SSL/TLS via Let's Encrypt directement au niveau du cluster.
 
 
-![SSH Ubuntu (VPS)](frontend/public/rd_screenshots/ubuntu_ssh.png)
+![SSH Ubuntu (VPS)](frontend/public/rd_screenshots/capture_certif.png)
 
 
 ### Développement & Données
@@ -143,8 +143,8 @@ Portfolio: https://portfolio.devopsnotes.org]
 
 
 ----------------------------------------------------------------------------------
-
-### 🇺🇸 English Version <a name="english-version"></a> 
+<a name="english-version"></a>
+🇺🇸 English Version 
 
 # 🚀 DevOpsNotes: Technical Blog & Community Platform
 
@@ -178,7 +178,7 @@ The project follows a **stateless** and **hybrid** approach, ensuring high avail
     * **Traffic Flow**: Secured via Cloudflare (TLS 1.3 + WAF).
     * **Certificates**: Automated SSL/TLS certificate management via Let's Encrypt at the cluster level.
 
-![SSH Ubuntu (VPS)](frontend/public/rd_screenshots/ubuntu_ssh.png)
+![SSH Ubuntu (VPS)](frontend/public/rd_screenshots/capture_certif.png)
 
 ### 2. Development & Data
 * **Frontend:** React (TypeScript), React-Helmet-Async.
