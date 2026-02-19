@@ -1,98 +1,75 @@
-[ 🇫🇷 Français ](#version-francaise) | [ 🇺🇸 English ](#english-version)
-
----
-<a name="version-francaise"></a>
-🇫🇷 Version Française
-
 # 🚀 DevOpsNotes : Blog Technique & Plateforme Communautaire
 
-**DevOpsNotes** est une application Full-Stack moderne conçue pour démontrer la mise en œuvre d'une architecture Cloud-Native, sécurisée et entièrement orchestrée. Le choix du contenu de l'application (articles + forum + chat) est non seulement un exercice de style mais aussi la vocation d'en faire un réel blog communautaire.
+[ 🇫🇷 Version Française ](#-version-française) | [ 🇺🇸 English Version ](#-english-version)
 
+---
+
+## 🇫🇷 Version Française
+
+### 📑 Sommaire
+* [Architecture Cloud-Native](#-architecture-cloud-native)
+* [Développement & Données](#-développement--données)
+* [CI/CD & Automatisation](#-cicd--automatisation)
+* [Télémétrie & SEO](#-télémétrie--seo)
+* [Monitoring & Sécurité](#-monitoring--sécurité)
+* [Installation Locale](#-installation--configuration-locale)
+* [Compétences Validées](#-compétences-validées)
+
+**DevOpsNotes** est une application Full-Stack "Cloud-Native" conçue pour illustrer les standards modernes du DevOps et de la SecOps orchestré par Kubernetes. Ce projet est un laboratoire d'architecture évolutive et automatisée, monitoré par Grafana et observé avec Sentry.
 
 ![Interface site](frontend/public/rd_screenshots/articles_ui.png)
 
-
 > **Note:** Ce projet a migré d'une configuration Docker Compose vers un cluster **Kubernetes (k3s)** afin de valider des compétences avancées en orchestration, résilience et scalabilité.
-
 
 ![Interface : Technos utilisées](frontend/public/rd_screenshots/technos.png)
 
-
 ### 🏗️ Architecture Cloud-Native
-
 Le projet repose sur une approche **stateless** et **hybride**, garantissant une haute disponibilité pour l'ensemble des services (`blog-devopsnotes`, `portfolio-portal` et `app-devopsnotes`).
 
 * **Orchestration & Infrastructure** :
-    * **Cluster k3s** : Distribution Kubernetes légère pilotant le cycle de vie des pods sur un VPS Kamatera (Ubuntu Server).
+    * **Cluster k3s** : Distribution Kubernetes légère sur VPS Kamatera (Ubuntu Server).
+    ![VPS Kamatera](frontend/public/rd_screenshots/vps_kamatera.png)
+    * **Ingress Controller (Nginx)** : Contrôle granulaire du routage et terminaison TLS.
+    * **Runtime** : Docker avec builds multi-stage.
 
-![VPS Kamatera](frontend/public/rd_screenshots/vps_kamatera.png)
+* **Gestion des Données** :
+    * **Persistance** : MongoDB Atlas (DaaS).
+    * **Stockage Objet** : Migration intégrale vers **Cloudflare R2** (S3-Compatible).
+    ![Cloudflare R2 Stockage](frontend/public/rd_screenshots/r2_storage.png)
 
-    * **Ingress Controller (Nginx)** : Utilisé à la place de Traefik pour un contrôle granulaire du routage, des réécritures d'URL et de la terminaison TLS.
-    * **Runtime** : Docker avec des builds multi-stage pour optimiser la sécurité et la taille des images.
+* **Edge & Sécurité** :
+    * **Flux** : Sécurisé via Cloudflare (TLS 1.3 + WAF).
+    * **Certificats** : Automatisation via Let's Encrypt.
+    ![SSH Ubuntu (VPS)](frontend/public/rd_screenshots/capture_certif.png)
 
-* **Gestion des Données (Architecture Stateless)** :
-    * **Persistance** : MongoDB Atlas (DaaS) pour une base de données managée et résiliente.
-    * **Stockage Objet** : Migration intégrale des médias vers **Cloudflare R2** (S3-Compatible), rendant les applications totalement indépendantes du stockage disque local.
-
-![Cloudflare R2 Stockage](frontend/public/rd_screenshots/r2_storage.png)
-
-* **Edge, Réseau & Sécurité** :
-    * **Flux de trafic** : Sécurisé via Cloudflare (TLS 1.3 + WAF).
-    * **Certificats** : Gestion automatisée des certificats SSL/TLS via Let's Encrypt directement au niveau du cluster.
-
-
-![SSH Ubuntu (VPS)](frontend/public/rd_screenshots/capture_certif.png)
-
-
-### Développement & Données
+### 💻 Développement & Données
 * **Frontend** : React (TypeScript), React-Helmet-Async.
-
-![Interface site](frontend/public/rd_screenshots/responsive.png)
-
-
+    ![Interface site](frontend/public/rd_screenshots/responsive.png)
 * **Backend** : Node.js / Express (TypeScript).
-* **Base de données** : MongoDB Atlas.
-* **Object Storage** : Cloudflare R2 (S3-Compatible).
 * **Communications** : API Resend (système de Double Opt-in).
+    ![API emails Resend](frontend/public/rd_screenshots/resend.png)
 
-
-![API emails Resend](frontend/public/rd_screenshots/resend.png)
-
-
-### CI/CD & Automatisation
+### ⚙️ CI/CD & Automatisation
 * **Plateforme** : GitLab CI.
-* **Workflow** : Builds automatisés, push vers registre de conteneurs et déploiement automatisé sur k3s via la clé `CI_CD_SSH_KEY`.
+* **Workflow** : Builds auto, push registry et déploiement k3s via `CI_CD_SSH_KEY`.
+    ![Variables CI-CD](frontend/public/rd_screenshots/ci-cd_variables.png)
+* **Stratégie** : Rolling updates (zero-downtime).
 
-![Variables CI-CD](frontend/public/rd_screenshots/ci-cd_variables.png)
-
-* **Stratégie** : Rolling updates pour des déploiements sans interruption de service (zero-downtime).
-
-### Télémétrie & SEO (Stack LGO)
-* **Error Tracking** : Sentry.io (Full-stack avec support des Source Maps).
-
-![Transactions vues par Sentry, 0 erreurs](frontend/public/rd_screenshots/sentry.png)
-
-* **Web Analytics** : Umami (Respect de la vie privée & auto-hébergé).
-
-![Retour données de trafic par Umami](frontend/public/rd_screenshots/umami.png)
-
-* **SEO Avancé** : Google Indexing API pour une indexation des articles en temps réel.
-
-![Google Cloud : Indexing API](frontend/public/rd_screenshots/gcloud_indexing_api.png)
-
-* **Benchmark Performances et SEO** : Google LightHouse.
-
-![Performances sur Lighthouse](frontend/public/rd_screenshots/lighthouse.png)
+### 📈 Télémétrie & SEO (Stack LGO)
+* **Error Tracking** : Sentry.io.
+    ![Transactions vues par Sentry](frontend/public/rd_screenshots/sentry.png)
+* **Web Analytics** : Umami (Privacy-first).
+    ![Retour données de trafic par Umami](frontend/public/rd_screenshots/umami.png)
+* **SEO Avancé** : Google Indexing API en temps réel.
+    ![Google Cloud : Indexing API](frontend/public/rd_screenshots/gcloud_indexing_api.png)
+* **Benchmark** : Google LightHouse (Score 100/100).
+    ![Performances sur Lighthouse](frontend/public/rd_screenshots/lighthouse.png)
 
 ### 🛡️ Monitoring & Sécurité
-L'infrastructure intègre une suite de monitoring native à l'écosystème Kubernetes pour un contrôle total de la production.
-
 **Monitoring** : Prometheus & Grafana :
-* **Stack LGO** : Surveillance en temps réel des ressources du cluster et des "4 Golden Signals".
-
-![Monitoring avec Grafana](frontend/public/rd_screenshots/monitoring_securite.png)
-
-* **Analyse Forensique** : Détection d'intrusions et scan de vulnérabilités via l'analyse des logs de l'Ingress Nginx.
+* **Stack LGO** : Surveillance des "4 Golden Signals".
+    ![Monitoring avec Grafana](frontend/public/rd_screenshots/monitoring_securite.png)
+* **Analyse Forensique** : Détection d'intrusions via logs Ingress Nginx.
 * **Fiabilité** : Routes de healthcheck automatisées (`/api/health`) et surveillance proactive du cycle de vie des certificats SSL.
 
 ## 🔧 Installation & Configuration Locale
@@ -143,14 +120,24 @@ Portfolio: https://portfolio.devopsnotes.org]
 
 
 ----------------------------------------------------------------------------------
+
 <a name="english-version"></a>
 🇺🇸 English Version 
 
 # 🚀 DevOpsNotes: Technical Blog & Community Platform
 
-**DevOpsNotes** is a modern Full-Stack application designed to demonstrate the implementation of a Cloud-Native, secure, and fully orchestrated architecture. The choice of application content (articles + forum + chat) is not only a technical exercise but also aims to serve as a genuine community blog.
+### 📑 Summary
+* [🏗️ Cloud-Native Architecture](#%EF%B8%8F-cloud-native-architecture--technical-stack)
+* [💻 Development & Data](#2-development--data)
+* [⚙️ CI/CD & Automation](#3-cicd--automation)
+* [📈 Telemetry & SEO](#4-telemetry--seo-lgo-stack)
+* [🛡️ Monitoring & Security](#5-%EF%B8%8F-monitoring--security)
+* [🔧 Local Installation](#-local-installation--configuration)
+* [🎓 Validated Engineering Skills](#-validated-engineering-skills)
 
-> **Note:** This project has migrated from a Docker Compose configuration to a **Kubernetes (k3s)** cluster to validate advanced skills in orchestration, resilience, and scalability."
+**DevOpsNotes** is a 'Cloud-Native' Full-Stack application engineered to showcase modern DevOps and SecOps standards orchestrated by Kubernetes. This project serves as a laboratory for scalable and automated architectures, monitored through Grafana and observed with Sentry. It also functions as a community-driven blog and forum, providing a dedicated space for professionals to exchange insights on DevOps and Security subjects via integrated chat and discussion boards.
+
+> **Note:** This project has migrated from a Docker Compose configuration to a **Kubernetes (k3s)** cluster to validate advanced skills in orchestration, resilience, and scalability.
 
 ![Interface site](frontend/public/rd_screenshots/articles_ui.png)
 
@@ -161,9 +148,7 @@ The project follows a **stateless** and **hybrid** approach, ensuring high avail
 * **Orchestration & Infrastructure**:
     * **k3s Cluster**: Lightweight Kubernetes distribution managing the pod lifecycle on a Kamatera VPS (Ubuntu Server).
 
-
 ![VPS Kamatera](frontend/public/rd_screenshots/vps_kamatera.png)
-
 
     * **Ingress Controller (Nginx)**: Implemented instead of Traefik for granular routing control, URL rewrites, and TLS termination.
     * **Runtime**: Docker with multi-stage builds to optimize security and image size.
@@ -185,27 +170,22 @@ The project follows a **stateless** and **hybrid** approach, ensuring high avail
 
 ![Interface site](frontend/public/rd_screenshots/responsive.png)
 
-
 * **Backend:** Node.js / Express (TypeScript).
 * **Database:** MongoDB Atlas.
 * **Object Storage:** Cloudflare R2 (S3-Compatible).
 * **Communications:** Resend API (Double Opt-in system).
 
-
 ![API emails Resend](frontend/public/rd_screenshots/resend.png)
-
 
 ### 3. CI/CD & Automation
 * **Platform:** GitLab CI.
-* **Workflow:** Automated builds, container registry push, and automated deployment to k3s using the CI_CD_SSH_KEY.
+* **Workflow:** Automated builds, container registry push, and automated deployment to k3s using the `CI_CD_SSH_KEY`.
 
 ![Variables CI-CD](frontend/public/rd_screenshots/ci-cd_variables.png)
 
 * **Strategy:** Rolling updates for zero-downtime deployments.
 
-
 ![Pipelines Gitlab](frontend/public/rd_screenshots/pipelines.png)
-
 
 ### 4. Telemetry & SEO (LGO Stack)
 * **Error Tracking:** Sentry.io (Full-stack with Source Maps support).
@@ -220,21 +200,21 @@ The project follows a **stateless** and **hybrid** approach, ensuring high avail
 
 ![Google Cloud : Indexing API](frontend/public/rd_screenshots/gcloud_indexing_api.png)
 
-* **Performance & SEO benchmark** Google LightHouse
+* **Performance & SEO benchmark**: Google LightHouse.
 
 ![Performances sur Lighthouse](frontend/public/rd_screenshots/lighthouse.png)
 
-### 5. 🛡️ Monitoring & Security
+### 5. 🛡️ Monitoring & Security
 
 The infrastructure integrates a monitoring suite native to the Kubernetes ecosystem for total production control.
 
-**Monitoring** : Prometheus & Grafana :
+**Monitoring**: Prometheus & Grafana :
 * **LGO Stack:** Real-time monitoring of cluster resources and the "4 Golden Signals".
 
 ![Monitoring avec Grafana](frontend/public/rd_screenshots/monitoring_securite.png)
 
 * **Forensic Analysis:** Intrusion detection and vulnerability scanning through Nginx Ingress log analysis.
-* **Reliability:** Automated healthcheck routes (/api/health) and proactive SSL certificate lifecycle monitoring.
+* **Reliability:** Automated healthcheck routes (`/api/health`) and proactive SSL certificate lifecycle monitoring.
 
 ## 🔧 Local Installation & Configuration
 
@@ -279,31 +259,4 @@ Created by **Kamal Guidadou**
 
 **Contact:** [https://linkedin/in/kamal-guidadou / 
 https://portfolio.devopsnotes.org]
-
-----------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

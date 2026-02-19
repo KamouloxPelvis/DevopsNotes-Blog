@@ -22,6 +22,11 @@ spec:
         image: registry.gitlab.com/portfolio-kamal-guidadou/devopsnotes-blog/backend:latest
         ports:
         - containerPort: 5000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DEBUG
+          value: "app:*"
         envFrom:
         - secretRef:
             # S'assurer que le secret a bien été créé dans le namespace blog-prod
