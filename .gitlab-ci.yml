@@ -40,9 +40,13 @@ deploy_production:
     - chmod 700 ~/.ssh
     - ssh-keyscan -H 113.30.191.17 >> ~/.ssh/known_hosts
   script:
-    # 1. Synchronisation des manifests vers le nouveau dossier sur le VPS
+    # 1. Synchronisation des manifests
     - scp -r k8s/ kamal@113.30.191.17:~/infrastructure/apps/blog-devopsnotes/
-    # 2. Déploiement distant (Correction des droits K3s via KUBECONFIG)
+    
+    # 2. Copie sécurisée du fichier JSON Google depuis le Runner vers le VPS
+    - scp $GOOGLE_INDEXING_KEY kamal@113.30.191.17:~/infrastructure/apps/blog-devopsnotes/google-key.json
+    
+    # 3. Déploiement distant et mise à jour du Secret K8s
     - |
       ssh kamal@113.30.191.17 "
         export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
@@ -50,10 +54,17 @@ deploy_production:
         
         cd ~/infrastructure/apps/blog-devopsnotes/k8s &&
         
-        # Application des manifests avec substitution d'env
+        # Injection chirurgicale de la clé Google dans le secret existant
+        B64_KEY=\$(base64 -w 0 ../google-key.json)
+        kubectl patch secret blog-secrets -n blog-prod -p=\"{\\\"data\\\":{\\\"GOOGLE_INDEXING_KEY\\\": \\\"\$B64_KEY\\\"}}\" &&
+        
+        # Application des manifests
         envsubst < deployment.yaml | kubectl apply -f - &&
         kubectl apply -f blog-devopsnotes.yaml &&
         kubectl apply -f blog-ingress.yaml &&
+        
+        # Nettoyage du fichier sensible sur le VPS
+        rm ../google-key.json &&
         
         # Force le pull de la nouvelle image
         kubectl rollout restart deployment blog-devopsnotes-deployment -n blog-prod
