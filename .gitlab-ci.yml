@@ -25,7 +25,6 @@ build_images:
     - echo "$SENTRY_AUTH_TOKEN" > sentry_token.txt
     - DOCKER_BUILDKIT=1 docker build --no-cache --pull --secret id=SENTRY_AUTH_TOKEN,src=sentry_token.txt -t $REGISTRY_IMAGE/frontend:$TAG_LATEST ./frontend
     - rm sentry_token.txt
-
     - docker push $REGISTRY_IMAGE/frontend:$TAG_LATEST
     - docker image prune -f
 
@@ -43,16 +42,18 @@ deploy_production:
   script:
     # 1. Synchronisation des manifests vers le nouveau dossier sur le VPS
     - scp -r k8s/ kamal@113.30.191.17:~/infrastructure/apps/blog-devopsnotes/
-    # 2. Déploiement distant
+    # 2. Déploiement distant (Correction des droits K3s via KUBECONFIG)
     - |
       ssh kamal@113.30.191.17 "
-        cd ~/infrastructure/apps/blog-devopsnotes &&
-        export CI_REGISTRY_IMAGE='${REGISTRY_IMAGE}' &&
+        export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+        export CI_REGISTRY_IMAGE='${REGISTRY_IMAGE}'
         
-        # Application des manifests K8S (Chemin mis à jour)
-        envsubst < k8s/deployment.yaml | kubectl apply -f - &&
-        kubectl apply -f k8s/blog-devopsnotes.yaml &&
-        kubectl apply -f k8s/blog-ingress.yaml &&
+        cd ~/infrastructure/apps/blog-devopsnotes/k8s &&
+        
+        # Application des manifests avec substitution d'env
+        envsubst < deployment.yaml | kubectl apply -f - &&
+        kubectl apply -f blog-devopsnotes.yaml &&
+        kubectl apply -f blog-ingress.yaml &&
         
         # Force le pull de la nouvelle image
         kubectl rollout restart deployment blog-devopsnotes-deployment -n blog-prod
