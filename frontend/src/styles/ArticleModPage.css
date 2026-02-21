@@ -1,12 +1,37 @@
-/* Conteneur principal */
-.new-article-v2 {
-  background-color: #ffffff;
-  min-height: 100vh;
-  font-family: 'Inter', -apple-system, sans-serif;
+/* ============================================================
+   VARIABLES DE THÈME (Cohérence Globale)
+   ============================================================ */
+:root {
+  --bg-color: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --card-bg: #f8fafc;
+  --toolbar-separator: #e2e8f0;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --input-bg: #ffffff;
 }
 
-[data-theme='dark'] .new-article-v2 {
+[data-theme='dark'] {
+  --bg-color: #0f172a;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --card-bg: #1e293b;
+  --toolbar-separator: #334155;
+  --primary: #818cf8;
+  --primary-hover: #6366f1;
+  --input-bg: #1e293b;
+}
+
+/* ============================================================
+   CONTENEUR PRINCIPAL
+   ============================================================ */
+.new-article-v2 {
   background-color: var(--bg-color);
+  color: var(--text-main);
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, sans-serif;
+  transition: background-color 0.3s ease;
 }
 
 /* Header collant */
@@ -14,9 +39,9 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-color);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--toolbar-separator);
   padding: 0.75rem 0;
 }
 
@@ -30,18 +55,24 @@
 }
 
 .back-link {
-  color: #64748b;
+  color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   font-weight: 500;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: var(--primary);
 }
 
 /* Switcher Édition/Aperçu */
 .view-switcher {
   display: flex;
-  background: #f1f5f9;
+  background: var(--card-bg);
   padding: 0.25rem;
   border-radius: 8px;
+  border: 1px solid var(--toolbar-separator);
 }
 
 .view-switcher button {
@@ -49,16 +80,16 @@
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
   background: transparent;
   transition: all 0.2s;
 }
 
 .view-switcher button.active {
-  background: white;
-  color: #4f46e5;
+  background: var(--bg-color);
+  color: var(--primary);
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
@@ -70,25 +101,40 @@
 }
 
 .final-actions select {
-  border: 1px solid #e2e8f0;
+  background: var(--input-bg);
+  color: var(--text-main);
+  border: 1px solid var(--toolbar-separator);
   border-radius: 6px;
   padding: 0.4rem;
-  font-size: 0.85rem;
+  font-size: 0.65rem;
+  outline: none;
 }
 
 .btn-publish {
-  background: #4f46e5;
+  background: var(--primary);
   color: white;
   border: none;
   padding: 0.5rem 1.25rem;
   border-radius: 6px;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-/* Zone d'édition */
+.btn-publish:hover {
+  background: var(--primary-hover);
+}
+
+.btn-publish:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   ZONE D'ÉDITION
+   ============================================================ */
 .editor-content-area {
-  max-width: 800px;
+  max-width: 850px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
 }
@@ -96,43 +142,35 @@
 .edit-stack {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
-/* Toolbar */
-/* Toolbar Sticky et Design devopsnotes */
+/* Toolbar Sticky */
 .text-toolbar {
-  position: sticky;
-  top: 72px; /* Positionnée juste sous ton Header collant */
-  z-index: 90;
   display: flex;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--card-bg);
-  border: 1px solid var(--toolbar-separator);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 1.5rem;
+  flex-direction: row; /* Force l'alignement en ligne */
   align-items: center;
-  flex-wrap: wrap;
-}
-
-[data-theme='dark'] .text-toolbar {
-  background: #1e293b; /* Couleur sombre cohérente avec ton thème */
-  border-color: var(--toolbar-separator);
+  justify-content: flex-start; /* Aligne tout à gauche par défaut */
+  gap: 12px;
+  padding: 10px 16px;
+  flex-wrap: nowrap; /* Empêche l'entassement sur les petits écrans */
+  overflow-x: auto; /* Permet le défilement horizontal si l'écran est trop petit */
 }
 
 .toolbar-group {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 6px; /* Espace entre les boutons d'un même groupe */
+  flex-shrink: 0; /* Empêche les groupes de s'écraser */
 }
 
 .toolbar-btn {
+  width: 38px; 
+  height: 38px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
   background: transparent;
   color: var(--text-main);
   border: none;
@@ -153,29 +191,44 @@
   margin: 0 4px;
 }
 
+.toolbar-color-picker {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
 /* Section Meta (Image & Tags) */
 .meta-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  background: #f8fafc;
+  gap: 1.5rem;
+  background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 16px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--toolbar-separator);
 }
 
 .meta-section label {
   display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.5rem;
+  font-weight: 800;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
 }
 
-.upload-row {
-  display: flex;
-  gap: 0.5rem;
+.meta-section input {
+  width: 100%;
+  background: var(--input-bg);
+  color: var(--text-main);
+  border: 1px solid var(--toolbar-separator);
+  padding: 0.6rem;
+  border-radius: 8px;
+  outline: none;
 }
 
 .mini-preview {
@@ -184,50 +237,48 @@
   height: 120px;
   object-fit: cover;
   border-radius: 8px;
+  border: 1px solid var(--toolbar-separator);
 }
 
-/* Inputs principaux */
+/* Inputs de texte */
 .main-title-input {
   width: 100%;
-  font-size: 2.4rem; 
-  font-weight: 900;
+  font-size: 2.2rem; 
+  font-weight: 800;
   border: none;
   outline: none;
-  color: #1e293b;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  margin-bottom: 1rem;
-  background: transparent;
-}
-
-[data-theme='dark'] .main-title-input {
   color: var(--text-main);
+  background: transparent;
+  margin-top: 1rem;
+  line-height: 1.2;
 }
 
-.main-title-input::placeholder { color: #e2e8f0; }
-
-.toolbar-sticky {
-  position: sticky;
-  top: 70px;
-  background: white;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f1f5f9;
+.main-title-input::placeholder {
+  color: var(--toolbar-separator);
 }
 
 .main-textarea {
   width: 100%;
-  min-height: 600px;
-  border: none;
+  min-height: 500px;
+  border: 1px solid var(--toolbar-separator);
   outline: none;
-  font-size: 1.2rem;
-  font-family: 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
-  line-height: 1.6;
-  color: #334155;
-  background-color: #fafafa;
-  padding: 1rem;
+  font-size: 1rem;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  line-height: 1.7;
+  color: var(--text-main);
+  background-color: var(--bg-color);
+  padding: 1.5rem;
+  border-radius: 12px;
   resize: vertical;
 }
 
+.main-textarea:focus {
+  border-color: var(--primary);
+}
+
+/* ============================================================
+   APERÇU (PREVIEW)
+   ============================================================ */
 .full-preview {
   animation: fadeIn 0.3s ease-out;
   color: var(--text-main);
@@ -238,118 +289,77 @@
   width: 100%;
   max-height: 400px;
   object-fit: cover;
-  border-radius: 24px;
+  border-radius: 20px;
   margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .preview-title {
-  font-size: 2.4rem;
-  font-weight: 900;
-  line-height: 1.1;
+  font-size: 2.2rem;
+  font-weight: 800;
   margin-bottom: 1.5rem;
   color: var(--text-main);
 }
 
-.preview-body h2 {
-  font-size: 1.5rem;
-  font-weight: 750;
-  margin-top: 2.5rem;
-  margin-bottom: 1rem;
-  color: var(--text-main);
-  border-bottom: 1px solid var(--toolbar-separator);
-  padding-bottom: 0.4rem;
-} 
-
 .preview-tags {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-bottom: 2rem;
 }
 
 .preview-tags span {
-  color: #6366f1;
+  color: var(--primary);
   font-weight: 600;
+  font-size: 0.7rem;
 }
 
-.main-textarea {
-  font-family: 'Fira Code', 'Courier New', monospace; /* Meilleur pour le DevOps ! */
-  font-size: 1.1rem;
-  /* ... reste de ton code */
+.preview-body {
+  font-size: 1rem;
 }
 
-.full-preview p, .preview-card-clean p {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    line-height: 1.6;
+.preview-body h2 {
+  font-size: 1.55rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--toolbar-separator);
+  padding-bottom: 0.5rem;
 }
 
-.full-preview div[align] {
-    margin-bottom: 1rem;
+.preview-body p {
+  margin-bottom: 1.25rem;
+}
+
+/* Blocs de code dans la preview */
+.preview-body pre {
+  background: #1e293b;
+  color: #f8fafc;
+  padding: 1.25rem;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
 }
 
 /* ============================================================
-RESPONSIVE - COHÉRENCE AVEC LA PUBLICATION
-============================================================ */
-
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 768px) {
-  /* Ajustement de la zone de contenu pour mobile */
   .meta-section { grid-template-columns: 1fr; }
   
+  .main-title-input, .preview-title {
+    font-size: 1.6rem;
+  }
+
   .editor-content-area {
-    padding: 1rem 14px;
+    padding: 1rem;
   }
 
-  /* Le titre dans l'aperçu mobile */
-  .preview-title {
-    font-size: 1.5rem;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-    padding: 0 0.5rem;
-  }
-
-  /* L'input de titre en mode édition mobile */
-  .main-title-input {
-    font-size: 1.5rem;
-  }
-
-  /* Corps de l'aperçu mobile */
-  .full-preview {
-    font-size: 1rem; /* Cohérence avec le 1rem de la publication */
-    line-height: 1.75;
-  }
-
-  .preview-body h2 {
-    font-size: 1.3rem; /* Légèrement réduit pour mobile */
-    margin-top: 1.5rem;
-  }
-
-
-  /* Image de couverture en mode édition/aperçu mobile */
-  .cover-img {
-    border-radius: 12px;
-    max-height: 250px;
-    margin-bottom: 1.5rem;
-  }
-
-  /* Header de l'éditeur mobile */
-  .header-container {
-    padding: 0 1rem;
-  }
-
-  .view-switcher button {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.75rem;
-  }
-}
-
-/* --- Ajustements spécifiques pour les écrans très larges (Desktop) --- */
-@media (min-width: 1024px) {
-  .full-preview {
-    font-size: 1.1rem; /* Confort de lecture identique à la publication */
+  .text-toolbar {
+    top: 60px;
   }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }

@@ -9,7 +9,8 @@ import { Color } from '@tiptap/extension-color';
 import Image from '@tiptap/extension-image';  
 import ResizeImage from 'tiptap-extension-resize-image';
 import { useToast } from '../context/ToastContext';
-import styles from '../styles/Editor.module.css';
+
+// On n'importe plus le .module.css pour utiliser les classes globales du ArticleModPage.css
 
 interface EditorProps {
   value: string;
@@ -22,160 +23,137 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
 
   if (!editor) return null;
 
-  // Gestion de l'upload d'image vers Cloudflare R2 via API
-const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const formData = new FormData();
-  formData.append('file', file);
+    const formData = new FormData();
+    formData.append('file', file);
 
-  try {
-    const res = await api.post('/upload', formData);
-    const fileKey = res.data.imageUrl; // Récupère la clé
-    
-    // On reconstruit l'URL complète pour l'affichage dans l'éditeur
-    const publicUrl = "https://resources.devopsnotes.org";
-    const fullUrl = `${publicUrl}/${fileKey}`;
-    
-    console.log("Image insérée :", fullUrl);
-    editor?.chain().focus().setImage({ src: fullUrl }).run();
-  } catch (err) {
-    showToast("Erreur de transfert vers R2", 'error');
-  }
-};
+    try {
+      const res = await api.post('/upload', formData);
+      const fileKey = res.data.imageUrl;
+      const publicUrl = "https://resources.devopsnotes.org";
+      const fullUrl = `${publicUrl}/${fileKey}`;
+      
+      editor?.chain().focus().setImage({ src: fullUrl }).run();
+    } catch (err) {
+      showToast("Erreur de transfert vers R2", 'error');
+    }
+  };
 
   return (
-    <div className={styles.toolbar}>
-      {/* Group 1: Style de texte */}
-      <div className={styles.group}>
+    <div className="text-toolbar">
+      {/* Groupe 1 : Style */}
+      <div className="toolbar-group">
         <button
-          aria-label='Mettre le texte en gras'
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive('bold') ? styles.active : ''}
+          className={`toolbar-btn ${editor.isActive('bold') ? 'active' : ''}`}
           title="Gras"
         >
           <b>G</b>
         </button>
         <button
-          aria-label='Mettre le texte en italique'
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive('italic') ? styles.active : ''}
+          className={`toolbar-btn ${editor.isActive('italic') ? 'active' : ''}`}
           title="Italique"
         >
           <i>I</i>
         </button>
         <button
-          aria-label='Souligner le texte'
           type="button"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className={editor.isActive('underline') ? styles.active : ''}
+          className={`toolbar-btn ${editor.isActive('underline') ? 'active' : ''}`}
           title="Souligné"
         >
           <u>S</u>
         </button>
         <input
-          aria-label='Sélecteur de couleur de texte'
           type="color"
           onInput={(e) => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
-          value={editor.getAttributes('textStyle').color || '#ffffff'}
-          className={styles.colorPicker}
+          value={editor.getAttributes('textStyle').color || '#4f46e5'}
+          className="toolbar-color-picker"
           title="Couleur du texte"
         />
       </div>
 
-      <span className={styles.divider} />
+      <span className="toolbar-separator" />
 
-      {/* Group 2: Titres */}
-      <div className={styles.group}>
+      {/* Groupe 2 : Titres */}
+      <div className="toolbar-group">
         <button
-          aria-label='Titre de niveau 1'
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={editor.isActive('heading', { level: 1 }) ? styles.active : ''}
+          className={`toolbar-btn ${editor.isActive('heading', { level: 1 }) ? 'active' : ''}`}
         >
           H1
         </button>
         <button
-          aria-label='Titre de niveau 2'
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={editor.isActive('heading', { level: 2 }) ? styles.active : ''}
+          className={`toolbar-btn ${editor.isActive('heading', { level: 2 }) ? 'active' : ''}`}
         >
           H2
         </button>
         <button
-          aria-label='Titre de niveau 3'
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={editor.isActive('heading', { level: 3 }) ? styles.active : ''}
+          className={`toolbar-btn ${editor.isActive('heading', { level: 3 }) ? 'active' : ''}`}
         >
           H3
         </button>
       </div>
 
-      <span className={styles.divider} />
+      <span className="toolbar-separator" />
 
-      {/* Group 3: Alignement */}
-      <div className={styles.group}>
+      {/* Groupe 3 : Alignement */}
+      <div className="toolbar-group">
         <button
-          aria-label='Aligner le texte à gauche'
           type="button"
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
-          className={editor.isActive({ textAlign: 'left' }) ? styles.active : ''}
+          className={`toolbar-btn ${editor.isActive({ textAlign: 'left' }) ? 'active' : ''}`}
         >
           ⬅
         </button>
         <button
-          aria-label='Centrer le texte'
           type="button"
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
-          className={editor.isActive({ textAlign: 'center' }) ? styles.active : ''}
+          className={`toolbar-btn ${editor.isActive({ textAlign: 'center' }) ? 'active' : ''}`}
         >
           ↔
         </button>
         <button
-          aria-label='Aligner le texte à droite'
           type="button"
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
-          className={editor.isActive({ textAlign: 'right' }) ? styles.active : ''}
+          className={`toolbar-btn ${editor.isActive({ textAlign: 'right' }) ? 'active' : ''}`}
         >
           ➡
         </button>
-        <button
-          aria-label='Justifier le texte'
-          type="button"
-          onClick={() => editor.chain().focus().setTextAlign('justify').run()}
-          className={editor.isActive({ textAlign: 'justify' }) ? styles.active : ''}
-        >
-          ≡
-        </button>
       </div>
 
-      <span className={styles.divider} />
+      <span className="toolbar-separator" />
 
-      {/* Group 4: Blocs & Médias */}
-      <div className={styles.group}>
+      {/* Groupe 4 : Code & Image */}
+      <div className="toolbar-group">
         <button
-          aria-label='Insérer un bloc de code'
           type="button"
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          className={editor.isActive('codeBlock') ? styles.active : ''}
+          className={`toolbar-btn ${editor.isActive('codeBlock') ? 'active' : ''}`}
+          title="Code Block"
         >
           Code
         </button>
         <button
-          aria-label='Insérer une image'
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          title="Uploader une image vers R2"
+          className="toolbar-btn"
+          title="Uploader une image"
         >
-          🖼️ Image
+          🖼️
         </button>
         <input
-          aria-label='Choisir une image'
           type="file"
           ref={fileInputRef}
           onChange={handleFileUpload}
@@ -195,13 +173,9 @@ export default function TiptapEditor({ value, onChange }: EditorProps) {
       TextStyle,
       Color,
       Image.configure({
-        HTMLAttributes: {
-          class: 'editor-image',
-        },
+        HTMLAttributes: { class: 'editor-image' },
       }),
-      ResizeImage.configure({
-      // On peut ajouter des classes par défaut ici
-    }),
+      ResizeImage,
       TextAlign.configure({
         types: ['heading', 'paragraph', 'image'],
       }),
@@ -213,9 +187,9 @@ export default function TiptapEditor({ value, onChange }: EditorProps) {
   });
 
   return (
-    <div className={styles.editorWrapper}>
+    <div className="editor-wrapper-v2">
       <MenuBar editor={editor} />
-      <EditorContent editor={editor} className={styles.editorContent} />
+      <EditorContent editor={editor} className="main-textarea-tiptap" />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 import ArticleForm from '../components/ArticleForm';
+import '../styles/ArticleModPage.css'
 
 export default function ArticleEditPage() {
   const { slug } = useParams<{ slug: string }>();
