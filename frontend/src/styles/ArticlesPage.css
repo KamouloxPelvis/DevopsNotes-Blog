@@ -19,7 +19,7 @@
   font-size: 0.85rem;
   height: 38.19px;
   margin-left: 0.5rem;
-  white-space: nowrap; /* Évite que le texte des boutons casse */
+  white-space: nowrap;
 }
 
 .articles-search {

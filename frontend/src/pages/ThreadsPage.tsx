@@ -31,14 +31,14 @@ export default function ThreadsPage() {
     })();
   }, []);
 
-  const filteredThreads = threads.filter((t) => {
+  const filteredThreads = (Array.isArray(threads) ? threads : []).filter((t) => {
     const term = searchTerm.toLowerCase();
     return (
       t.title.toLowerCase().includes(term) ||
       t.content.toLowerCase().includes(term) ||
       (t.authorPseudo ?? '').toLowerCase().includes(term)
     );
-  });
+});
 
   return (
     /* Ajout de la classe fade-in-page pour l'animation d'entrée */
